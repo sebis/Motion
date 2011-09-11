@@ -17,6 +17,10 @@
   <ItemGroup>
     <ClInclude Include="include\ExampleApplication.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\solid.frag" />
+    <None Include="resources\solid.vert" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EB6F9E0B-E674-47A2-AAD4-93FD5424BE95}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

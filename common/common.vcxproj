@@ -12,13 +12,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GlutApplication.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\SDLApplication.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\GlutApplication.h" />
+    <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\SDLApplication.h" />
+    <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\Trace.h" />
+    <ClInclude Include="include\Utils.h" />
     <ClInclude Include="include\WindowParams.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

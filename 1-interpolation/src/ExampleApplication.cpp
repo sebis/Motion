@@ -2,6 +2,7 @@
 #include "Trace.h"
 
 #include <gl/glew.h>
+#include "glm/gtc/matrix_transform.hpp"
 
 ExampleApplication::ExampleApplication()
 	: m_rotation(0)
@@ -25,8 +26,26 @@ bool ExampleApplication::init(int argc, char * argv[])
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW);
 
-	Trace::info("Init..\n");
+	m_cube = MeshFactory::Cube(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m_shader = new Shader("resources/solid.vert", "resources/solid.frag");
+
+	m_shader->bindAttribLocation(0, "in_Position");
+	m_shader->bindAttribLocation(1, "in_Normal");
+	m_shader->bindAttribLocation(2, "in_Color");
+
+	m_shader->link();
+
+	m_shader->bind();
+	m_shader->setUniform("world", glm::mat4(1.0f));
+	m_shader->setUniform("view", glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+	m_shader->setUniform("projection", glm::perspective(45.0f, 800.0f/600.0f, 0.1f, 100.0f));
+	m_shader->setUniform("lightDirection", glm::vec3(1.0f, 0.5f, 0.25f));
+	m_shader->setUniform("eyePosition", glm::vec3(10.0f, 10.0f, 10.0f));
+	m_shader->unbind();
 
 	return true;
 }
@@ -44,7 +63,13 @@ void ExampleApplication::draw()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	glViewport(0, 0, 800, 600);
+	m_shader->bind();
+
+	m_cube.draw();
+
+	m_shader->unbind();
+
+	/*glViewport(0, 0, 800, 600);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -61,9 +86,6 @@ void ExampleApplication::draw()
 	glVertex2f(200.0f, 200.0f);
 	glVertex2f(100.0f, 200.0f);
 
-	glEnd();
+	glEnd();*/
 
-	GLenum err = glGetError();
-	if (err != GL_NO_ERROR)
-		Trace::error("OpenGL error: %s\n", glewGetErrorString(err));
 }

@@ -2,7 +2,6 @@
 #include "Trace.h"
 
 #include <gl/glew.h>
-#include <glm/glm.hpp>
 
 ExampleApplication::ExampleApplication()
 	: m_rotation(0)

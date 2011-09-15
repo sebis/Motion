@@ -8,6 +8,7 @@ namespace Interpolation
 	{
 	public:
 		virtual T interpolate(T first, T second, float t) = 0;
+		virtual void interpolate2(T& out, T first, T second, float t) = 0;
 	};
 
 	template<typename T>
@@ -15,6 +16,7 @@ namespace Interpolation
 	{
 	public:
 		T interpolate(T first, T second, float t);
+		void interpolate2(T& out, T first, T second, float t);
 	};
 };
 

@@ -9,7 +9,8 @@ using namespace Common;
 
 namespace Interpolation
 {
-	void TransformKeyframeAnimator::update(float dt)
+	/*template<typename T>
+	void KeyframeAnimator::update(float dt)
 	{
 		static float time = 0;
 
@@ -27,7 +28,9 @@ namespace Interpolation
 			
 			Trace::info("Interpolating with: %f {%f, %f} / %f\n", t, first.first, second.first, time);
 
-			m_gameObject->m_transform = m_interpolator->interpolate(first.second, second.second, t);
+			//m_gameObject->m_transform.m_position = m_interpolator->interpolate(first.second, second.second, t);
+			m_interpolator->interpolate2(m_result, first.second, second.second, t);
+
 
 		} catch ( ... )
 		{
@@ -35,5 +38,5 @@ namespace Interpolation
 		}
 
 		time += dt;
-	}
+	}*/
 };

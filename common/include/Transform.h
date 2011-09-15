@@ -45,8 +45,9 @@ namespace Common
 			m_position = glm::vec3(0.0f);
 		}
 
-	private:
 		glm::vec3 m_position;
+	private:
+		
 		glm::vec3 m_rotation;
 		glm::vec3 m_scale;
 

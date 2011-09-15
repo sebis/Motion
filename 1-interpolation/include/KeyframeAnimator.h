@@ -3,6 +3,7 @@
 
 #include "Animator.h"
 #include "Interpolator.h"
+#include "Trace.h"
 
 #include <algorithm>
 #include <map>
@@ -18,8 +19,8 @@ namespace Interpolation
 		typedef std::pair<const float, T> Keyframe;
 
 	public:
-		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator)
-			: Animator(gameObject), m_interpolator(interpolator) {};
+		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result)
+			: Animator(gameObject), m_interpolator(interpolator), m_result(result) {};
 
 		virtual ~KeyframeAnimator() {};
 
@@ -51,20 +52,42 @@ namespace Interpolation
 
 	private:
 		std::map<float, T> m_keyframes;
+		T& m_result;
 	};
 
+	typedef KeyframeAnimator<glm::vec3> LocationKeyframeAnimator;
 	typedef KeyframeAnimator<Common::Transform> TransformKeyframeAnimator;
 
-	/*class TransformKeyframeAnimator : public KeyframeAnimator<Common::Transform>
+	template<typename T>
+	void KeyframeAnimator<T>::update(float dt)
 	{
-	public:
-		TransformKeyframeAnimator(Common::GameObject * gameObject, Interpolator<Common::Transform> * interpolator)
-			: KeyframeAnimator<Common::Transform>(gameObject, interpolator)
+		static float time = 0;
+
+		try {
+			std::pair<Keyframe, Keyframe> bounds = getKeyframes(time);
+
+			Keyframe first = bounds.first;
+			Keyframe second = bounds.second;
+
+			float t;
+			if (first.first == second.first)
+				t = 1;
+			else
+				t = (time - first.first) / (second.first - first.first);
+			
+			Trace::info("Interpolating with: %f {%f, %f} / %f\n", t, first.first, second.first, time);
+
+			//m_gameObject->m_transform.m_position = m_interpolator->interpolate(first.second, second.second, t);
+			m_interpolator->interpolate2(m_result, first.second, second.second, t);
+
+
+		} catch ( ... )
 		{
+			Trace::warning("No key frames found\n");
 		}
 
-		void update(float dt);
-	};*/
+		time += dt;
+	}
 };
 
 #endif /* INTERPOLATION_KEYFRAME */

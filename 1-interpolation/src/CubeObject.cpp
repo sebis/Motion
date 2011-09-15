@@ -13,13 +13,16 @@ namespace Interpolation
 		m_mesh = MeshFactory::Cube(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		m_renderer = new MeshRenderer(this, m_mesh, shader);
 
-		LinearInterpolator<Transform> * interpolator = new LinearInterpolator<Transform>;
+		LinearInterpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
 
-		TransformKeyframeAnimator * animator = new TransformKeyframeAnimator(this, interpolator);
+		LocationKeyframeAnimator * animator = new LocationKeyframeAnimator(this, interpolator, m_transform.m_position);
 
-		animator->addKeyframe(0.0f, Transform::Translation(0.0f, 0.0f, 0.0f));
+		/*animator->addKeyframe(0.0f, Transform::Translation(0.0f, 0.0f, 0.0f));
 		animator->addKeyframe(4000.0f, Transform::Translation(0.0f, 0.0f, 5.0f));
-		animator->addKeyframe(8000.0f, Transform::Translation(5.0f, 0.0f, 5.0f));
+		animator->addKeyframe(8000.0f, Transform::Translation(5.0f, 0.0f, 5.0f));*/
+		animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+		animator->addKeyframe(4000.0f, glm::vec3(0.0f, 0.0f, 5.0f));
+		animator->addKeyframe(8000.0f, glm::vec3(5.0f, 0.0f, 5.0f));
 
 		m_animator = animator;
 	}

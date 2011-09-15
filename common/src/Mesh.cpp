@@ -3,11 +3,8 @@
 
 #include <gl/glew.h>
 
-void Mesh::init(Mesh::vertex vData[], size_t vSize, glm::uint iData[], size_t iSize)
+Mesh::Mesh(Mesh::vertex vData[], size_t vSize, glm::uint iData[], size_t iSize)
 {
-	GLuint vboID;
-	GLuint eboID;
-
 	// store number of drawable elements
 	m_count = iSize;
 
@@ -15,9 +12,9 @@ void Mesh::init(Mesh::vertex vData[], size_t vSize, glm::uint iData[], size_t iS
 	glGenVertexArrays(1, &m_vaoID);
 	glBindVertexArray(m_vaoID);
 
-	// generate, bind and fill one interleaved vertex buffer object with vertex data
-	glGenBuffers(1, &vboID);
-	glBindBuffer(GL_ARRAY_BUFFER, vboID);
+	// generate, bind and fill one interleaved vertex buffer object with all vertex attributes
+	glGenBuffers(1, &m_vboID);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
 	glBufferData(GL_ARRAY_BUFFER, vSize*sizeof(vertex), vData, GL_STATIC_DRAW);
 
 	// create vertex attribute pointers into our buffer data with correct strides and offsets
@@ -29,12 +26,27 @@ void Mesh::init(Mesh::vertex vData[], size_t vSize, glm::uint iData[], size_t iS
 	glEnableVertexAttribArray(2);
 
 	// create and fill index buffer
-	glGenBuffers(1, &eboID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
+	glGenBuffers(1, &m_eboID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboID);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize*sizeof(glm::uint), iData, GL_STATIC_DRAW);
 
 	// we're finished with the VAO so unbind it
 	glBindVertexArray(0);
+}
+
+Mesh::~Mesh()
+{
+	// make sure all buffers are unbound
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	// delete buffers
+	glDeleteBuffers(1, &m_eboID);
+	glDeleteBuffers(1, &m_vboID);
+
+	// same for VAO
+	glBindVertexArray(0);
+	glDeleteVertexArrays(1, &m_vaoID);
 }
 
 void Mesh::draw()

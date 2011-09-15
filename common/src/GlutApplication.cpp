@@ -7,10 +7,10 @@
 
 GlutApplication * GlutApplication::m_instance = 0;
 
-GlutApplication::GlutApplication()
+GlutApplication::GlutApplication(bool fixedTimeStep, float targetElapsedTime)
 	: m_totalTime(0),
-	  m_fixedTimeStep(true),
-	  m_targetElapsedTime(int(1000 * 1.0f/60))
+	  m_fixedTimeStep(fixedTimeStep),
+	  m_targetElapsedTime(targetElapsedTime)
 {
 }
 
@@ -59,7 +59,7 @@ void GlutApplication::draw()
 void GlutApplication::updateWrapper(int value)
 {
 	if (m_instance->m_fixedTimeStep)
-		glutTimerFunc(m_instance->m_targetElapsedTime, updateWrapper, 0);
+		glutTimerFunc(1000 * m_instance->m_targetElapsedTime, updateWrapper, 0);
 
 	// calculate elapsed time since last update call
 	int currentTime = glutGet(GLUT_ELAPSED_TIME);

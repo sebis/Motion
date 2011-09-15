@@ -13,56 +13,58 @@ public:
 		glm::vec4 color;
 	};
 
-	void init(vertex vData[], size_t vSize, glm::uint iData[], size_t iSize);
+	Mesh(vertex vData[], size_t vSize, glm::uint iData[], size_t iSize);
+	virtual ~Mesh();
+
 	void draw();
 
 private:
 	glm::uint m_vaoID;
+	glm::uint m_vboID;
+	glm::uint m_eboID;
 	size_t m_count;
 };
 
 namespace MeshFactory
 {
-	static Mesh Cube(glm::vec4 color)
+	static Mesh * Cube(glm::vec4 color)
 	{
-		Mesh cube;
-
 		Mesh::vertex vData[] =
 		{
 			// front face 0,1,2,3
 			{ glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), color },
-			{ glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), color },
 			{ glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), color },
+			{ glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), color },
 			{ glm::vec3(1.0f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), color },
 
 			// right face 4,5,6,7
 			{ glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f), color },
-			{ glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(1.0f, 0.0f, 0.0f), color },
 			{ glm::vec3(1.0f, -1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f), color },
+			{ glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(1.0f, 0.0f, 0.0f), color },
 			{ glm::vec3(1.0f, -1.0f, -1.0f), glm::vec3(1.0f, 0.0f, 0.0f), color },
 
 			// back face 8, 9, 10, 11
 			{ glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), color },
-			{ glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), color },
 			{ glm::vec3(1.0f, -1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), color },
+			{ glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), color },
 			{ glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), color },
 
 			// left face 12, 13, 14, 15
 			{ glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), color },
-			{ glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), color },
 			{ glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), color },
+			{ glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), color },
 			{ glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), color },
 
 			// top face 16, 17, 18, 19
 			{ glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), color },
-			{ glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), color },
 			{ glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), color },
+			{ glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), color },
 			{ glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), color },
 
 			// bottom face 20, 21, 22, 23
 			{ glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f), color },
-			{ glm::vec3(1.0f, -1.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f), color },
 			{ glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f), color },
+			{ glm::vec3(1.0f, -1.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f), color },
 			{ glm::vec3(1.0f, -1.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f), color },
 		};
 
@@ -76,8 +78,7 @@ namespace MeshFactory
 			20, 21, 22, 22, 21, 23,
 		};
 
-		cube.init(vData, 24, iData, 36);
-		return cube;
+		return new Mesh(vData, 24, iData, 36);
 	}
 };
 

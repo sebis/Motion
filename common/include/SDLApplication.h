@@ -7,11 +7,7 @@
 class SDLApplication : public Application
 {
 public:
-	SDLApplication()
-		: m_totalTime(0), m_fixedTimeStep(false), m_targetElapsedTime(1.0f/60.0f)
-	{
-	}
-
+	SDLApplication(bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
 	virtual ~SDLApplication() {}
 
 	virtual bool init(int argc, char * argv[]);
@@ -21,7 +17,6 @@ public:
 	virtual void draw();
 
 private:
-
 	bool m_fixedTimeStep;
 	float m_targetElapsedTime;
 	int m_totalTime;

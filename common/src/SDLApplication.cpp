@@ -1,6 +1,13 @@
 #include "SDLApplication.h"
 #include "Trace.h"
 
+SDLApplication::SDLApplication(bool fixedTimeStep, float targetElapsedTime)
+	: m_totalTime(0),
+	  m_fixedTimeStep(fixedTimeStep),
+	  m_targetElapsedTime(targetElapsedTime)
+{
+}
+
 bool SDLApplication::init(int argc, char * argv[])
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
@@ -47,9 +54,9 @@ int SDLApplication::run()
 		}
 
 		int currentTime = SDL_GetTicks();
-		float dt = (currentTime - m_totalTime) / 1000.0f;
+		float dt = (currentTime - m_totalTime);
 
-		if (!m_fixedTimeStep || dt >= m_targetElapsedTime) {
+		if (!m_fixedTimeStep || dt >= m_targetElapsedTime * 1000) {
 			m_totalTime = currentTime;
 			update(dt);
 		}

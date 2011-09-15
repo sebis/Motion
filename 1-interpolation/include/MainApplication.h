@@ -1,5 +1,5 @@
-#ifndef EXAMPLE_APPLICATION
-#define EXAMPLE_APPLICATION
+#ifndef MAIN_APPLICATION
+#define MAIN_APPLICATION
 
 #if 0
 #include <SDLApplication.h>
@@ -9,15 +9,16 @@ typedef SDLApplication Base;
 typedef GlutApplication Base;
 #endif
 
-#include "Mesh.h"
+#include "GameObject.h"
 #include "Shader.h"
 
-class ExampleApplication : public Base
+class MainApplication : public Base
 {
 private:
 
 public:
-	ExampleApplication();
+	MainApplication(bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
+	virtual ~MainApplication();
 
 	bool init(int argc, char * argv[]);
 	void update(float dt);
@@ -26,8 +27,8 @@ public:
 private:
 	float m_rotation;
 
-	Mesh m_cube;
+	Common::GameObject * m_cube;
 	Shader * m_shader;
 };
 
-#endif /* EXAMPLE_APPLICATION */
+#endif /* MAIN_APPLICATION */

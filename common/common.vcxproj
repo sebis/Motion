@@ -11,20 +11,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="include\GameObject.cpp" />
     <ClCompile Include="src\GlutApplication.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\MeshRenderer.cpp" />
     <ClCompile Include="src\SDLApplication.cpp" />
     <ClCompile Include="src\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h" />
+    <ClInclude Include="include\GameObject.h" />
     <ClInclude Include="include\GlutApplication.h" />
     <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\MeshRenderer.h" />
+    <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\SDLApplication.h" />
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\Trace.h" />
+    <ClInclude Include="include\Transform.h" />
     <ClInclude Include="include\Utils.h" />
     <ClInclude Include="include\WindowParams.h" />
+    <ClInclude Include="include\Animator.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{42E6A93E-66F1-4103-A983-170A427BEF83}</ProjectGuid>

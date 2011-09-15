@@ -9,7 +9,7 @@ private:
 	static GlutApplication * m_instance;
 
 public:
-	GlutApplication();
+	GlutApplication(bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
 	virtual ~GlutApplication() {};
 
 	virtual bool init(int argc, char * argv[]);
@@ -24,8 +24,8 @@ private:
 	static void drawWrapper();
 
 	bool m_fixedTimeStep;
+	float m_targetElapsedTime;
 	int m_totalTime;
-	int m_targetElapsedTime;
 };
 
 #endif /* COMMON_GLUTAPPLICATION */

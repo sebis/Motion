@@ -90,9 +90,9 @@ void Shader::setUniform(const GLchar *name, const glm::vec3& v)
 	glUniform3fv(glGetUniformLocation(p_id, name), 1, glm::value_ptr(v));
 }
 
-void Shader::setUniform(const GLchar *name, const glm::mat4 m)
+void Shader::setUniform(const GLchar *name, const glm::mat4& m)
 {
-	glUniformMatrix4fv(glGetUniformLocation(p_id, name), 1, GL_FALSE, &m[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(p_id, name), 1, GL_FALSE, glm::value_ptr(m));
 }
 
 void Shader::bind() const

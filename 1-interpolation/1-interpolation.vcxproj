@@ -11,11 +11,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ExampleApplication.cpp" />
+    <ClCompile Include="src\CubeObject.cpp" />
+    <ClCompile Include="src\Interpolator.cpp" />
+    <ClCompile Include="src\KeyframeAnimator.cpp" />
+    <ClCompile Include="src\MainApplication.cpp" />
     <ClCompile Include="src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\ExampleApplication.h" />
+    <ClInclude Include="include\CubeObject.h" />
+    <ClInclude Include="include\Interpolator.h" />
+    <ClInclude Include="include\KeyframeAnimator.h" />
+    <ClInclude Include="include\MainApplication.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\solid.frag" />

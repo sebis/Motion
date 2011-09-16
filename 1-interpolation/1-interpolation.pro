@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 
+TARGET = interpolation
 DEPENDPATH += . include src
 INCLUDEPATH += . include
 
@@ -17,6 +17,6 @@ SOURCES += src/CubeObject.cpp \
            src/KeyframeAnimator.cpp \
            src/Main.cpp \
            src/MainApplication.cpp
-LIBS += -lGL -lGLEW -lglut -lSDL -lSDLmain -L../common/lib -lcommon
+LIBS += -lGL -lGLEW -lglut -L../common/lib -lcommon
+OBJECTS_DIR = obj
 INCLUDEPATH += ../common/include
-QMAKE_RPATH=$$(ORIGIN)/../common/lib

@@ -257,13 +257,7 @@ SOURCES += include/GameObject.cpp \
            src/SDLApplication.cpp \
            src/Shader.cpp \
            include/glm/core/dummy.cpp
-#LIBS += -Llib # links to glut and GLEW
-#LIBS += -lGL -lGLEW
-#sdl {
-#  LIBS += -lSDL -lSDLmain
-#}
-#glut {
-#  LIBS += -lglut
-#}
+CONFIG += staticlib
+LIBS += -Llib -lGL -lGLEW -lglut
 OBJECTS_DIR = obj
 DESTDIR = lib

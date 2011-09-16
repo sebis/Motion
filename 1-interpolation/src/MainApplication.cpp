@@ -2,7 +2,7 @@
 #include "MainApplication.h"
 #include "Trace.h"
 
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include "glm/gtc/matrix_transform.hpp"
 
 MainApplication::MainApplication(bool fixedTimeStep, float targetElapsedTime)

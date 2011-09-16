@@ -5,12 +5,16 @@
 #include "Interpolator.h"
 #include "Trace.h"
 
+#include <cassert>
 #include <algorithm>
+#include <iterator>
 #include <map>
 
 namespace Interpolation
 {
 	class Common::GameObject;
+
+
 
 	template<typename T>
 	class KeyframeAnimator : public Common::Animator
@@ -26,10 +30,10 @@ namespace Interpolation
 
 		virtual void update(float dt);
 
-		inline std::pair<Keyframe, Keyframe> getKeyframes(float time)
-		{
+		std::pair<Keyframe, Keyframe> getKeyframes(float time);
+		/*{
 			if (m_keyframes.empty())
-				throw 0;
+				assert(false);
 
 			std::map<float, T>::iterator it = m_keyframes.lower_bound(time);
 
@@ -39,7 +43,7 @@ namespace Interpolation
 				return std::make_pair(*m_keyframes.begin(), *m_keyframes.begin());
 			else
 				return std::make_pair(*(--it), *(it));
-		}
+		}*/
 
 		inline void addKeyframe(float time, T value)
 		{
@@ -87,6 +91,22 @@ namespace Interpolation
 		}
 
 		time += dt;
+	}
+
+	template<typename T>
+	std::pair<std::pair<const float, T>, std::pair<const float, T>  > KeyframeAnimator<T>::getKeyframes(float time)
+	{
+		if (m_keyframes.empty())
+			assert(false);
+
+		typename std::map<float, T>::iterator it = m_keyframes.lower_bound(time);
+
+		if (it == m_keyframes.end())
+			return std::make_pair(*m_keyframes.rbegin(), *m_keyframes.rbegin());
+		else if (it == m_keyframes.begin())
+			return std::make_pair(*m_keyframes.begin(), *m_keyframes.begin());
+		else
+			return std::make_pair(*(--it), *(it));
 	}
 };
 

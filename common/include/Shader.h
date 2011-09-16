@@ -2,7 +2,7 @@
 #define COMMON_SHADER
 
 #include <string>
-#include <gl/glew.h>
+#include <GL/glew.h>
 
 #include "glm/glm.hpp"
 

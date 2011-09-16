@@ -1,7 +1,7 @@
 #include "Mesh.h"
 #include "Trace.h"
 
-#include <gl/glew.h>
+#include <GL/glew.h>
 
 Mesh::Mesh(Mesh::vertex vData[], size_t vSize, glm::uint iData[], size_t iSize)
 {

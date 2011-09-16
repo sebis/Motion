@@ -2,7 +2,7 @@
 #include "Trace.h"
 #include "WindowParams.h"
 
-#include <gl/freeglut.h>
+#include <GL/glut.h>
 #include <iostream>
 
 GlutApplication * GlutApplication::m_instance = 0;

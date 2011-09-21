@@ -24,18 +24,30 @@
     <ClCompile Include="src\CubeObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Interpolator.cpp">
+    <ClCompile Include="src\KeyframeAnimator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\KeyframeAnimator.cpp">
+    <ClCompile Include="src\SplineRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\solid.frag">
+    <None Include="resources\lambert.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\lambert.vert">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="resources\solid.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\solid.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\point.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\point.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -50,6 +62,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Interpolator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ControlPoints.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SplineRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

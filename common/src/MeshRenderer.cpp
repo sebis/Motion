@@ -12,6 +12,9 @@ namespace Common
 	{
 		m_shader->bind();
 		m_shader->setUniform("world", m_gameObject->m_transform.world());
+
 		m_mesh->draw();
+
+		m_shader->unbind();
 	}
 };

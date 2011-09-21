@@ -35,19 +35,16 @@ namespace Common
 			return glm::translate(glm::mat4(1.0f), m_position);
 		}
 
-		inline const glm::vec3& position() const
-		{
-			return m_position;
-		}
+		inline const glm::vec3& position() const { return m_position; }
+		inline glm::vec3& position() { return m_position; }
 
 		inline void reset()
 		{
 			m_position = glm::vec3(0.0f);
 		}
 
-		glm::vec3 m_position;
 	private:
-		
+		glm::vec3 m_position;
 		glm::vec3 m_rotation;
 		glm::vec3 m_scale;
 

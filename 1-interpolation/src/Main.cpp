@@ -2,7 +2,7 @@
 
 int main(int argc, char * argv[])
 {
-	MainApplication app(true, 1.0f/60.0f);
+	MainApplication app(false, 1.0f/60.0f);
 
 	if(!app.init(argc, argv))
 		return 1;

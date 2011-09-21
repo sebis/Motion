@@ -54,7 +54,7 @@ int SDLApplication::run()
 		}
 
 		int currentTime = SDL_GetTicks();
-		float dt = (currentTime - m_totalTime);
+		float dt = float(currentTime - m_totalTime);
 
 		if (!m_fixedTimeStep || dt >= m_targetElapsedTime * 1000) {
 			m_totalTime = currentTime;

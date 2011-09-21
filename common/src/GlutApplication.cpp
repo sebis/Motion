@@ -2,7 +2,7 @@
 #include "Trace.h"
 #include "WindowParams.h"
 
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <iostream>
 
 GlutApplication * GlutApplication::m_instance = 0;
@@ -18,9 +18,9 @@ bool GlutApplication::init(int argc, char * argv[])
 {
 	m_instance = this;
 
-	//glutInitContextVersion(3, 1);
-	//glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
-	//glutInitContextProfile(GLUT_CORE_PROFILE);
+	glutInitContextVersion(3, 1);
+	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
+	glutInitContextProfile(GLUT_CORE_PROFILE);
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
@@ -40,9 +40,6 @@ int GlutApplication::run()
 		glutIdleFunc(updateWrapper);
 	}
 
-	if (!m_fixedTimeStep)
-		glutIdleFunc(updateWrapper);
-
 	glutMainLoop();
 
 	return 0;
@@ -59,7 +56,7 @@ void GlutApplication::draw()
 void GlutApplication::updateWrapper(int value)
 {
 	if (m_instance->m_fixedTimeStep)
-		glutTimerFunc(1000 * m_instance->m_targetElapsedTime, updateWrapper, 0);
+		glutTimerFunc(int(1000 * m_instance->m_targetElapsedTime), updateWrapper, 0);
 
 	// calculate elapsed time since last update call
 	int currentTime = glutGet(GLUT_ELAPSED_TIME);

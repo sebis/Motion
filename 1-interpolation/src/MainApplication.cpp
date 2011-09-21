@@ -34,20 +34,35 @@ bool MainApplication::init(int argc, char * argv[])
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-	m_shader = new Shader("resources/solid.vert", "resources/solid.frag");
+	glEnable(GL_PROGRAM_POINT_SIZE);
 
-	m_shader->bindAttribLocation(0, "in_Position");
-	m_shader->bindAttribLocation(1, "in_Normal");
-	m_shader->bindAttribLocation(2, "in_Color");
 
-	m_shader->link();
+	// TODO: Shouldn't need to "initialize" uniforms like this
+	m_shader = Shader::find("lambert");
 
 	m_shader->bind();
 	m_shader->setUniform("view", glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 	m_shader->setUniform("projection", glm::perspective(45.0f, 800.0f/600.0f, 0.1f, 100.0f));
 	m_shader->setUniform("lightDirection", glm::vec3(1.0f, 0.5f, 0.25f));
 	m_shader->unbind();
+
+	Shader * solidShader = Shader::find("solid");
+
+	solidShader->bind();
+	solidShader->setUniform("view", glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+	solidShader->setUniform("projection", glm::perspective(45.0f, 800.0f/600.0f, 0.1f, 100.0f));
+	solidShader->unbind();
+
+	Shader * pointShader = Shader::find("point");
+
+	pointShader->bind();
+	pointShader->setUniform("view", glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+	pointShader->setUniform("projection", glm::perspective(45.0f, 800.0f/600.0f, 0.1f, 100.0f));
+	pointShader->unbind();
 
 	m_cube = new Interpolation::CubeObject(m_shader);
 
@@ -65,6 +80,10 @@ void MainApplication::update(float dt)
 
 	if (m_cube->m_animator)
 		m_cube->m_animator->update(dt);
+		
+	/*GLenum err = glGetError();
+	if (err != GL_NO_ERROR)
+		Trace::error("OpenGL error: %s\n", gluErrorString(err));*/
 }
 
 void MainApplication::draw()
@@ -75,4 +94,7 @@ void MainApplication::draw()
 
 	if (m_cube->m_renderer)
 		m_cube->m_renderer->draw();
+
+	if (m_cube->m_animator)
+		m_cube->m_animator->visualize();
 }

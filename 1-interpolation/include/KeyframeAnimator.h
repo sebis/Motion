@@ -2,111 +2,87 @@
 #define INTERPOLATION_KEYFRAME
 
 #include "Animator.h"
+#include "ControlPoints.h"
 #include "Interpolator.h"
+#include "SplineRenderer.h"
 #include "Trace.h"
 
 #include <cassert>
 #include <algorithm>
-#include <iterator>
-#include <map>
+#include <functional>
+#include <vector>
 
 namespace Interpolation
 {
 	class Common::GameObject;
 
-
-
 	template<typename T>
-	class KeyframeAnimator : public Common::Animator
+	class KeyframeAnimator : public Common::Animator, public ControlPoints<Keyframe<T>>
 	{
-	protected:
-		typedef std::pair<const float, T> Keyframe;
-
 	public:
-		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result)
-			: Animator(gameObject), m_interpolator(interpolator), m_result(result) {};
+		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result, bool loop = false)
+			: Animator(gameObject, loop), m_interpolator(interpolator), m_renderer(0), m_result(result), m_time(0)
+		{}
 
 		virtual ~KeyframeAnimator() {};
 
-		virtual void update(float dt);
-
-		std::pair<Keyframe, Keyframe> getKeyframes(float time);
-		/*{
-			if (m_keyframes.empty())
-				assert(false);
-
-			std::map<float, T>::iterator it = m_keyframes.lower_bound(time);
-
-			if (it == m_keyframes.end())
-				return std::make_pair(*m_keyframes.rbegin(), *m_keyframes.rbegin());
-			else if (it == m_keyframes.begin())
-				return std::make_pair(*m_keyframes.begin(), *m_keyframes.begin());
-			else
-				return std::make_pair(*(--it), *(it));
-		}*/
-
-		inline void addKeyframe(float time, T value)
+		inline const Keyframe<T>& operator[](const int& i) const
 		{
-			Keyframe keyframe(time, value);
-			m_keyframes.insert(keyframe);
+			return m_keyframes[i];
 		}
 
-	protected:
-		Interpolator<T> * m_interpolator;
+		inline const int count() const
+		{
+			return m_keyframes.size();
+		}
+
+		inline const float max() const
+		{
+			return std::max_element(m_keyframes.begin(), m_keyframes.end())->time;
+		}
+
+		inline void addKeyframe(float time, T value, float t = 0, float b = 0, float c = 0)
+		{
+			Keyframe<T> keyframe(time, value, t, b, c);
+			m_keyframes.push_back(keyframe);
+		}
+
+		inline void setRenderer(Common::Renderer * renderer)
+		{
+			m_renderer = renderer;
+		}
+
+		inline void visualize()
+		{
+			if (m_renderer)
+				m_renderer->draw();
+		}
+
+		void update(float dt);
 
 	private:
-		std::map<float, T> m_keyframes;
-		T& m_result;
-	};
+		Common::Renderer * m_renderer;
+		Interpolator<T> * m_interpolator;
+		std::vector<Keyframe<T>> m_keyframes;
 
-	typedef KeyframeAnimator<glm::vec3> LocationKeyframeAnimator;
-	typedef KeyframeAnimator<Common::Transform> TransformKeyframeAnimator;
+		T& m_result;
+
+		float m_time;
+	};
 
 	template<typename T>
 	void KeyframeAnimator<T>::update(float dt)
 	{
-		static float time = 0;
+		m_time = m_loop ? std::fmodf(m_time, max()) : std::min(m_time, max());
 
-		try {
-			std::pair<Keyframe, Keyframe> bounds = getKeyframes(time);
+		typename std::vector<Keyframe<T>>::iterator low = std::upper_bound(m_keyframes.begin(), m_keyframes.end() - 1, m_time, Keyframe<T>::Less());
 
-			Keyframe first = bounds.first;
-			Keyframe second = bounds.second;
+		int k = int(low - m_keyframes.begin() - 1);
+		// TODO: calculate t by a s(t), integrate curve length
+		float t = (m_time - m_keyframes[k].time) / (m_keyframes[k+1].time - m_keyframes[k].time);
+		m_interpolator->interpolate(m_result, *this, k, t);
 
-			float t;
-			if (first.first == second.first)
-				t = 1;
-			else
-				t = (time - first.first) / (second.first - first.first);
-			
-			Trace::info("Interpolating with: %f {%f, %f} / %f\n", t, first.first, second.first, time);
-
-			//m_gameObject->m_transform.m_position = m_interpolator->interpolate(first.second, second.second, t);
-			m_interpolator->interpolate2(m_result, first.second, second.second, t);
-
-
-		} catch ( ... )
-		{
-			Trace::warning("No key frames found\n");
-		}
-
-		time += dt;
-	}
-
-	template<typename T>
-	std::pair<std::pair<const float, T>, std::pair<const float, T>  > KeyframeAnimator<T>::getKeyframes(float time)
-	{
-		if (m_keyframes.empty())
-			assert(false);
-
-		typename std::map<float, T>::iterator it = m_keyframes.lower_bound(time);
-
-		if (it == m_keyframes.end())
-			return std::make_pair(*m_keyframes.rbegin(), *m_keyframes.rbegin());
-		else if (it == m_keyframes.begin())
-			return std::make_pair(*m_keyframes.begin(), *m_keyframes.begin());
-		else
-			return std::make_pair(*(--it), *(it));
+		m_time += dt;
 	}
 };
 

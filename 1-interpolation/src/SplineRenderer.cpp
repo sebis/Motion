@@ -9,6 +9,7 @@ namespace Interpolation
 		: Renderer(gameObject),
 		m_interpolator(interpolator),
 		m_vertices(vertices),
+		m_segments(10),
 		m_majorSize(10.0f),
 		m_minorSize(5.0f),
 		m_color(glm::vec4(1.0f))
@@ -16,32 +17,58 @@ namespace Interpolation
 		m_lineShader = Shader::find("solid");
 		m_pointShader = Shader::find("point");
 
-		const int segments = 10;
-		float t = 1.0f/(segments+1);
-
 		std::vector<SplineRenderer::vertex> vData;
+		std::vector<SplineRenderer::vertex> vPointData;
 
 		for (int i = 0; i < vertices.count() - 1; i++) {
 			vData.push_back(vertex(vertices[i].value, m_color, m_majorSize));
+			vPointData.push_back(vData.back());
 
-			for (int j = 1; j <= segments; j++) {
+			for (int j = 1; j <= m_segments; j++) {
+
+				static float t = 1.0f/(m_segments+1);
 				vData.push_back(vertex(m_interpolator->interpolate(vertices, i, t*j), m_color, m_minorSize));
+			}
+
+			float dt = (vertices[i+1].time - vertices[i].time) / 500.0f;
+			float t = 1.0f/dt;
+
+			for (int j = 0; j <= dt; j++) {
+				vPointData.push_back(vertex(m_interpolator->interpolate(vertices, i, t*j), m_color, m_minorSize));
 			}
 		}
 		vData.push_back(vertex(vertices[vertices.count() - 1].value, m_color, m_majorSize));
+		vPointData.push_back(vData.back());
 
-		m_count = vData.size();
+		m_vertexCount = vData.size();
+		m_pointCount = vPointData.size();
 
 		// create single vertex array object and bind it
-		glGenVertexArrays(1, &m_vaoID);
-		glBindVertexArray(m_vaoID);
+		glGenVertexArrays(2, m_vaoID);
 
-		// generate, bind and fill one interleaved vertex buffer object with all vertex attributes
-		glGenBuffers(1, &m_vboID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
-		glBufferData(GL_ARRAY_BUFFER, m_count*sizeof(vertex), &vData[0], GL_STATIC_DRAW);
+		glBindVertexArray(m_vaoID[0]);
+
+		// generate, bind and fill interleaved vertex buffer object with vertex attributes
+		glGenBuffers(1, &m_vboID[0]);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboID[0]);
+		glBufferData(GL_ARRAY_BUFFER, m_vertexCount*sizeof(vertex), &vData[0], GL_STATIC_DRAW);
 
 		// create vertex attribute pointers into our buffer data with correct strides and offsets
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, color));
+		glEnableVertexAttribArray(2);
+
+		// bind the next VAO
+		glBindVertexArray(m_vaoID[1]);
+
+		// generate a buffer for vertex data
+		glGenBuffers(1, &m_vboID[1]);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboID[1]);
+		glBufferData(GL_ARRAY_BUFFER, m_pointCount*sizeof(vertex), &vPointData[0], GL_STATIC_DRAW);
+
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, color));
@@ -60,25 +87,27 @@ namespace Interpolation
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		// delete buffers
-		glDeleteBuffers(1, &m_vboID);
+		glDeleteBuffers(2, m_vboID);
 
 		// same for VAO
 		glBindVertexArray(0);
-		glDeleteVertexArrays(1, &m_vaoID);
+		glDeleteVertexArrays(2, m_vaoID);
 	}
 
 	void SplineRenderer::draw()
 	{
-		glBindVertexArray(m_vaoID);
+		glBindVertexArray(m_vaoID[0]);
 
 		m_lineShader->bind();
 		m_lineShader->setUniform("world", glm::mat4(1.0f));
-		glDrawArrays(GL_LINE_STRIP, 0, m_count);
+		glDrawArrays(GL_LINE_STRIP, 0, m_vertexCount);
 		m_lineShader->unbind();
+
+		glBindVertexArray(m_vaoID[1]);
 
 		m_pointShader->bind();
 		m_pointShader->setUniform("world", glm::mat4(1.0f));
-		glDrawArrays(GL_POINTS, 0, m_count);
+		glDrawArrays(GL_POINTS, 0, m_pointCount);
 		m_pointShader->unbind();
 
 		glBindVertexArray(0);

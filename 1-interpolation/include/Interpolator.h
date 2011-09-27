@@ -18,6 +18,8 @@ namespace Interpolation
 			return tmp;
 		}
 
+		virtual float arcLength(Keys keys, int k1, int k2) = 0;
+		virtual void reparameterize(ControlPoints<Keyframe<T>>& keys) {}
 		virtual void interpolate(T& out, Keys keys, int k, float t) = 0;
 	};
 
@@ -31,6 +33,34 @@ namespace Interpolation
 			const T& p2 = keys[k+1].value;
 
 			out = p1 + t * (p2 - p1);
+		}
+
+		float arcLength(Keys keys, int k1, int k2)
+		{
+			const T& p1 = keys[k1].value;
+			const T& p2 = keys[k2].value;
+
+			// euclidean distance
+			return glm::distance(p2, p1);
+		}
+
+		void reparameterize(ControlPoints<Keyframe<T>>& keys)
+		{
+			float t = keys[keys.count() - 1].time - keys[0].time;
+			float s = 0;
+
+			for (int i = 0; i < keys.count() - 1; i++) {
+				keys[i].time = s;
+
+				float s_i = arcLength(keys, i, i+1);
+				s += s_i;
+			}
+
+			float r = t/s;
+
+			for (int i = 0; i < keys.count() - 1; i++) {
+				keys[i].time *= r;
+			}
 		}
 	};
 

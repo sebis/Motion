@@ -31,6 +31,11 @@ namespace Interpolation
 			return m_keyframes[i];
 		}
 
+		inline Keyframe<T>& operator[](const int& i)
+		{
+			return m_keyframes[i];
+		}
+
 		inline const int count() const
 		{
 			return m_keyframes.size();
@@ -50,6 +55,11 @@ namespace Interpolation
 		inline void setRenderer(Common::Renderer * renderer)
 		{
 			m_renderer = renderer;
+		}
+
+		inline void reparameterize()
+		{
+			m_interpolator->reparameterize(*this);
 		}
 
 		inline void visualize()

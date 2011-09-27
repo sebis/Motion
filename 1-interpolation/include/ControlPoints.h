@@ -9,6 +9,7 @@ namespace Interpolation
 	public:
 		virtual ~ControlPoints() {}
 		virtual const T& operator [](const int& i) const = 0;
+		virtual T& operator[](const int& i) = 0;
 		virtual const int count() const = 0;
 	};
 

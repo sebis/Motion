@@ -38,11 +38,13 @@ namespace Interpolation
 		Interpolator<glm::vec3> * m_interpolator;
 
 		Vertices m_vertices;
-		size_t m_count;
+		size_t m_vertexCount;
+		size_t m_pointCount;
 
-		glm::uint m_vaoID;
-		glm::uint m_vboID;
+		glm::uint m_vaoID[2];
+		glm::uint m_vboID[2];
 
+		const unsigned m_segments;
 		float m_majorSize;
 		float m_minorSize;
 		glm::vec4 m_color;

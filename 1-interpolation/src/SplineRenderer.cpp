@@ -20,22 +20,39 @@ namespace Interpolation
 		std::vector<SplineRenderer::vertex> vData;
 		std::vector<SplineRenderer::vertex> vPointData;
 
+		float t = 0.0f;
+		float time = (vertices[vertices.count()-1].time - vertices[0].time);
+		float dt = 300.0f/time;
+
 		for (int i = 0; i < vertices.count() - 1; i++) {
 			vData.push_back(vertex(vertices[i].value, m_color, m_majorSize));
+			//t += dt;
 			vPointData.push_back(vData.back());
 
-			for (int j = 1; j <= m_segments; j++) {
+			int k = -1;
 
-				static float t = 1.0f/(m_segments+1);
-				vData.push_back(vertex(m_interpolator->interpolate(vertices, i, t*j), m_color, m_minorSize));
+			for (; t <= 1.0f; t += dt) {
+				float _t = vertices.get_k(t, k);
+				if (i != k)
+					break;
+				vData.push_back(vertex(m_interpolator->interpolate(vertices, i, _t), m_color, m_minorSize));
+				vPointData.push_back(vertex(m_interpolator->interpolate(vertices, i, _t), m_color, m_minorSize));
+				//t += dt;
 			}
 
-			float dt = (vertices[i+1].time - vertices[i].time) / 500.0f;
-			float t = 1.0f/dt;
+			/*for (int j = 0; j < m_segments; j++) {
+				float _t = j/(m_segments-1);
+				vData.push_back(vertex(m_interpolator->interpolate(vertices, i, _t), m_color, m_minorSize));
+			}*/
+
+
+			//float dt = (vertices[vertices.count() - 1].time - vertices[0].time) / 500.0f;
+			/*float dt2 = (vertices[i+1].time - vertices[i].time) / 500.0f;
+			float t2 = 1.0f/dt2;
 
 			for (int j = 0; j <= dt; j++) {
-				vPointData.push_back(vertex(m_interpolator->interpolate(vertices, i, t*j), m_color, m_minorSize));
-			}
+				vPointData.push_back(vertex(m_interpolator->interpolate(vertices, i, t2*j), m_color, m_minorSize));
+			}*/
 		}
 		vData.push_back(vertex(vertices[vertices.count() - 1].value, m_color, m_majorSize));
 		vPointData.push_back(vData.back());

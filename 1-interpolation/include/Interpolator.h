@@ -18,7 +18,8 @@ namespace Interpolation
 			return tmp;
 		}
 
-		virtual float arcLength(Keys keys, int k1, int k2) = 0;
+		virtual float arcLength(Keys keys, int k1, int k2, float _t = 1.0f) = 0;
+		virtual float arcLengthAt(Keys keys, float t) = 0;
 		virtual void reparameterize(ControlPoints<Keyframe<T>>& keys) {}
 		virtual void interpolate(T& out, Keys keys, int k, float t) = 0;
 	};
@@ -27,32 +28,62 @@ namespace Interpolation
 	class LinearInterpolator : public Interpolator<T>
 	{
 	public:
-		void interpolate(T& out, Keys keys, int k, float t)
+		void interpolate(T& out, Keys keys, int k, float _t)
 		{
+			//float _t = keys.get_k(t, k);
+			//t = keys.s(t);
+
 			const T& p1 = keys[k].value;
 			const T& p2 = keys[k+1].value;
 
-			out = p1 + t * (p2 - p1);
+			//t = keys.s(t);
+			out = p1 + _t * (p2 - p1);
 		}
 
-		float arcLength(Keys keys, int k1, int k2)
+		float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
 		{
 			const T& p1 = keys[k1].value;
 			const T& p2 = keys[k2].value;
 
+			assert(0.0f <= _t && _t <= 1.0f);
 			// euclidean distance
-			return glm::distance(p2, p1);
+			const T& p = p1 + _t * (p2 - p1);
+
+			return glm::distance(p, p1);
+		}
+
+		float arcLengthAt(Keys keys, float t)
+		{
+			float length = 0;
+			if (keys.count() < 2)
+				return length;
+
+			if (t >= 0.1f)
+				int temp = 0;
+			int N1 = keys.count() - 1;
+			float N1t = N1 * t;
+			int k = 0;
+			float _t = keys.get_k(t, k);
+
+			for (int i = 0; i < k; i++) {
+				length += arcLength(keys, i, i+1);
+			}
+			if (_t != 0)
+				length += arcLength(keys, k, k+1, _t);
+
+			return length;
 		}
 
 		void reparameterize(ControlPoints<Keyframe<T>>& keys)
 		{
-			float t = keys[keys.count() - 1].time - keys[0].time;
+			//Trace::info("Full length: %f\n", arcLengthAt(keys, 1.0f));
+			/*float t = keys[keys.count() - 1].time - keys[0].time;
 			float s = 0;
 
 			for (int i = 0; i < keys.count() - 1; i++) {
 				keys[i].time = s;
 
-				float s_i = arcLength(keys, i, i+1);
+				float s_i = arcLength(keys, i, i+1, 1.0f);
 				s += s_i;
 			}
 
@@ -60,7 +91,7 @@ namespace Interpolation
 
 			for (int i = 0; i < keys.count() - 1; i++) {
 				keys[i].time *= r;
-			}
+			}*/
 		}
 	};
 

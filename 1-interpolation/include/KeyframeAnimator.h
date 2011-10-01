@@ -7,6 +7,8 @@
 #include "SplineRenderer.h"
 #include "Trace.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <cassert>
 #include <algorithm>
 #include <functional>
@@ -162,9 +164,56 @@ namespace Interpolation
 
 		//if (m_parameterize)
 			//t = s(t);
-
+		T before = m_result;
 		
 		m_interpolator->interpolate(m_result, *this, k, _t);
+
+		T after = m_result;
+
+		if (after != before) {
+			T start = glm::vec3(0, 0, 1);
+			T tangent = glm::normalize(after - before);
+			
+			float z = glm::dot(start, tangent);
+			glm::vec3 axis = glm::normalize(glm::cross(start, tangent));
+			glm::vec3 right = glm::cross(axis, start);
+			float x = glm::dot(right, tangent);
+			//Trace::info("forward: %f %f %f\n", forward.x, forward.y, forward.z);
+
+			float theta = std::atan2(x, z);
+
+			glm::vec3 u = axis;
+
+			/*glm::mat3 uu(u.x * u.x, u.x*u.y, u.x*u.z,
+				u.x*u.y, u.y*u.y, u.y*u.z,
+				u.x*u.z, u.y*u.z, u.z*u.z);
+			glm::mat3 ux(0, -u.z, u.y,
+				u.z, 0, -u.x,
+				-u.y, u.x, 0);*/
+
+			glm::mat3 uu(u.x*u.x, u.x*u.y, u.x*u.z,
+				u.x*u.y, u.y*u.y, u.y*u.z,
+				u.x*u.z, u.y*u.z, u.z*u.z);
+			glm::mat3 ux(0, u.z, -u.y,
+				-u.z, 0, u.x,
+				u.y, -u.x, 0);
+
+			glm::mat3 r = glm::mat3(1.0f) * glm::cos(theta) + glm::sin(theta)*ux + (1 - glm::cos(theta))*uu;
+
+
+			/* ATLEAST Y WORKS:
+			float yaw = std::asin(-r[1][2]) * float(180.0/M_PI);
+			float pitch = std::atan2(r[0][2], r[2][2]) * float(180.0/M_PI);
+			float roll = std::atan2(r[1][0], r[1][1]) * float(180.0/M_PI);*/
+
+			float yaw = std::asin(-r[1][2]) * float(180.0/M_PI);
+			float pitch = std::atan2(-r[0][2], r[2][2]) * float(180.0/M_PI);
+			float roll = std::atan2(r[1][0], r[1][1]) * float(180.0/M_PI);
+
+			Trace::info("%f %f %f\n", yaw, pitch, roll);
+			m_gameObject->m_transform.rotation() = glm::vec3(yaw, pitch, roll);
+			m_gameObject->m_transform.rot() = r;
+		}
 
 		m_time += dt;
 	}

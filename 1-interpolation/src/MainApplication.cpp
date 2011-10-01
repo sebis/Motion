@@ -80,6 +80,9 @@ void MainApplication::update(float dt)
 
 	if (m_cube->m_animator)
 		m_cube->m_animator->update(dt);
+
+	//m_cube->m_transform.rotation() += glm::vec3(0, dt/100.0f, 0);
+	//Trace::info("rotation: %f\n", m_cube->m_transform.rotation().y);
 		
 	/*GLenum err = glGetError();
 	if (err != GL_NO_ERROR)

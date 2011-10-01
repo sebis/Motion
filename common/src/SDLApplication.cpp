@@ -47,6 +47,10 @@ int SDLApplication::run()
 		{
 			switch (event.type)
 			{
+				case SDL_KEYDOWN:
+					if (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q)
+						quit = true;
+					break;
 				case SDL_QUIT:
 					quit = true;
 					break;

@@ -20,9 +20,9 @@ namespace Interpolation
 		animator->addKeyframe(2000.0f, glm::vec3(-2.5f, 0.0f, 2.0f), 0, -1, 0);
 		animator->addKeyframe(6000.0f, glm::vec3(5.0f, 0.0f, 5.0f), 0, -1, 0);
 		animator->addKeyframe(7000.0f, glm::vec3(3.0f, 0.0f, 3.0f), 0, -1, 0);
-		animator->addKeyframe(13000.0f, glm::vec3(-1.5f, 0.0f, 8.0f), 0, -1, 0);
+		animator->addKeyframe(13000.0f, glm::vec3(-1.5f, 3.0f, 8.0f), 0, -1, 0);
 		animator->addKeyframe(15000.0f, glm::vec3(-4.0f, 0.0f, 7.0f), 0, -1, 0);
-		animator->addKeyframe(16000.0f, glm::vec3(-5.0f, 0.0f, -7.0f), 0, -1, 0);
+		animator->addKeyframe(16000.0f, glm::vec3(-5.0f, 2.0f, -7.0f), 0, -1, 0);
 		animator->addKeyframe(20000.0f, glm::vec3(5.0f, 0.0f, -7.0f), 0, -1, 0);
 
 		animator->reparameterize();

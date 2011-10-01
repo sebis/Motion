@@ -40,6 +40,8 @@ int GlutApplication::run()
 		glutIdleFunc(updateWrapper);
 	}
 
+	glutKeyboardFunc(keyboardWrapper);
+
 	glutMainLoop();
 
 	return 0;
@@ -51,6 +53,17 @@ void GlutApplication::update(float dt)
 
 void GlutApplication::draw()
 {
+}
+
+void GlutApplication::input(unsigned char key)
+{
+	if (key == 'q' || key == 'Q' || key == 27)
+		glutLeaveMainLoop();
+}
+
+void GlutApplication::keyboardWrapper(unsigned char key, int x, int y)
+{
+	m_instance->input(key);
 }
 
 void GlutApplication::updateWrapper(int value)

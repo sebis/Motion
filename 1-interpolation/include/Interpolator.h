@@ -58,10 +58,6 @@ namespace Interpolation
 			if (keys.count() < 2)
 				return length;
 
-			if (t >= 0.1f)
-				int temp = 0;
-			int N1 = keys.count() - 1;
-			float N1t = N1 * t;
 			int k = 0;
 			float _t = keys.get_k(t, k);
 
@@ -124,14 +120,14 @@ namespace Interpolation
 	class KochanekBartelsInterpolator : public Interpolator<T>
 	{
 	public:
-		void interpolate(T& out, Keys keys, int k, float t)
+		void interpolate(T& out, Keys keys, int k, float _t)
 		{
-			const float& h00 = (1 + 2 * t) * (1 - t) * (1 - t);
-			const float& h10 = t * (1 - t) * (1 - t);
-			const float& h01 = t * t * (3 - 2 * t);
-			const float& h11 = t * t * (t - 1);
+			// TODO: could do some precalculations
+			const float& h00 = (1 + 2 * _t) * (1 - _t) * (1 - _t);
+			const float& h10 = _t * (1 - _t) * (1 - _t);
+			const float& h01 = _t * _t * (3 - 2 * _t);
+			const float& h11 = _t * _t * (_t - 1);
 
-			{
 			const float& t = keys[k].tension;
 			const float& b = keys[k].bias;
 			const float& c = keys[k].continuity;
@@ -151,7 +147,6 @@ namespace Interpolation
 			const T& m2 = (((1-t)*(1-b)*(1+c)/2) * (p3 - p2) + ((1-t)*(1+b)*(1-c)/2) * (p2 - p1)) * dt2; // out
 
 			out = h00 * p1 + h10 * m1 + h01 * p2 + h11 * m2;
-			}
 		}
 	};
 };

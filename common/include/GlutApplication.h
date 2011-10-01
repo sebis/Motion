@@ -18,7 +18,11 @@ public:
 	virtual void update(float dt);
 	virtual void draw();
 
+protected:
+	virtual void input(unsigned char key);
+
 private:
+	static void keyboardWrapper(unsigned char key, int x, int y);
 	static void updateWrapper() { updateWrapper(0); }
 	static void updateWrapper(int value);
 	static void drawWrapper();

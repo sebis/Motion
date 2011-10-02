@@ -106,9 +106,6 @@ namespace Interpolation
 
 		inline void reparameterize()
 		{
-			// TODO: obsolete call
-			m_interpolator->reparameterize(*this);
-
 			const int size = 100;
 			float dt = 1.0f/size;
 
@@ -201,17 +198,25 @@ namespace Interpolation
 			glm::mat3 r = glm::mat3(1.0f) * glm::cos(theta) + glm::sin(theta)*ux + (1 - glm::cos(theta))*uu;
 
 
-			/* ATLEAST Y WORKS:
-			float yaw = std::asin(-r[1][2]) * float(180.0/M_PI);
-			float pitch = std::atan2(r[0][2], r[2][2]) * float(180.0/M_PI);
-			float roll = std::atan2(r[1][0], r[1][1]) * float(180.0/M_PI);*/
 
-			float yaw = std::asin(-r[1][2]) * float(180.0/M_PI);
-			float pitch = std::atan2(-r[0][2], r[2][2]) * float(180.0/M_PI);
-			float roll = std::atan2(r[1][0], r[1][1]) * float(180.0/M_PI);
+			/* ALMOST WORKS: */
+			/*float yaw = std::asin(-r[2][1]) * float(180.0/M_PI);
+			float pitch = std::atan2(r[2][0], r[2][2]) * float(180.0/M_PI);
+			float roll = std::atan2(r[0][1], r[1][1]) * float(180.0/M_PI);
+			m_gameObject->m_transform.rotation() = glm::vec3(yaw, pitch, roll);*/
+			{
+				float r00 = r[0][0], r01 = r[1][0], r02 = r[2][0],
+					  r10 = r[0][1], r11 = r[1][1], r12 = r[2][1],
+					  r20 = r[0][2], r21 = r[1][2], r22 = r[2][2];
 
-			Trace::info("%f %f %f\n", yaw, pitch, roll);
-			m_gameObject->m_transform.rotation() = glm::vec3(yaw, pitch, roll);
+				float y = asin(r02);
+				float x = atan2(-r12,r22);
+				float z = atan2(-r01,r00);
+
+				m_gameObject->m_transform.rotation() = glm::vec3(x, y, z) * float(180.0/M_PI);
+			}
+
+			//Trace::info("%f %f %f\n", yaw, pitch, roll);
 			m_gameObject->m_transform.rot() = r;
 		}
 

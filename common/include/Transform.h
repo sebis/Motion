@@ -42,10 +42,10 @@ namespace Common
 			// the matrix dirty.
 			glm::mat4 m(1.0f);
 			m = glm::translate(m, m_position);
-			m = m * glm::mat4(m_rot);
-			/*m = glm::rotate(m, m_rotation.x, glm::vec3(1, 0, 0));
+			//m = m * glm::mat4(m_rot);
+			m = glm::rotate(m, m_rotation.x, glm::vec3(1, 0, 0));
 			m = glm::rotate(m, m_rotation.y, glm::vec3(0, 1, 0));
-			m = glm::rotate(m, m_rotation.z, glm::vec3(0, 0, 1));*/
+			m = glm::rotate(m, m_rotation.z, glm::vec3(0, 0, 1));
 			return m;
 		}
 

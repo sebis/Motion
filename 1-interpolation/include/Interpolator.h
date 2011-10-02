@@ -19,38 +19,6 @@ namespace Interpolation
 		}
 
 		virtual float arcLength(Keys keys, int k1, int k2, float _t = 1.0f) = 0;
-		virtual float arcLengthAt(Keys keys, float t) = 0;
-		virtual void reparameterize(ControlPoints<Keyframe<T>>& keys) {}
-		virtual void interpolate(T& out, Keys keys, int k, float t) = 0;
-	};
-
-	template<typename T>
-	class LinearInterpolator : public Interpolator<T>
-	{
-	public:
-		void interpolate(T& out, Keys keys, int k, float _t)
-		{
-			//float _t = keys.get_k(t, k);
-			//t = keys.s(t);
-
-			const T& p1 = keys[k].value;
-			const T& p2 = keys[k+1].value;
-
-			//t = keys.s(t);
-			out = p1 + _t * (p2 - p1);
-		}
-
-		float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
-		{
-			const T& p1 = keys[k1].value;
-			const T& p2 = keys[k2].value;
-
-			assert(0.0f <= _t && _t <= 1.0f);
-			// euclidean distance
-			const T& p = p1 + _t * (p2 - p1);
-
-			return glm::distance(p, p1);
-		}
 
 		float arcLengthAt(Keys keys, float t)
 		{
@@ -70,24 +38,31 @@ namespace Interpolation
 			return length;
 		}
 
-		void reparameterize(ControlPoints<Keyframe<T>>& keys)
+		virtual void interpolate(T& out, Keys keys, int k, float t) = 0;
+	};
+
+	template<typename T>
+	class LinearInterpolator : public Interpolator<T>
+	{
+	public:
+		void interpolate(T& out, Keys keys, int k, float _t)
 		{
-			//Trace::info("Full length: %f\n", arcLengthAt(keys, 1.0f));
-			/*float t = keys[keys.count() - 1].time - keys[0].time;
-			float s = 0;
+			const T& p1 = keys[k].value;
+			const T& p2 = keys[k+1].value;
 
-			for (int i = 0; i < keys.count() - 1; i++) {
-				keys[i].time = s;
+			out = p1 + _t * (p2 - p1);
+		}
 
-				float s_i = arcLength(keys, i, i+1, 1.0f);
-				s += s_i;
-			}
+		float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
+		{
+			const T& p1 = keys[k1].value;
+			const T& p2 = keys[k2].value;
 
-			float r = t/s;
+			assert(0.0f <= _t && _t <= 1.0f);
+			// euclidean distance
+			const T& p = p1 + _t * (p2 - p1);
 
-			for (int i = 0; i < keys.count() - 1; i++) {
-				keys[i].time *= r;
-			}*/
+			return glm::distance(p, p1);
 		}
 	};
 
@@ -113,6 +88,11 @@ namespace Interpolation
 			const T& m2 = (p3 - p1) / float(t3 - t1);
 
 			out = h00 * p1 + h10 * m1 + h01 * p2 + h11 * m2;
+		}
+
+		virtual float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
+		{
+			return 0.0f;
 		}
 	};
 

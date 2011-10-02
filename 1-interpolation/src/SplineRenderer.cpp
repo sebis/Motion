@@ -9,7 +9,7 @@ namespace Interpolation
 		: Renderer(gameObject),
 		m_interpolator(interpolator),
 		m_vertices(vertices),
-		m_segments(10),
+		m_segments(5),
 		m_majorSize(10.0f),
 		m_minorSize(5.0f),
 		m_color(glm::vec4(1.0f))
@@ -22,7 +22,7 @@ namespace Interpolation
 
 		float t = 0.0f;
 		float time = (vertices[vertices.count()-1].time - vertices[0].time);
-		float dt = 300.0f/time;
+		float dt = (1000.0f/m_segments)/time;
 
 		for (int i = 0; i < vertices.count() - 1; i++) {
 			vData.push_back(vertex(vertices[i].value, m_color, m_majorSize));

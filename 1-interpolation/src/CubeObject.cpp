@@ -13,7 +13,7 @@ namespace Interpolation
 		m_mesh = MeshFactory::Cube(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		m_renderer = new MeshRenderer(this, m_mesh, shader);
 
-		Interpolator<glm::vec3> * interpolator = new CatmullRomInterpolator<glm::vec3>;
+		Interpolator<glm::vec3> * interpolator = new KochanekBartelsInterpolator<glm::vec3>;
 		KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(this, interpolator, m_transform.position(), true);
 
 		animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f), 0, -1, 0);
@@ -25,7 +25,7 @@ namespace Interpolation
 		animator->addKeyframe(16000.0f, glm::vec3(-5.0f, 2.0f, -7.0f), 0, -1, 0);
 		animator->addKeyframe(20000.0f, glm::vec3(5.0f, 0.0f, -7.0f), 0, -1, 0);
 
-		//animator->reparameterize();
+		animator->reparameterize();
 
 		// TODO: should not need to set spline renderer AFTER keyframes
 		animator->setRenderer(new SplineRenderer(this, interpolator, *animator));

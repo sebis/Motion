@@ -8,7 +8,6 @@ namespace Interpolation
 	SplineRenderer::SplineRenderer(Common::GameObject * gameObject, Interpolator<glm::vec3> * interpolator, Vertices vertices)
 		: Renderer(gameObject),
 		m_interpolator(interpolator),
-		m_vertices(vertices),
 		m_segments(5),
 		m_majorSize(10.0f),
 		m_minorSize(5.0f),

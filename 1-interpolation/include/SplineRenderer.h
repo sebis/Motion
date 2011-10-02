@@ -37,7 +37,6 @@ namespace Interpolation
 
 		Interpolator<glm::vec3> * m_interpolator;
 
-		Vertices m_vertices;
 		size_t m_vertexCount;
 		size_t m_pointCount;
 

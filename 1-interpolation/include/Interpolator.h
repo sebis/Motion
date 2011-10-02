@@ -139,10 +139,10 @@ namespace Interpolation
 		void interpolate(T& out, Keys keys, int k, float _t)
 		{
 			// TODO: could do some precalculations
-			const float& h00 = (1 + 2 * _t) * (1 - _t) * (1 - _t);
+			/*const float& h00 = (1 + 2 * _t) * (1 - _t) * (1 - _t);
 			const float& h10 = _t * (1 - _t) * (1 - _t);
 			const float& h01 = _t * _t * (3 - 2 * _t);
-			const float& h11 = _t * _t * (_t - 1);
+			const float& h11 = _t * _t * (_t - 1);*/
 
 			const float& t = keys[k].tension;
 			const float& b = keys[k].bias;
@@ -154,7 +154,7 @@ namespace Interpolation
 			const T& p3 = keys[std::min(keys.count()-1, k+2)].value;
 
 			//const float t0 = keys[std::max(0, k-1)].time, t1 = keys[k].time, t2 = keys[k+1].time, t3 = keys[std::min(keys.count()-1, k+2)].time;
-			const float t0 = std::max(0, k-1), t1 = k, t2 = k+1, t3 = std::min(keys.count()-1, k+2);
+			/*const float t0 = std::max(0, k-1), t1 = k, t2 = k+1, t3 = std::min(keys.count()-1, k+2);
 
 			float dt1 = 2 * (t2 - t1) / (t2 - t0);
 			float dt2 = 2 * (t2 - t1) / (t3 - t1);
@@ -162,7 +162,25 @@ namespace Interpolation
 			const T& m1 = (((1-t)*(1-b)*(1-c)/2) * (p2 - p1) + ((1-t)*(1+b)*(1+c)/2) * (p1 - p0)) * dt1; // in
 			const T& m2 = (((1-t)*(1-b)*(1+c)/2) * (p3 - p2) + ((1-t)*(1+b)*(1-c)/2) * (p2 - p1)) * dt2; // out
 
-			out = h00 * p1 + h10 * m1 + h01 * p2 + h11 * m2;
+			out = h00 * p1 + h10 * m1 + h01 * p2 + h11 * m2;*/
+
+			const glm::vec4 TT(_t*_t*_t, _t*_t, _t, 1);
+
+			// Catmull-Rom basis in matrix form
+			const glm::mat4 B(
+				2, -2, 1, 1,
+				-3, 3, -2, -1,
+				0, 0, 1, 0,
+				1, 0, 0, 0);
+
+			const T& d1 = (0.5f*(1-t)*(1-b)*(1-c)) * (p2 - p1) + (0.5f*(1-t)*(1+b)*(1+c)) * (p1 - p0); // in
+			const T& d2 = (0.5f*(1-t)*(1-b)*(1+c)) * (p3 - p2) + (0.5f*(1-t)*(1+b)*(1-c)) * (p2 - p1); // out
+
+			// for some reason GLM hasn't implemented 4x4 * 4x3 multiplication, so use an extended matrix
+			const glm::mat4x4 P(glm::mat4x3(p1, p2, d1, d2));
+
+			// GLM treats matrices in column major order so flip multiplication order
+			out = glm::vec3(P * B * TT);
 		}
 	};
 };

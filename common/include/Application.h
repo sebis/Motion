@@ -1,16 +1,32 @@
 #ifndef COMMON_APPLICATION
 #define COMMON_APPLICATION
 
-class Application
-{
-public:
-	Application() {};
-	virtual ~Application() {};
+#include "Keymap.h"
 
-	virtual bool init(int argc, char * argv[]) = 0;
-	virtual int run() = 0;
-	virtual void update(float dt) = 0;
-	virtual void draw() = 0;
-};
+namespace Common
+{
+	class Application
+	{
+	public:
+		Application() {};
+		virtual ~Application() {};
+
+		virtual bool init(int argc, char * argv[]) = 0;
+		virtual int run() = 0;
+
+		virtual void keyDown(Key key) {}
+		virtual void keyUp(Key key) {}
+		virtual void mouse(Key key, int x, int y) {}
+
+		virtual void window_resized(int width, int height) = 0;
+
+		virtual void update(float dt) = 0;
+		virtual void draw() = 0;
+
+	protected:
+		int m_width;
+		int m_height;
+	};
+}
 
 #endif /* COMMON_APPLICATION */

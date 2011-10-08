@@ -45,12 +45,12 @@ bool MainApplication::init(int argc, char * argv[])
 	m_shader = Shader::find("lambert");
 
 	m_shader->bind();
-	m_shader->setUniform("view", glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-	m_shader->setUniform("projection", glm::perspective(45.0f, 800.0f/600.0f, 0.1f, 100.0f));
+	/*m_shader->setUniform("view", glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+	m_shader->setUniform("projection", glm::perspective(45.0f, 800.0f/600.0f, 0.1f, 100.0f));*/
 	m_shader->setUniform("lightDirection", glm::vec3(1.0f, 0.5f, 0.25f));
 	m_shader->unbind();
 
-	Shader * solidShader = Shader::find("solid");
+	/*Shader * solidShader = Shader::find("solid");
 
 	solidShader->bind();
 	solidShader->setUniform("view", glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
@@ -62,11 +62,51 @@ bool MainApplication::init(int argc, char * argv[])
 	pointShader->bind();
 	pointShader->setUniform("view", glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
 	pointShader->setUniform("projection", glm::perspective(45.0f, 800.0f/600.0f, 0.1f, 100.0f));
-	pointShader->unbind();
+	pointShader->unbind();*/
 
 	m_cube = new Interpolation::CubeObject(m_shader);
+	m_cube->m_camera = &m_camera;
 
 	return true;
+}
+
+void MainApplication::keyDown(Common::Key key)
+{
+	if (key == Common::KEY_MOVE_FORWARD)
+		m_camera.raiseFlag(Common::Camera::FORWARD);
+	else if (key == Common::KEY_MOVE_BACKWARD)
+		m_camera.raiseFlag(Common::Camera::BACKWARD);
+	else if (key == Common::KEY_MOVE_LEFT)
+		m_camera.raiseFlag(Common::Camera::LEFT);
+	else if (key == Common::KEY_MOVE_RIGHT)
+		m_camera.raiseFlag(Common::Camera::RIGHT);
+}
+
+void MainApplication::keyUp(Common::Key key)
+{
+	if (key == Common::KEY_MOVE_FORWARD)
+		m_camera.dropFlag(Common::Camera::FORWARD);
+	else if (key == Common::KEY_MOVE_BACKWARD)
+		m_camera.dropFlag(Common::Camera::BACKWARD);
+	else if (key == Common::KEY_MOVE_LEFT)
+		m_camera.dropFlag(Common::Camera::LEFT);
+	else if (key == Common::KEY_MOVE_RIGHT)
+		m_camera.dropFlag(Common::Camera::RIGHT);
+}
+
+void MainApplication::mouse(Common::Key key, int x, int y)
+{
+	if (key == Common::KEY_MOUSE_LEFT)
+		m_camera.turn(x/float(m_width), y/float(m_height));
+}
+
+void MainApplication::window_resized(int width, int height)
+{
+	glViewport(0, 0, width, height);
+	m_camera.set_projection(glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f));
+
+	m_width = width;
+	m_height = height;
 }
 
 void MainApplication::update(float dt)
@@ -77,6 +117,8 @@ void MainApplication::update(float dt)
 
 	m_cube->m_transform.reset();
 	m_cube->m_transform.Translate(glm::vec3(glm::sin(rotation), 0.0f, 0.0f));*/
+
+	m_camera.update(dt);
 
 	if (m_cube->m_animator)
 		m_cube->m_animator->update(dt);

@@ -54,18 +54,18 @@ public:
 		if (!shader->load(path + technique + ".frag", GL_FRAGMENT_SHADER))
 			return NULL;
 
-		GLenum err = glGetError();
+		/*GLenum err = glGetError();
 		if (err != GL_NO_ERROR)
-			Trace::error("OpenGL error: %s\n", gluErrorString(err));
+			Trace::error("OpenGL error: %s\n", gluErrorString(err));*/
 
 		shader->bindAttribLocation(0, "in_Position");
 		shader->bindAttribLocation(1, "in_Normal");
 		shader->bindAttribLocation(2, "in_Color");
 		shader->bindAttribLocation(3, "in_Size");
 
-		err = glGetError();
+		/*err = glGetError();
 		if (err != GL_NO_ERROR)
-			Trace::error("OpenGL error: %s\n", gluErrorString(err));
+			Trace::error("OpenGL error: %s\n", gluErrorString(err));*/
 
 		shader->link();
 

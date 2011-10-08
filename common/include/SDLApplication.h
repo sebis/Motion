@@ -2,24 +2,34 @@
 #define COMMON_SDLAPPLICATION
 
 #include "Application.h"
+#include "Keymap.h"
 #include <SDL/SDL.h>
 
-class SDLApplication : public Application
+namespace Common
 {
-public:
-	SDLApplication(bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
-	virtual ~SDLApplication() {}
+	class SDLApplication : public Application
+	{
+	public:
+		SDLApplication(bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
+		virtual ~SDLApplication() {}
 
-	virtual bool init(int argc, char * argv[]);
-	int run();
+		virtual bool init(int argc, char * argv[]);
+		int run();
 
-	virtual void update(float dt);
-	virtual void draw();
+		virtual void keyDown(Key key) {}
+		virtual void keyUp(Key key) {}
 
-private:
-	bool m_fixedTimeStep;
-	float m_targetElapsedTime;
-	int m_totalTime;
-};
+		virtual void window_resized(int width, int height);
+
+		virtual void update(float dt);
+		virtual void draw();
+
+	private:
+		SDL_Surface * m_surface;
+		bool m_fixedTimeStep;
+		float m_targetElapsedTime;
+		int m_totalTime;
+	};
+}
 
 #endif

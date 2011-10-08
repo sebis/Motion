@@ -168,42 +168,20 @@ namespace Interpolation
 		T after = m_result;
 
 		if (after != before) {
-			T start = glm::vec3(0, 0, 1);
-			T tangent = glm::normalize(after - before);
-			
-			float z = glm::dot(start, tangent);
-			glm::vec3 axis = glm::normalize(glm::cross(start, tangent));
-			glm::vec3 right = glm::cross(axis, start);
-			float x = glm::dot(right, tangent);
-			//Trace::info("forward: %f %f %f\n", forward.x, forward.y, forward.z);
+			T up = glm::vec3(0, 1, 0);
 
-			float theta = std::atan2(x, z);
+			T forward = glm::normalize(after - before);
+			T right = glm::cross(up, forward);
 
-			glm::vec3 u = axis;
+			up = glm::cross(forward, right);
 
-			/*glm::mat3 uu(u.x * u.x, u.x*u.y, u.x*u.z,
-				u.x*u.y, u.y*u.y, u.y*u.z,
-				u.x*u.z, u.y*u.z, u.z*u.z);
-			glm::mat3 ux(0, -u.z, u.y,
-				u.z, 0, -u.x,
-				-u.y, u.x, 0);*/
+			glm::mat3 r(right, up, forward);
 
-			glm::mat3 uu(u.x*u.x, u.x*u.y, u.x*u.z,
-				u.x*u.y, u.y*u.y, u.y*u.z,
-				u.x*u.z, u.y*u.z, u.z*u.z);
-			glm::mat3 ux(0, u.z, -u.y,
-				-u.z, 0, u.x,
-				u.y, -u.x, 0);
-
-			glm::mat3 r = glm::mat3(1.0f) * glm::cos(theta) + glm::sin(theta)*ux + (1 - glm::cos(theta))*uu;
-
-
-
-			/* ALMOST WORKS: */
-			/*float yaw = std::asin(-r[2][1]) * float(180.0/M_PI);
-			float pitch = std::atan2(r[2][0], r[2][2]) * float(180.0/M_PI);
-			float roll = std::atan2(r[0][1], r[1][1]) * float(180.0/M_PI);
-			m_gameObject->m_transform.rotation() = glm::vec3(yaw, pitch, roll);*/
+			// Extract euler rotations from the rotation matrix
+			/* This is basically a useless operation because we could just use the computed
+			   rotation matrix for the transformation. However, The current transform component
+			   works with euler angles so that they can be interpolated. Thus we extract and save
+			   the rotation as euler angles instead. */
 			{
 				float r00 = r[0][0], r01 = r[1][0], r02 = r[2][0],
 					  r10 = r[0][1], r11 = r[1][1], r12 = r[2][1],
@@ -215,9 +193,6 @@ namespace Interpolation
 
 				m_gameObject->m_transform.rotation() = glm::vec3(x, y, z) * float(180.0/M_PI);
 			}
-
-			//Trace::info("%f %f %f\n", yaw, pitch, roll);
-			m_gameObject->m_transform.rot() = r;
 		}
 
 		m_time += dt;

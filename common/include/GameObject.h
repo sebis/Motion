@@ -2,6 +2,7 @@
 #define COMMON_GAMEOBJECT
 
 #include "Animator.h"
+#include "Camera.h"
 #include "Transform.h"
 #include "Renderer.h"
 
@@ -15,7 +16,9 @@ namespace Common
 
 		Transform m_transform;
 		Animator * m_animator;
+		Camera * m_camera;
 		Renderer * m_renderer;
+
 	};
 };
 

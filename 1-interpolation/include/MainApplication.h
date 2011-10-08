@@ -1,14 +1,15 @@
 #ifndef MAIN_APPLICATION
 #define MAIN_APPLICATION
 
-#if 0
+#if 1
 #include <SDLApplication.h>
-typedef SDLApplication Base;
+typedef Common::SDLApplication Base;
 #else
 #include <GlutApplication.h>
-typedef GlutApplication Base;
+typedef Common::GlutApplication Base;
 #endif
 
+#include "Camera.h"
 #include "GameObject.h"
 #include "Shader.h"
 
@@ -21,11 +22,20 @@ public:
 	virtual ~MainApplication();
 
 	bool init(int argc, char * argv[]);
+
+	void keyDown(Common::Key key);
+	void keyUp(Common::Key key);
+	void mouse(Common::Key key, int x, int y);
+
+	void window_resized(int width, int height);
+
 	void update(float dt);
 	void draw();
 
 private:
 	float m_rotation;
+
+	Common::Camera m_camera;
 
 	Common::GameObject * m_cube;
 	Shader * m_shader;

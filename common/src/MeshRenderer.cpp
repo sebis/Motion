@@ -12,6 +12,8 @@ namespace Common
 	{
 		m_shader->bind();
 		m_shader->setUniform("world", m_gameObject->m_transform.world());
+		m_shader->setUniform("view", m_gameObject->m_camera->view());
+		m_shader->setUniform("projection", m_gameObject->m_camera->projection());
 
 		m_mesh->draw();
 

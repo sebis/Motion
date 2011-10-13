@@ -9,7 +9,7 @@ namespace Interpolation
 	SplineRenderer::SplineRenderer(Common::GameObject * gameObject, Interpolator<glm::vec3> * interpolator, Vertices vertices)
 		: Renderer(gameObject),
 		m_interpolator(interpolator),
-		m_segments(5),
+		m_segments(20), // number of segments per second
 		m_majorSize(10.0f),
 		m_minorSize(5.0f),
 		m_color(glm::vec4(1.0f))
@@ -22,40 +22,30 @@ namespace Interpolation
 
 		float t = 0.0f;
 		float time = (vertices[vertices.count()-1].time - vertices[0].time);
-		float dt = (1000.0f/m_segments)/time;
+
+		float dt = 1000.0f/(time*m_segments);
 
 		for (int i = 0; i < vertices.count() - 1; i++) {
-			vData.push_back(vertex(vertices[i].value, m_color, m_majorSize));
-			//t += dt;
-			vPointData.push_back(vData.back());
+			vertex v(vertices[i].value, m_color, m_majorSize);
+			vData.push_back(v);
+			vPointData.push_back(v);
 
-			int k = -1;
-
-			for (; t <= 1.0f; t += dt) {
+			for (int c = 0; t <= 1.0f; t += dt, c++) {
+				int k = -1;
 				float _t = vertices.get_k(t, k);
 				if (i != k)
 					break;
-				vData.push_back(vertex(m_interpolator->interpolate(vertices, i, _t), m_color, m_minorSize));
-				vPointData.push_back(vertex(m_interpolator->interpolate(vertices, i, _t), m_color, m_minorSize));
-				//t += dt;
+
+				vertex v(m_interpolator->interpolate(vertices, i, _t), m_color, m_minorSize);
+				vData.push_back(v);
+				// TODO: better control over dot placement
+				if (c % m_segments == 0)
+					vPointData.push_back(v);
 			}
-
-			/*for (int j = 0; j < m_segments; j++) {
-				float _t = j/(m_segments-1);
-				vData.push_back(vertex(m_interpolator->interpolate(vertices, i, _t), m_color, m_minorSize));
-			}*/
-
-
-			//float dt = (vertices[vertices.count() - 1].time - vertices[0].time) / 500.0f;
-			/*float dt2 = (vertices[i+1].time - vertices[i].time) / 500.0f;
-			float t2 = 1.0f/dt2;
-
-			for (int j = 0; j <= dt; j++) {
-				vPointData.push_back(vertex(m_interpolator->interpolate(vertices, i, t2*j), m_color, m_minorSize));
-			}*/
 		}
-		vData.push_back(vertex(vertices[vertices.count() - 1].value, m_color, m_majorSize));
-		vPointData.push_back(vData.back());
+		vertex v(vertices[vertices.count() - 1].value, m_color, m_majorSize);
+		vData.push_back(v);
+		vPointData.push_back(v);
 
 		m_vertexCount = vData.size();
 		m_pointCount = vPointData.size();

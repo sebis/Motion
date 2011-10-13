@@ -15,7 +15,7 @@ namespace Interpolation
 	public:
 		typedef const ControlPoints<Keyframe<T>>& Keys;
 
-		virtual void interpolate(T& out, Keys keys, int k, float t) = 0;
+		virtual void interpolate(T& out, Keys keys, int k, float t, T* tangent = 0) = 0;
 
 		T interpolate(Keys keys, int k, float t)
 		{
@@ -49,7 +49,7 @@ namespace Interpolation
 	class LinearInterpolator : public Interpolator<T>
 	{
 	public:
-		void interpolate(T& out, Keys keys, int k, float _t)
+		void interpolate(T& out, Keys keys, int k, float _t, T* tangent = 0)
 		{
 			const T& p1 = keys[k].value;
 			const T& p2 = keys[k+1].value;
@@ -74,69 +74,68 @@ namespace Interpolation
 	class SphericalLinearInterpolator : public Interpolator<T>
 	{
 	public:
-		void interpolate(T& out, Keys keys, int k, float _t)
+		virtual void interpolate(T& out, Keys keys, int k, float _t, T* tangent = 0)
 		{
-			const glm::quat& q1 = glm::normalize(keys[k].value);
-			const glm::quat& q2 = glm::normalize(keys[k+1].value);
+			const T& q1 = glm::normalize(keys[k].value);
+			const T& q2 = glm::normalize(keys[k+1].value);
 
-			float omega = std::acos(glm::dot(q1, q2));
-			out = (std::sin((1 - _t) * omega)*q1 + std::sin(_t*omega)*q2)/std::sin(omega);
+			out = Slerp(q1, q2, _t);
 		}
 
-		float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
+		virtual float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
 		{
 			// TODO: implement slerp arclength
 			return 0.0f;
 		}
+
+	protected:
+		T Slerp(const T& p, const T& q, float t)
+		{
+			// note: p and q are unit quaternions
+			float omega = std::acos(glm::dot(p, q));
+			return (std::sin((1 - t) * omega)*p + std::sin(t*omega)*q)/std::sin(omega);
+		}
 	};
 
 	template<typename T>
-	class BezierSphericalLinearInterpolator : public Interpolator<T>
+	class BezierSphericalLinearInterpolator : public SphericalLinearInterpolator<T>
 	{
 	public:
-		void interpolate(T& out, Keys keys, int k, float _t)
+		void interpolate(T& out, Keys keys, int k, float _t, T* tangent = 0)
 		{
-			// TODO: does it need to be normalized?
-			const glm::quat& q0 = glm::normalize(keys[std::max(0, k-1)].value);
-			const glm::quat& q1 = glm::normalize(keys[k].value);
-			const glm::quat& q2 = glm::normalize(keys[k+1].value);
-			const glm::quat& q3 = glm::normalize(keys[std::min(keys.count()-1, k+2)].value);
+			const T& q0 = glm::normalize(keys[std::max(0, k-1)].value);
+			const T& q1 = glm::normalize(keys[k].value);
+			const T& q2 = glm::normalize(keys[k+1].value);
+			const T& q3 = glm::normalize(keys[std::min(keys.count()-1, k+2)].value);
 
-			const glm::quat& a1 = Bisect(Double(q0, q1), q2);
-			const glm::quat& b1 = Double(a1, q1);
-			const glm::quat& a2 = Bisect(Double(q1, q2), q3);
-			const glm::quat& b2 = Double(a2, q2);
+			const T& a1 = Bisect(Double(q0, q1), q2);
+			const T& b1 = Double(a1, q1);
+			const T& a2 = Bisect(Double(q1, q2), q3);
+			const T& b2 = Double(a2, q2);
 
-			// Calculate result by using de Castlejau's algorithm (ie.  
-			const glm::quat& p00 = q1;
-			const glm::quat& p10 = a1;
-			const glm::quat& p20 = b2;
-			const glm::quat& p30 = q2;
+			// Calculate result by using de Castlejau's algorithm
+			const T& p00 = q1;
+			const T& p10 = a1;
+			const T& p20 = b2;
+			const T& p30 = q2;
 
-			const glm::quat& p01 = Slerp(p00, p10, _t);
-			const glm::quat& p11 = Slerp(p10, p20, _t);
-			const glm::quat& p21 = Slerp(p20, p30, _t);
+			const T& p01 = Slerp(p00, p10, _t);
+			const T& p11 = Slerp(p10, p20, _t);
+			const T& p21 = Slerp(p20, p30, _t);
 
-			const glm::quat& p02 = Slerp(p01, p11, _t);
-			const glm::quat& p12 = Slerp(p11, p21, _t);
+			const T& p02 = Slerp(p01, p11, _t);
+			const T& p12 = Slerp(p11, p21, _t);
 
 			out = Slerp(p02, p12, _t);
 		}
 
 		float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
 		{
-			// TODO: implement slerp arclength
+			// TODO: implement bezier slerp arclength
 			return 0.0f;
 		}
 
 	private:
-		T Slerp(const T& p, const T& q, float t)
-		{
-			// TODO: does it need to be normalized?
-			float omega = std::acos(glm::dot(p, q));
-			return (std::sin((1 - t) * omega)*glm::normalize(p) + std::sin(t*omega)*glm::normalize(q))/std::sin(omega);
-		}
-
 		T Bisect(const T& p, const T& q)
 		{
 			return glm::normalize(p + q);
@@ -152,31 +151,36 @@ namespace Interpolation
 	class CatmullRomInterpolator : public Interpolator<T>
 	{
 	public:
-		void interpolate(T& out, Keys keys, int k, float t)
+		void interpolate(T& out, Keys keys, int k, float t, T* tangent = 0)
 		{
-			/*const float& h00 = (1 + 2 * t) * (1 - t) * (1 - t);
-			const float& h10 = t * (1 - t) * (1 - t);
-			const float& h01 = t * t * (3 - 2 * t);
-			const float& h11 = t * t * (t - 1);
-
+			// use duplicate end points we're at the end/beginning of the spline
 			const T& p0 = keys[std::max(0, k-1)].value;
 			const T& p1 = keys[k].value;
 			const T& p2 = keys[k+1].value;
 			const T& p3 = keys[std::min(keys.count()-1, k+2)].value;
 
-			const float t0 = std::max(0, k-1), t1 = k, t2 = k+1, t3 = std::min(keys.count()-1, k+2);
+			/* Calculated from matrix form
+			   out = 0.5 * [ t^3 t^2 t 1 ] * [ -1  3 -3  1 ] * [ p0 ]
+                                             [  2 -5  4 -1 ]   [ p1 ]
+                                             [ -1  0  1  0 ]   [ p2 ]
+                                             [  0  2  0  0 ]   [ p3 ]
 
-			const T& m1 = (p2 - p0) / float(t2 - t0);
-			const T& m2 = (p3 - p1) / float(t3 - t1);*/
+			   where the matrix is the basis matrix for Catmull-Rom splines
+			*/
+			out = 0.5f * ((-p0 + 3.0f*p1 - 3.0f*p2 + p3)*t*t*t +
+				(2.0f*p0 - 5.0f*p1 + 4.0f*p2 - p3)*t*t +
+				(-p0 + p2)*t +
+				2.0f*p1);
 
-			// duplicate end points if necessary
-			// TODO: could also reflect
-			const T& p0 = keys[std::max(0, k-1)].value;
-			const T& p1 = keys[k].value;
-			const T& p2 = keys[k+1].value;
-			const T& p3 = keys[std::min(keys.count()-1, k+2)].value;
+			if (tangent)
+			{
+				// The derivate of the spline respect to t
+				*tangent = 0.5f * ((-3.0f*p0 + 9.0f*p1 - 9.0f*p2 + 3.0f*p3)*t*t +
+					(4.0f*p0 - 10.0f*p1 + 8.0f*p2 - 2.0f*p3)*t +
+					(-p0 + p2));
+			}
 
-			const glm::vec4 T(t*t*t, t*t, t, 1);
+			/*const glm::vec4 T(t*t*t, t*t, t, 1);
 
 			// Catmull-Rom basis in matrix form
 			const glm::mat4 B = 0.5f * glm::mat4(
@@ -189,7 +193,7 @@ namespace Interpolation
 			const glm::mat4x4 P(glm::mat4x3(p0, p1, p2, p3));
 
 			// GLM treats matrices in column major order so flip multiplication order
-			out = glm::vec3(P * B * T);
+			out = glm::vec3(P * B * T);*/
 		}
 
 		virtual float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
@@ -215,17 +219,11 @@ namespace Interpolation
 	};
 
 	template<typename T>
-	class KochanekBartelsInterpolator : public Interpolator<T>
+	class KochanekBartelsInterpolator : public CatmullRomInterpolator<T>
 	{
 	public:
-		void interpolate(T& out, Keys keys, int k, float _t)
+		void interpolate(T& out, Keys keys, int k, float _t, T* tangent = 0)
 		{
-			// TODO: could do some precalculations
-			/*const float& h00 = (1 + 2 * _t) * (1 - _t) * (1 - _t);
-			const float& h10 = _t * (1 - _t) * (1 - _t);
-			const float& h01 = _t * _t * (3 - 2 * _t);
-			const float& h11 = _t * _t * (_t - 1);*/
-
 			const float& t = keys[k].tension;
 			const float& b = keys[k].bias;
 			const float& c = keys[k].continuity;
@@ -235,18 +233,32 @@ namespace Interpolation
 			const T& p2 = keys[k+1].value;
 			const T& p3 = keys[std::min(keys.count()-1, k+2)].value;
 
-			//const float t0 = keys[std::max(0, k-1)].time, t1 = keys[k].time, t2 = keys[k+1].time, t3 = keys[std::min(keys.count()-1, k+2)].time;
-			/*const float t0 = std::max(0, k-1), t1 = k, t2 = k+1, t3 = std::min(keys.count()-1, k+2);
+			// calculate incoming and outgoing tangents
+			const T& d1 = (0.5f*(1-t)*(1-b)*(1-c)) * (p2 - p1) + (0.5f*(1-t)*(1+b)*(1+c)) * (p1 - p0); // in
+			const T& d2 = (0.5f*(1-t)*(1-b)*(1+c)) * (p3 - p2) + (0.5f*(1-t)*(1+b)*(1-c)) * (p2 - p1); // out
 
-			float dt1 = 2 * (t2 - t1) / (t2 - t0);
-			float dt2 = 2 * (t2 - t1) / (t3 - t1);
+			/* Calculated from matrix form
+			   out = [ t^3 t^2 t 1 ] * [  2 -2  1  1 ] * [ p1 ]
+                                       [ -3  3 -2 -1 ]   [ p2 ]
+                                       [  0  0  1  0 ]   [ d1 ]
+                                       [  1  0  0  0 ]   [ d2 ]
 
-			const T& m1 = (((1-t)*(1-b)*(1-c)/2) * (p2 - p1) + ((1-t)*(1+b)*(1+c)/2) * (p1 - p0)) * dt1; // in
-			const T& m2 = (((1-t)*(1-b)*(1+c)/2) * (p3 - p2) + ((1-t)*(1+b)*(1-c)/2) * (p2 - p1)) * dt2; // out
+			   where the matrix is the coefficient matrix for cubic hermite splines
+			*/
+			out = ((2.0f*p1 - 2.0f*p2 + d1 + d2)*_t*_t*_t +
+				(-3.0f*p1 + 3.0f*p2 - 2.0f*d1 - d2)*_t*_t +
+				(d1)*_t +
+				p1);
 
-			out = h00 * p1 + h10 * m1 + h01 * p2 + h11 * m2;*/
+			if (tangent)
+			{
+				// The derivate of the spline respect to t
+				*tangent = ((6.0f*p1 - 6.0f*p2 + 3.0f*d1 + 3.0f*d2)*_t*_t +
+					(-6.0f*p1 + 6.0f*p2 - 4.0f*d1 - 2.0f*d2)*_t +
+					d1);
+			}
 
-			const glm::vec4 TT(_t*_t*_t, _t*_t, _t, 1);
+			/*const glm::vec4 TT(_t*_t*_t, _t*_t, _t, 1);
 
 			// Catmull-Rom basis in matrix form
 			const glm::mat4 B(
@@ -262,7 +274,7 @@ namespace Interpolation
 			const glm::mat4x4 P(glm::mat4x3(p1, p2, d1, d2));
 
 			// GLM treats matrices in column major order so flip multiplication order
-			out = glm::vec3(P * B * TT);
+			out = glm::vec3(P * B * TT);*/
 		}
 	};
 }

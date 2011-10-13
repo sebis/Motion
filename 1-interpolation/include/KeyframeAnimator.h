@@ -24,7 +24,7 @@ namespace Interpolation
 	{
 	public:
 		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result, bool loop = false, bool orient = false)
-			: Animator(gameObject, loop), m_interpolator(interpolator), m_renderer(0), m_result(result), m_time(0), m_parameterize(false), m_orient(orient)
+			: Animator(gameObject, loop), m_interpolator(interpolator), m_renderer(0), m_result(result), m_time(0), m_parameterize(false), m_orient(orient), m_subsegments(1000)
 		{}
 
 		virtual ~KeyframeAnimator() {};
@@ -106,16 +106,14 @@ namespace Interpolation
 
 		inline void reparameterize()
 		{
-			const int size = 100;
-			float dt = 1.0f/size;
+			float dt = 1.0f/m_subsegments;
 
 			float s = m_interpolator->arcLengthAt(*this, 1.0f);
 			Trace::info("Length: %f\n", s);
 
-			for (int i = 0; i <= size; i++) {
+			for (unsigned i = 0; i <= m_subsegments; i++) {
 				float ds = m_interpolator->arcLengthAt(*this, i*dt);
 				m_params.insert(std::make_pair<float,float>(ds/s, i*dt));
-				Trace::info("%f %f\n", i*dt, ds/s);
 			}
 
 			m_parameterize = true;
@@ -130,6 +128,10 @@ namespace Interpolation
 		void update(float dt);
 
 	private:
+		void orient(T tangent)
+		{
+		}
+
 		Common::Renderer * m_renderer;
 		Interpolator<T> * m_interpolator;
 		std::vector<Keyframe<T>> m_keyframes;
@@ -141,6 +143,7 @@ namespace Interpolation
 		T& m_result;
 
 		float m_time;
+		const unsigned m_subsegments;
 	};
 
 	template<typename T>
@@ -162,19 +165,28 @@ namespace Interpolation
 
 		//if (m_parameterize)
 			//t = s(t);
-		T before = m_result;
-		
-		m_interpolator->interpolate(m_result, *this, k, _t);
+		if (m_orient)
+		{
+			T tangent;
+			m_interpolator->interpolate(m_result, *this, k, _t, &tangent);
+			orient(tangent);
+		}
+		else
+		{
+			m_interpolator->interpolate(m_result, *this, k, _t);
+		}
 
-		T after = m_result;
+		m_time += dt;
+	}
 
-#if 0
-		// TODO: this is probably the wrong place for this..
-		if (m_orient && after != before) {
-			T up = glm::vec3(0, 1, 0);
+	template<>
+	void KeyframeAnimator<glm::vec3>::orient(glm::vec3 tangent)
+	{
+		if (m_orient) {
+			glm::vec3 up = glm::vec3(0, 1, 0);
 
-			T forward = glm::normalize(after - before);
-			T right = glm::cross(up, forward);
+			glm::vec3 forward = glm::normalize(tangent);
+			glm::vec3 right = glm::cross(up, forward);
 
 			up = glm::cross(forward, right);
 
@@ -197,10 +209,8 @@ namespace Interpolation
 				m_gameObject->m_transform.rotation() = glm::vec3(x, y, z) * float(180.0/M_PI);
 			}
 		}
-#endif
-
-		m_time += dt;
 	}
-};
+
+} /* namespace Interpolation */
 
 #endif /* INTERPOLATION_KEYFRAME */

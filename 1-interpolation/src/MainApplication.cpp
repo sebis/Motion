@@ -50,29 +50,13 @@ namespace Interpolation
 		m_shader = Shader::find("lambert");
 
 		m_shader->bind();
-		/*m_shader->setUniform("view", glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-		m_shader->setUniform("projection", glm::perspective(45.0f, 800.0f/600.0f, 0.1f, 100.0f));*/
 		m_shader->setUniform("lightDirection", glm::vec3(1.0f, 0.5f, 0.25f));
 		m_shader->unbind();
-
-		/*Shader * solidShader = Shader::find("solid");
-
-		solidShader->bind();
-		solidShader->setUniform("view", glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-		solidShader->setUniform("projection", glm::perspective(45.0f, 800.0f/600.0f, 0.1f, 100.0f));
-		solidShader->unbind();
-
-		Shader * pointShader = Shader::find("point");
-
-		pointShader->bind();
-		pointShader->setUniform("view", glm::lookAt(glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-		pointShader->setUniform("projection", glm::perspective(45.0f, 800.0f/600.0f, 0.1f, 100.0f));
-		pointShader->unbind();*/
 
 		{
 			Common::GameObject * cube = new Interpolation::CubeObject(m_shader);
 			cube->m_camera = &m_camera;
-			Interpolator<glm::vec3> * interpolator = new CatmullRomInterpolator<glm::vec3>;
+			Interpolator<glm::vec3> * interpolator = new KochanekBartelsInterpolator<glm::vec3>;
 			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(cube, interpolator, cube->m_transform.position(), true, true);
 
 			animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f), 0, -1, 0);

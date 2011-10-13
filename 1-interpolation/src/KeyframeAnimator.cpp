@@ -9,6 +9,7 @@ using namespace Common;
 
 namespace Interpolation
 {
+	
 	/*template<typename T>
 	void KeyframeAnimator::update(float dt)
 	{

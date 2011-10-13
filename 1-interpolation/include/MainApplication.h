@@ -13,32 +13,39 @@ typedef Common::GlutApplication Base;
 #include "GameObject.h"
 #include "Shader.h"
 
-class MainApplication : public Base
+#include <vector>
+
+namespace Interpolation
 {
-private:
+	class MainApplication : public Base
+	{
+	private:
 
-public:
-	MainApplication(bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
-	virtual ~MainApplication();
+	public:
+		MainApplication(bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
+		virtual ~MainApplication();
 
-	bool init(int argc, char * argv[]);
+		bool init(int argc, char * argv[]);
 
-	void keyDown(Common::Key key);
-	void keyUp(Common::Key key);
-	void mouse(Common::Key key, int x, int y);
+		void keyDown(Common::Key key);
+		void keyUp(Common::Key key);
+		void mouse(Common::Key key, int x, int y);
 
-	void window_resized(int width, int height);
+		void window_resized(int width, int height);
 
-	void update(float dt);
-	void draw();
+		void update(float dt);
+		void draw();
 
-private:
-	float m_rotation;
+	private:
 
-	Common::Camera m_camera;
+		Common::Camera m_camera;
 
-	Common::GameObject * m_cube;
-	Shader * m_shader;
-};
+		typedef std::vector<Common::GameObject*> ComponentCollection;
+		typedef ComponentCollection::iterator ComponentIterator;
+		ComponentCollection m_components;
+
+		Shader * m_shader;
+	};
+}
 
 #endif /* MAIN_APPLICATION */

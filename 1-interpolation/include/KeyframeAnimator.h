@@ -23,8 +23,8 @@ namespace Interpolation
 	class KeyframeAnimator : public Common::Animator, public ControlPoints<Keyframe<T>>
 	{
 	public:
-		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result, bool loop = false)
-			: Animator(gameObject, loop), m_interpolator(interpolator), m_renderer(0), m_result(result), m_time(0), m_parameterize(false)
+		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result, bool loop = false, bool orient = false)
+			: Animator(gameObject, loop), m_interpolator(interpolator), m_renderer(0), m_result(result), m_time(0), m_parameterize(false), m_orient(orient)
 		{}
 
 		virtual ~KeyframeAnimator() {};
@@ -135,6 +135,7 @@ namespace Interpolation
 		std::vector<Keyframe<T>> m_keyframes;
 
 		bool m_parameterize;
+		bool m_orient;
 		std::map<float, float> m_params;
 
 		T& m_result;
@@ -150,7 +151,7 @@ namespace Interpolation
 		/*typename std::vector<Keyframe<T>>::iterator low = std::upper_bound(m_keyframes.begin(), m_keyframes.end() - 1, m_time, Keyframe<T>::Less());
 		int k = int(low - m_keyframes.begin() - 1);*/
 
-		float t = (m_time - m_keyframes[0].time) / (m_keyframes[m_keyframes.size() - 1].time - m_keyframes[0].time);
+		float t = (m_time - m_keyframes[0].time) / (m_keyframes[count() - 1].time - m_keyframes[0].time);
 
 		int k = -1;
 		float _t = get_k(t, k);
@@ -167,7 +168,9 @@ namespace Interpolation
 
 		T after = m_result;
 
-		if (after != before) {
+#if 0
+		// TODO: this is probably the wrong place for this..
+		if (m_orient && after != before) {
 			T up = glm::vec3(0, 1, 0);
 
 			T forward = glm::normalize(after - before);
@@ -194,6 +197,7 @@ namespace Interpolation
 				m_gameObject->m_transform.rotation() = glm::vec3(x, y, z) * float(180.0/M_PI);
 			}
 		}
+#endif
 
 		m_time += dt;
 	}

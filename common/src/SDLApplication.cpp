@@ -75,6 +75,10 @@ namespace Common
 						keyUp(KEY_MOVE_LEFT);
 					else if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
 						keyUp(KEY_MOVE_RIGHT);
+					else if (event.key.keysym.sym == SDLK_1)
+						keyUp(KEY_RESET_1);
+					else if (event.key.keysym.sym == SDLK_2)
+						keyUp(KEY_RESET_2);
 					break;
 				case SDL_MOUSEMOTION:
 					if (event.button.button == SDL_BUTTON_LEFT)

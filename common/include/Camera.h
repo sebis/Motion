@@ -15,15 +15,16 @@ namespace Common
 			RIGHT    = (1 << 3),
 		};
 
-		Camera();
+		Camera(glm::vec3 position, glm::vec3 lookAt = glm::vec3(0.0f));
 		virtual ~Camera();
 
 		inline void raiseFlag(int flag) { m_moving |= flag; }
 		inline void dropFlag(int flag) { m_moving &= ~flag; }
 
-		inline glm::vec3& angles() { return m_angles; }
 		inline const glm::mat4& view() const { return m_view; }
 		inline const glm::mat4& projection() const { return m_projection; }
+
+		void reset(const glm::vec3& position, const glm::vec3& lookat = glm::vec3(0.0f));
 
 		inline void set_projection(const glm::mat4& projection) { m_projection = projection; }
 
@@ -41,6 +42,8 @@ namespace Common
 		glm::vec3 m_position;
 		glm::vec3 m_lookDir;
 		glm::vec3 m_angles;
+
+		glm::vec3 m_axis;
 
 		// bit field for moving
 		int m_moving;

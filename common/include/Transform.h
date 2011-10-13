@@ -3,6 +3,7 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 namespace Common
 {
@@ -11,8 +12,10 @@ namespace Common
 	public:
 		Transform()
 			: m_position(glm::vec3(0.0f)),
-			  m_rotation(glm::vec3(0.0f, 0.0f, 0.0f)),
-			m_transform(glm::mat4(1.0f))
+			  m_rotation(glm::vec3(0.0f)),
+			  m_scale(glm::vec3(1.0f)),
+			  m_transform(glm::mat4(1.0f)),
+			  m_useQuaternions(false)
 		{}
 
 		static Transform Translation(const float& x, const float& y, const float& z)
@@ -41,34 +44,38 @@ namespace Common
 			// could give a pointer to a function so that the function can mark
 			// the matrix dirty.
 			glm::mat4 m(1.0f);
+
 			m = glm::translate(m, m_position);
-			//m = m * glm::mat4(m_rot);
-			m = glm::rotate(m, m_rotation.x, glm::vec3(1, 0, 0));
-			m = glm::rotate(m, m_rotation.y, glm::vec3(0, 1, 0));
-			m = glm::rotate(m, m_rotation.z, glm::vec3(0, 0, 1));
+
+			if (m_useQuaternions) {
+				m *= glm::mat4_cast(glm::normalize(m_quaternion));
+			} else {
+				m = glm::rotate(m, m_rotation.x, glm::vec3(1, 0, 0));
+				m = glm::rotate(m, m_rotation.y, glm::vec3(0, 1, 0));
+				m = glm::rotate(m, m_rotation.z, glm::vec3(0, 0, 1));
+			}
+
+			m = glm::scale(m, m_scale);
+
 			return m;
 		}
 
-		//inline const glm::vec3& position() const { return m_position; }
 		inline glm::vec3& position() { return m_position; }
-
 		inline glm::vec3& rotation() { return m_rotation; }
-		inline glm::mat3& rot() { return m_rot; }
+		inline glm::quat& quaternion() { return m_quaternion; }
 
-		inline void reset()
-		{
-			m_position = glm::vec3(0.0f);
-			//m_rotation = glm::vec3(0.0f);
-		}
+		inline bool& useQuaternions() { return m_useQuaternions; }
 
 	private:
+		bool m_useQuaternions;
+
 		glm::vec3 m_position;
 		glm::vec3 m_rotation;
 		glm::vec3 m_scale;
 
+		glm::quat m_quaternion;
+	
 		glm::mat4 m_transform;
-
-		glm::mat3 m_rot;
 	};
 }
 

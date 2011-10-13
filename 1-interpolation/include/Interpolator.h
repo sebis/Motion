@@ -3,6 +3,10 @@
 
 #include "ControlPoints.h"
 
+#include "glm/gtc/quaternion.hpp"
+
+#include <cassert>
+
 namespace Interpolation
 {
 	template<typename T>
@@ -10,6 +14,8 @@ namespace Interpolation
 	{
 	public:
 		typedef const ControlPoints<Keyframe<T>>& Keys;
+
+		virtual void interpolate(T& out, Keys keys, int k, float t) = 0;
 
 		T interpolate(Keys keys, int k, float t)
 		{
@@ -37,8 +43,6 @@ namespace Interpolation
 
 			return length;
 		}
-
-		virtual void interpolate(T& out, Keys keys, int k, float t) = 0;
 	};
 
 	template<typename T>
@@ -63,6 +67,82 @@ namespace Interpolation
 			const T& p = p1 + _t * (p2 - p1);
 
 			return glm::distance(p, p1);
+		}
+	};
+
+	template<typename T>
+	class SphericalLinearInterpolator : public Interpolator<T>
+	{
+	public:
+		void interpolate(T& out, Keys keys, int k, float _t)
+		{
+			const glm::quat& q1 = glm::normalize(keys[k].value);
+			const glm::quat& q2 = glm::normalize(keys[k+1].value);
+
+			float omega = std::acos(glm::dot(q1, q2));
+			out = (std::sin((1 - _t) * omega)*q1 + std::sin(_t*omega)*q2)/std::sin(omega);
+		}
+
+		float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
+		{
+			// TODO: implement slerp arclength
+			return 0.0f;
+		}
+	};
+
+	template<typename T>
+	class BezierSphericalLinearInterpolator : public Interpolator<T>
+	{
+	public:
+		void interpolate(T& out, Keys keys, int k, float _t)
+		{
+			const glm::quat& q0 = keys[std::max(0, k-1)].value;
+			const glm::quat& q1 = keys[k].value;
+			const glm::quat& q2 = keys[k+1].value;
+			const glm::quat& q3 = keys[std::min(keys.count()-1, k+2)].value;
+
+
+			const glm::quat& a1 = Bisect(Double(q0, q1), q2);
+			const glm::quat& b1 = Double(a1, q1);
+			const glm::quat& a2 = Bisect(Double(q1, q2), q3);
+			const glm::quat& b2 = Double(a2, q2);
+
+			const glm::quat& p00 = q1; //
+			const glm::quat& p10 = a1; //
+			const glm::quat& p20 = b2; //
+			const glm::quat& p30 = q2; //
+
+			const glm::quat& p01 = Slerp(p00, p10, _t); //
+			const glm::quat& p11 = Slerp(p10, p20, _t); //
+			const glm::quat& p21 = Slerp(p20, p30, _t); //
+
+			const glm::quat& p02 = Slerp(p01, p11, _t); //
+			const glm::quat& p12 = Slerp(p11, p21, _t); //
+
+			out = Slerp(p02, p12, _t); //
+		}
+
+		float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
+		{
+			// TODO: implement slerp arclength
+			return 0.0f;
+		}
+
+	private:
+		T Slerp(const T&  p, const T& q, float t)
+		{
+			float omega = std::acos(glm::dot(q, p));
+			return (std::sin((1 - t) * omega)*q + std::sin(t*omega)*p)/std::sin(omega);
+		}
+
+		T Bisect(const T& p, const T& q)
+		{
+			return glm::normalize(p + q);
+		}
+
+		T Double(const T& p, const T& q)
+		{
+			return 2 * glm::dot(p, q) * q + (-p);
 		}
 	};
 
@@ -133,7 +213,7 @@ namespace Interpolation
 	};
 
 	template<typename T>
-	class KochanekBartelsInterpolator : public CatmullRomInterpolator<T>
+	class KochanekBartelsInterpolator : public Interpolator<T>
 	{
 	public:
 		void interpolate(T& out, Keys keys, int k, float _t)
@@ -183,6 +263,6 @@ namespace Interpolation
 			out = glm::vec3(P * B * TT);
 		}
 	};
-};
+}
 
 #endif /* INTERPOLATION_INTERPOLATOR */

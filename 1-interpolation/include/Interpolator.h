@@ -96,30 +96,31 @@ namespace Interpolation
 	public:
 		void interpolate(T& out, Keys keys, int k, float _t)
 		{
-			const glm::quat& q0 = keys[std::max(0, k-1)].value;
-			const glm::quat& q1 = keys[k].value;
-			const glm::quat& q2 = keys[k+1].value;
-			const glm::quat& q3 = keys[std::min(keys.count()-1, k+2)].value;
-
+			// TODO: does it need to be normalized?
+			const glm::quat& q0 = glm::normalize(keys[std::max(0, k-1)].value);
+			const glm::quat& q1 = glm::normalize(keys[k].value);
+			const glm::quat& q2 = glm::normalize(keys[k+1].value);
+			const glm::quat& q3 = glm::normalize(keys[std::min(keys.count()-1, k+2)].value);
 
 			const glm::quat& a1 = Bisect(Double(q0, q1), q2);
 			const glm::quat& b1 = Double(a1, q1);
 			const glm::quat& a2 = Bisect(Double(q1, q2), q3);
 			const glm::quat& b2 = Double(a2, q2);
 
-			const glm::quat& p00 = q1; //
-			const glm::quat& p10 = a1; //
-			const glm::quat& p20 = b2; //
-			const glm::quat& p30 = q2; //
+			// Calculate result by using de Castlejau's algorithm (ie.  
+			const glm::quat& p00 = q1;
+			const glm::quat& p10 = a1;
+			const glm::quat& p20 = b2;
+			const glm::quat& p30 = q2;
 
-			const glm::quat& p01 = Slerp(p00, p10, _t); //
-			const glm::quat& p11 = Slerp(p10, p20, _t); //
-			const glm::quat& p21 = Slerp(p20, p30, _t); //
+			const glm::quat& p01 = Slerp(p00, p10, _t);
+			const glm::quat& p11 = Slerp(p10, p20, _t);
+			const glm::quat& p21 = Slerp(p20, p30, _t);
 
-			const glm::quat& p02 = Slerp(p01, p11, _t); //
-			const glm::quat& p12 = Slerp(p11, p21, _t); //
+			const glm::quat& p02 = Slerp(p01, p11, _t);
+			const glm::quat& p12 = Slerp(p11, p21, _t);
 
-			out = Slerp(p02, p12, _t); //
+			out = Slerp(p02, p12, _t);
 		}
 
 		float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
@@ -129,10 +130,11 @@ namespace Interpolation
 		}
 
 	private:
-		T Slerp(const T&  p, const T& q, float t)
+		T Slerp(const T& p, const T& q, float t)
 		{
-			float omega = std::acos(glm::dot(q, p));
-			return (std::sin((1 - t) * omega)*q + std::sin(t*omega)*p)/std::sin(omega);
+			// TODO: does it need to be normalized?
+			float omega = std::acos(glm::dot(p, q));
+			return (std::sin((1 - t) * omega)*glm::normalize(p) + std::sin(t*omega)*glm::normalize(q))/std::sin(omega);
 		}
 
 		T Bisect(const T& p, const T& q)

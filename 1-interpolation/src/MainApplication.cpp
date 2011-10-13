@@ -125,12 +125,16 @@ namespace Interpolation
 			KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(cube, interpolator, cube->m_transform.quaternion(), true, false);
 
 			glm::quat q;
-			q = glm::rotate(q, 0.0f, glm::vec3(0, 1, 0));
+			q = glm::rotate(q, 0.0f, glm::vec3(1, 0, 0));
 			animator->addKeyframe(0.0f, q);
-			q = glm::rotate(q, 15.0f, glm::vec3(0, 1, 0));
+			q = glm::rotate(q, -90.0f, glm::vec3(1, 0, 0));
 			animator->addKeyframe(2000.0f, q);
-			q = glm::rotate(q, 15.0f, glm::vec3(0, 1, 0));
+			q = glm::rotate(q, 90.0f, glm::vec3(0, 1, 0));
 			animator->addKeyframe(4000.0f, q);
+			q = glm::rotate(q, -90.0f, glm::vec3(1, 0, 0));
+			animator->addKeyframe(6000.0f, q);
+			q = glm::rotate(q, 180.0f, glm::vec3(0, 1, 0));
+			animator->addKeyframe(8000.0f, q);
 
 			/*float omega = (15.0f/180.0f)*M_PI;
 			float s = std::cos(omega/2);
@@ -150,7 +154,7 @@ namespace Interpolation
 			cube->m_transform.useQuaternions() = true;
 			cube->m_transform.translate(glm::vec3(0.0f, 0.0f, -10.0f));
 
-			Interpolator<glm::quat> * interpolator = new SphericalLinearInterpolator<glm::quat>;
+			Interpolator<glm::quat> * interpolator = new BezierSphericalLinearInterpolator<glm::quat>;
 			KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(cube, interpolator, cube->m_transform.quaternion(), true, false);
 
 			glm::quat q;
@@ -160,6 +164,12 @@ namespace Interpolation
 			animator->addKeyframe(2000.0f, q);
 			q = glm::rotate(q, 90.0f, glm::vec3(0, 1, 0));
 			animator->addKeyframe(4000.0f, q);
+			q = glm::rotate(q, -90.0f, glm::vec3(1, 0, 0));
+			animator->addKeyframe(6000.0f, q);
+			q = glm::rotate(q, 180.0f, glm::vec3(0, 1, 0));
+			animator->addKeyframe(8000.0f, q);
+			/*q = glm::rotate(q, 90.0f, glm::vec3(1, 0, 0));
+			animator->addKeyframe(10000.0f, q);*/
 
 			/*float omega = (15.0f/180.0f)*M_PI;
 			float s = std::cos(omega/2);

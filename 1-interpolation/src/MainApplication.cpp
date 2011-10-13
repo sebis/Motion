@@ -210,7 +210,7 @@ namespace Interpolation
 	void MainApplication::mouse(Common::Key key, int x, int y)
 	{
 		if (key == Common::KEY_MOUSE_LEFT)
-			m_camera.turn(x/float(m_width), y/float(m_height));
+			m_camera.turn(x, y);
 	}
 
 	void MainApplication::window_resized(int width, int height)

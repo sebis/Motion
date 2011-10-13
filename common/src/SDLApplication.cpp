@@ -81,8 +81,16 @@ namespace Common
 						keyUp(KEY_RESET_2);
 					break;
 				case SDL_MOUSEMOTION:
-					if (event.button.button == SDL_BUTTON_LEFT)
-						mouse(KEY_MOUSE_LEFT, event.motion.xrel, event.motion.yrel);
+					if (event.button.button == SDL_BUTTON_LEFT) {
+						int middleX = int(m_width/2);
+						int middleY = int(m_height/2);
+						if (middleX != event.motion.x || middleY != event.motion.y)
+						{
+							mouse(KEY_MOUSE_LEFT, middleX - event.motion.x, middleY - event.motion.y);
+							SDL_WarpMouse(middleX, middleY);
+						}
+					}
+
 					break;
 				case SDL_VIDEORESIZE:
 					{

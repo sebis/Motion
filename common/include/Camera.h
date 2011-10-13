@@ -30,9 +30,11 @@ namespace Common
 
 		void update(float dt);
 
-		void turn(float h_amount, float v_amount);
+		void turn(int h_amount, int v_amount);
 
 	private:
+		void rotateAroundAxis(float angle, glm::vec3 axis);
+
 		static const float SPEED;
 		static const float TURN_SPEED;
 
@@ -40,10 +42,10 @@ namespace Common
 		glm::mat4 m_view;
 
 		glm::vec3 m_position;
-		glm::vec3 m_lookDir;
-		glm::vec3 m_angles;
+		glm::vec3 m_lookAt;
+		glm::vec3 m_up;
 
-		glm::vec3 m_axis;
+		glm::vec2 m_rotation;
 
 		// bit field for moving
 		int m_moving;

@@ -6,12 +6,11 @@
 
 namespace Common
 {
-	const float Camera::SPEED = 0.025f;
-	const float Camera::TURN_SPEED = 80.0f;
+	const float Camera::MOVE_SPEED = 0.025f;
+	const float Camera::TURN_SPEED = 0.15f;
 
 	Camera::Camera(glm::vec3 position, glm::vec3 lookAt)
 		: m_moving(0),
-		  m_rotation(0),
 		  m_up(0, 1, 0)
 	{
 		reset(position, lookAt);
@@ -21,10 +20,12 @@ namespace Common
 	{
 	}
 
-	void Camera::reset(const glm::vec3& position, const glm::vec3& lookat)
+	void Camera::reset(const glm::vec3& position, const glm::vec3& lookAt)
 	{
 		m_position = position;
-		m_lookAt = lookat;
+		m_lookDir = glm::normalize(lookAt - position);
+
+		m_view = glm::lookAt(m_position, m_position + m_lookDir, m_up);
 	}
 
 	void Camera::update(float dt)
@@ -36,56 +37,45 @@ namespace Common
 			// set current move vector
 			if (m_moving & FORWARD)
 				move += glm::vec3(0.0f, 0.0f, -dt);
-			if (m_moving & BACKWARD)
+			else if (m_moving & BACKWARD)
 				move += glm::vec3(0.0f, 0.0f, dt);
+
 			if (m_moving & LEFT)
 				move += glm::vec3(-dt, 0.0f, 0.0f);
-			if (m_moving & RIGHT)
+			else if (m_moving & RIGHT)
 				move += glm::vec3(dt, 0.0f, 0.0f);
 
-			move = glm::normalize(move) * SPEED;
+			move = glm::normalize(move) * MOVE_SPEED;
 
-			// Calculate camera position
+			// Calculate new position with rotated move direction
 			m_position += move * glm::mat3(m_view);
-			Trace::info("Pos: (%f, %f, %f)\n", m_position.x, m_position.y, m_position.z);
+
+			// update view matrix
+			m_view = glm::lookAt(m_position, m_position + m_lookDir, m_up);
 		}
-
-		m_view = glm::lookAt(m_position, m_lookAt, m_up);
 	}
 
-	void Camera::turn(int h_amount, int v_amount)
+	void Camera::turn(glm::vec2 mouseDelta)
 	{
-		float mouseDirectionX = h_amount/16.0f;
-		float mouseDirectionY = v_amount/16.0f;
-		// TODO: requires fixing
-		//m_rotationX += mouseDirectionY;
-		/*if (m_rotationX < -180.0f || m_rotationX > 180.0f)
-		{
-			m_rotationX = glm::clamp(m_rotationX, -180.0f, 180.0f);
-			return;
-		}*/
+		mouseDelta *= TURN_SPEED;
 
-		//Trace::info("Turning: %f %f\n", mouseDirectionX, mouseDirectionY);
-		Trace::info("Look dir: %f %f %f\n", m_lookAt.x, m_lookAt.y, m_lookAt.z);
-		
+		// right vector
+		glm::vec3 axis = glm::cross(m_lookDir, m_up);
 
-		glm::vec3 axis = glm::cross(glm::normalize(m_lookAt - m_position), m_up);
-		//rotateAroundAxis(mouseDirectionY, axis);
-		//rotateAroundAxis(mouseDirectionX, glm::vec3(0, 1, 0));
+		// represent lookdir as a position in space we want to rotate
+		glm::quat lookdir(0, m_lookDir);
 
-		glm::quat lookat(0, m_lookAt - m_position);
+		// construct quaternions that will rotate lookdir around specified axes
+		glm::quat q = glm::angleAxis(mouseDelta.y, axis);
+		glm::quat p = glm::angleAxis(mouseDelta.x, m_up);
 
-		glm::quat q = glm::normalize(glm::angleAxis(mouseDirectionY, axis));
-		glm::quat q2 = glm::normalize(glm::angleAxis(mouseDirectionX, m_up));
-		lookat = (q2 * q) * lookat * glm::conjugate(q2 * q);
+		// rotate lookdir by q and p
+		lookdir = (q * p) * lookdir * glm::conjugate(q * p);
 
-		m_lookAt = m_position + glm::vec3(lookat.x, lookat.y, lookat.z);
-	}
+		// extract the rotated vector
+		m_lookDir = glm::vec3(lookdir.x, lookdir.y, lookdir.z);
 
-	void Camera::rotateAroundAxis(float angle, glm::vec3 axis)
-	{
-		
-
-		
+		// update view matrix
+		m_view = glm::lookAt(m_position, m_position + m_lookDir, m_up);
 	}
 }

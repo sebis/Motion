@@ -56,7 +56,7 @@ namespace Interpolation
 		{
 			Common::GameObject * cube = new Interpolation::CubeObject(m_shader);
 			cube->m_camera = &m_camera;
-			Interpolator<glm::vec3> * interpolator = new KochanekBartelsInterpolator<glm::vec3>;
+			Interpolator<glm::vec3> * interpolator = new CatmullRomInterpolator<glm::vec3>;
 			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(cube, interpolator, cube->m_transform.position(), true, true);
 
 			animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f), 0, -1, 0);
@@ -210,7 +210,7 @@ namespace Interpolation
 	void MainApplication::mouse(Common::Key key, int x, int y)
 	{
 		if (key == Common::KEY_MOUSE_LEFT)
-			m_camera.turn(x, y);
+			m_camera.turn(glm::vec2(x, y));
 	}
 
 	void MainApplication::window_resized(int width, int height)

@@ -80,6 +80,10 @@ namespace Common
 					else if (event.key.keysym.sym == SDLK_2)
 						keyUp(KEY_RESET_2);
 					break;
+				case SDL_MOUSEBUTTONDOWN:
+					// this is to avoid a "jump" of the mouse delta after the first movement after a mouse click
+					SDL_WarpMouse(m_width/2, m_height/2);
+					break;
 				case SDL_MOUSEMOTION:
 					if (event.button.button == SDL_BUTTON_LEFT) {
 						int middleX = int(m_width/2);

@@ -23,8 +23,16 @@ namespace Interpolation
 	class KeyframeAnimator : public Common::Animator, public ControlPoints<Keyframe<T>>
 	{
 	public:
-		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result, bool loop = false, bool orient = false)
-			: Animator(gameObject, loop), m_interpolator(interpolator), m_renderer(0), m_result(result), m_time(0), m_parameterize(false), m_orient(orient), m_subsegments(1000)
+		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result, bool loop = false, bool orient = false, bool reparameterize = false)
+			: Animator(gameObject, loop),
+			m_interpolator(interpolator),
+			m_renderer(0),
+			m_result(result),
+			m_time(0),
+			m_useArcLength(false),
+			m_orient(orient),
+			m_reparameterize(reparameterize),
+			m_subsegments(100)
 		{}
 
 		virtual ~KeyframeAnimator() {};
@@ -55,14 +63,14 @@ namespace Interpolation
 			m_keyframes.push_back(keyframe);
 		}
 
-		inline void setRenderer(Common::Renderer * renderer)
+		inline void setRenderer(SplineRenderer * renderer)
 		{
 			m_renderer = renderer;
 		}
 
 		inline float get_k(float t, int& k) const
 		{
-			if (m_parameterize)
+			if (m_useArcLength)
 				t = s(t);
 
 			assert(0 <= t && t <= 1);
@@ -77,6 +85,22 @@ namespace Interpolation
 			
 		}
 
+		inline void visualize()
+		{
+			if (m_renderer && m_renderer->initialized())
+				m_renderer->draw();
+		}
+
+		inline const ControlPoints<Keyframe<T> >& keys() const
+		{
+			return *this;
+		}
+
+		void update(float dt);
+
+	private:
+		void orient(T tangent) {}
+		
 		inline float s(float t) const
 		{
 			std::map<float,float>::const_iterator it = m_params.upper_bound(t);
@@ -106,38 +130,37 @@ namespace Interpolation
 
 		inline void reparameterize()
 		{
+			Trace::info("Reparameterizing..\n");
+
+			// set value to false so that the interpolator uses original t values instead of reparameterized ones
+			m_useArcLength = false;
+			m_params.clear();
+
+			// delta increment between each sample
 			float dt = 1.0f/m_subsegments;
 
+			// calculate total length of the curve
 			float s = m_interpolator->arcLengthAt(*this, 1.0f);
 			Trace::info("Length: %f\n", s);
 
+			// for each delta segment calculate the current length and store it in a map
 			for (unsigned i = 0; i <= m_subsegments; i++) {
 				float ds = m_interpolator->arcLengthAt(*this, i*dt);
 				m_params.insert(std::make_pair<float,float>(ds/s, i*dt));
 			}
 
-			m_parameterize = true;
+			// notify that reparameterized values can be used
+			m_useArcLength = true;
 		}
 
-		inline void visualize()
-		{
-			if (m_renderer)
-				m_renderer->draw();
-		}
 
-		void update(float dt);
-
-	private:
-		void orient(T tangent)
-		{
-		}
-
-		Common::Renderer * m_renderer;
+		SplineRenderer * m_renderer;
 		Interpolator<T> * m_interpolator;
 		std::vector<Keyframe<T>> m_keyframes;
 
-		bool m_parameterize;
+		bool m_useArcLength;
 		bool m_orient;
+		bool m_reparameterize;
 		std::map<float, float> m_params;
 
 		T& m_result;
@@ -149,22 +172,27 @@ namespace Interpolation
 	template<typename T>
 	void KeyframeAnimator<T>::update(float dt)
 	{
+		// TODO: kind of a hack..
+		static bool s_first = true;
+		if (s_first) {
+			s_first = false;
+			if (m_reparameterize)
+				reparameterize();
+			
+			m_renderer->init();
+		}
+
+		// wrap around if loop is enabled
 		m_time = m_loop ? std::fmodf(m_time, max()) : std::min(m_time, max());
 
-		/*typename std::vector<Keyframe<T>>::iterator low = std::upper_bound(m_keyframes.begin(), m_keyframes.end() - 1, m_time, Keyframe<T>::Less());
-		int k = int(low - m_keyframes.begin() - 1);*/
-
+		// map m_time to interval [0,1] based on first and last key frames
 		float t = (m_time - m_keyframes[0].time) / (m_keyframes[count() - 1].time - m_keyframes[0].time);
 
+		// get the index k of the key frame where t lies between [k,k+1]
 		int k = -1;
 		float _t = get_k(t, k);
 
-		// TODO: calculate t by a s(t), integrate curve length
-		//float _t = (m_time - m_keyframes[k].time) / (m_keyframes[k+1].time - m_keyframes[k].time);
-		
-
-		//if (m_parameterize)
-			//t = s(t);
+		// calculate tangent if we want to orient the animated object according to the tangent
 		if (m_orient)
 		{
 			T tangent;
@@ -176,6 +204,7 @@ namespace Interpolation
 			m_interpolator->interpolate(m_result, *this, k, _t);
 		}
 
+		// accumulate time
 		m_time += dt;
 	}
 

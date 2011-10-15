@@ -49,23 +49,27 @@ public:
 
 		static const std::string path("resources/");
 
-		if (!shader->load(path + technique + ".vert", GL_VERTEX_SHADER))
-			return NULL;
-		if (!shader->load(path + technique + ".frag", GL_FRAGMENT_SHADER))
-			return NULL;
+		if (!shader->load(path + technique + ".vert", GL_VERTEX_SHADER)) {
+			Trace::error("Could not find %s.vert\n", path + technique);
+			return 0;
+		}
+		if (!shader->load(path + technique + ".frag", GL_FRAGMENT_SHADER)) {
+			Trace::error("Could not find %s.frag\n", path + technique);
+			return 0;
+		}
 
-		/*GLenum err = glGetError();
+		GLenum err = glGetError();
 		if (err != GL_NO_ERROR)
-			Trace::error("OpenGL error: %s\n", gluErrorString(err));*/
+			Trace::error("OpenGL error: %d\n", err);
 
 		shader->bindAttribLocation(0, "in_Position");
 		shader->bindAttribLocation(1, "in_Normal");
 		shader->bindAttribLocation(2, "in_Color");
 		shader->bindAttribLocation(3, "in_Size");
 
-		/*err = glGetError();
+		err = glGetError();
 		if (err != GL_NO_ERROR)
-			Trace::error("OpenGL error: %s\n", gluErrorString(err));*/
+			Trace::error("OpenGL error: %d\n", err);
 
 		shader->link();
 

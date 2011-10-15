@@ -8,6 +8,8 @@
 
 #include "glm/glm.hpp"
 
+#include <vector>
+
 namespace Interpolation
 {
 	class SplineRenderer : public Common::Renderer
@@ -28,14 +30,22 @@ namespace Interpolation
 		SplineRenderer(Common::GameObject * gameObject, Interpolator<glm::vec3> * interpolator, Vertices vertices);
 		virtual ~SplineRenderer();
 
-		void processMessage(std::string, void*);
+		void init();
+
 		void draw();
+
+		inline bool initialized() { return m_initialized; }
 		
 	private:
+		bool m_initialized;
+
 		Shader * m_lineShader;
 		Shader * m_pointShader;
 
 		Interpolator<glm::vec3> * m_interpolator;
+
+		std::vector<vertex> vData;
+		std::vector<vertex> vPointData;
 
 		size_t m_vertexCount;
 		size_t m_pointCount;
@@ -47,6 +57,8 @@ namespace Interpolation
 		float m_majorSize;
 		float m_minorSize;
 		glm::vec4 m_color;
+
+		const Vertices& m_vertices;
 
 	};
 };

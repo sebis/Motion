@@ -37,14 +37,14 @@ namespace Interpolation
 		void draw();
 
 	private:
+		void setScene(int scene);
 
+		int m_currentScene;
 		Common::Camera m_camera;
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;
 		typedef ComponentCollection::iterator ComponentIterator;
 		ComponentCollection m_components;
-
-		Shader * m_shader;
 	};
 }
 

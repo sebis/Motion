@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\CubeObject.cpp" />
+    <ClCompile Include="src\MeshObject.cpp" />
     <ClCompile Include="src\KeyframeAnimator.cpp" />
     <ClCompile Include="src\MainApplication.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -19,15 +19,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ControlPoints.h" />
-    <ClInclude Include="include\CubeObject.h" />
+    <ClInclude Include="include\MeshObject.h" />
     <ClInclude Include="include\Interpolator.h" />
     <ClInclude Include="include\KeyframeAnimator.h" />
     <ClInclude Include="include\MainApplication.h" />
     <ClInclude Include="include\SplineRenderer.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\bunny.ply" />
     <None Include="resources\lambert.frag" />
     <None Include="resources\lambert.vert" />
+    <None Include="resources\phong.frag" />
+    <None Include="resources\phong.vert" />
     <None Include="resources\point.frag" />
     <None Include="resources\point.vert" />
     <None Include="resources\solid.frag" />

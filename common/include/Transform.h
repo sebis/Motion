@@ -62,6 +62,7 @@ namespace Common
 
 		inline glm::vec3& position() { return m_position; }
 		inline glm::vec3& rotation() { return m_rotation; }
+		inline glm::vec3& scale() { return m_scale; }
 		inline glm::quat& quaternion() { return m_quaternion; }
 
 		inline bool& useQuaternions() { return m_useQuaternions; }

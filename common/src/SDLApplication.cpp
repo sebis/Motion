@@ -63,6 +63,8 @@ namespace Common
 						keyDown(KEY_MOVE_LEFT);
 					else if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
 						keyDown(KEY_MOVE_RIGHT);
+					else if (event.key.keysym.sym == SDLK_SPACE)
+						keyDown(KEY_CONTINUE);
 					break;
 				case SDL_KEYUP:
 					if (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q)
@@ -79,6 +81,8 @@ namespace Common
 						keyUp(KEY_RESET_1);
 					else if (event.key.keysym.sym == SDLK_2)
 						keyUp(KEY_RESET_2);
+					else if (event.key.keysym.sym == SDLK_SPACE)
+						keyUp(KEY_CONTINUE);
 					break;
 				case SDL_MOUSEBUTTONDOWN:
 					// this is to avoid a "jump" of the mouse delta after the first movement after a mouse click

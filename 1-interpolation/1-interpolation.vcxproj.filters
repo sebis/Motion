@@ -21,13 +21,13 @@
     <ClCompile Include="src\MainApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CubeObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\KeyframeAnimator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SplineRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MeshObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,12 +50,18 @@
     <None Include="resources\point.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="resources\bunny.ply">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\phong.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\phong.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MainApplication.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\CubeObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\KeyframeAnimator.h">
@@ -68,6 +74,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\SplineRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MeshObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

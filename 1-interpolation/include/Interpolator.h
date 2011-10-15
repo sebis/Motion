@@ -55,6 +55,9 @@ namespace Interpolation
 			const T& p2 = keys[k+1].value;
 
 			out = p1 + _t * (p2 - p1);
+
+			if (tangent)
+				*tangent = glm::normalize(p2 - p1);
 		}
 
 		float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)

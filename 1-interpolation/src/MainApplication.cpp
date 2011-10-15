@@ -1,4 +1,4 @@
-#include "CubeObject.h"
+#include "MeshObject.h"
 #include "Interpolator.h"
 #include "KeyframeAnimator.h"
 #include "MainApplication.h"
@@ -11,14 +11,13 @@ namespace Interpolation
 {
 	MainApplication::MainApplication(bool fixedTimeStep, float targetElapsedTime)
 		: Base(fixedTimeStep, targetElapsedTime),
-		m_shader(0),
-		m_camera(glm::vec3(10.0f))
+		m_camera(glm::vec3(10.0f)),
+		m_currentScene(0)
 	{
 	}
 
 	MainApplication::~MainApplication()
 	{
-		delete m_shader;
 	}
 
 	bool MainApplication::init(int argc, char * argv[])
@@ -40,24 +39,46 @@ namespace Interpolation
 		glClearDepth(1.0f);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 		glEnable(GL_PROGRAM_POINT_SIZE);
 
-
 		// TODO: Shouldn't need to "initialize" uniforms like this
-		m_shader = Shader::find("lambert");
+		Shader * shader = Shader::find("lambert");
+		shader->bind();
+		shader->setUniform("lightDirection", glm::vec3(1.0f, 0.5f, 0.25f));
+		shader->unbind();
 
-		m_shader->bind();
-		m_shader->setUniform("lightDirection", glm::vec3(1.0f, 0.5f, 0.25f));
-		m_shader->unbind();
+		shader = Shader::find("phong");
+		shader->bind();
+		shader->setUniform("lightDirection", glm::vec3(1.0f, 0.5f, 0.25f));
+		shader->unbind();
 
+		setScene(m_currentScene);
+
+		return true;
+	}
+
+	void MainApplication::setScene(int scene)
+	{
+		Trace::info("Switched to scene %d\n", scene);
+
+		// clear old scene
+		for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)
 		{
-			Common::GameObject * cube = new Interpolation::CubeObject(m_shader);
-			cube->m_camera = &m_camera;
+			delete *it;
+		}
+		m_components.clear();
+
+		if (scene == 0)
+		{
+			Common::GameObject * obj = new MeshObject(Shader::find("solid"), "resources/bunny.ply");
+			obj->m_camera = &m_camera;
+			obj->m_transform.scale() *= 5.0f;
+
 			Interpolator<glm::vec3> * interpolator = new CatmullRomInterpolator<glm::vec3>;
-			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(cube, interpolator, cube->m_transform.position(), true, true);
+			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.position(), true, true, true);
+
+			animator->setRenderer(new SplineRenderer(obj, interpolator, animator->keys()));
 
 			animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f), 0, -1, 0);
 			animator->addKeyframe(2000.0f, glm::vec3(-2.5f, 0.0f, 2.0f), 0, -1, 0);
@@ -70,18 +91,13 @@ namespace Interpolation
 			animator->addKeyframe(20000.0f, glm::vec3(0.0f, 0.0f, -5.0f), 0, -1, 0);
 			animator->addKeyframe(22000.0f, glm::vec3(0.0f, 0.0f, 0.0f), 0, -1, 0);
 
-			animator->reparameterize();
+			obj->m_animator = animator;
 
-			// TODO: should not need to set spline renderer AFTER keyframes
-			animator->setRenderer(new SplineRenderer(cube, interpolator, *animator));
-
-			cube->m_animator = animator;
-
-			m_components.push_back(cube);
-		}
-
+			m_components.push_back(obj);
+		} 
+		else if (scene == 1)
 		{
-			Common::GameObject * cube = new Interpolation::CubeObject(m_shader);
+			Common::GameObject * cube = new MeshObject(Shader::find("lambert"), Common::MeshFactory::Cube());
 			cube->m_camera = &m_camera;
 			cube->m_transform.translate(glm::vec3(-10.0f, 0.0f, 0.0f));
 
@@ -98,9 +114,9 @@ namespace Interpolation
 
 			m_components.push_back(cube);
 		}
-
+		else if (scene == 2)
 		{
-			Common::GameObject * cube = new Interpolation::CubeObject(m_shader);
+			Common::GameObject * cube = new MeshObject(Shader::find("lambert"), Common::MeshFactory::Cube());
 			cube->m_camera = &m_camera;
 			cube->m_transform.useQuaternions() = true;
 			cube->m_transform.translate(glm::vec3(6.0f, 0.0f, -4.0f));
@@ -131,9 +147,9 @@ namespace Interpolation
 
 			m_components.push_back(cube);
 		}
-
+		else if (scene == 3)
 		{
-			Common::GameObject * cube = new Interpolation::CubeObject(m_shader);
+			Common::GameObject * cube = new MeshObject(Shader::find("lambert"), Common::MeshFactory::Cube());
 			cube->m_camera = &m_camera;
 			cube->m_transform.useQuaternions() = true;
 			cube->m_transform.translate(glm::vec3(0.0f, 0.0f, -10.0f));
@@ -166,8 +182,10 @@ namespace Interpolation
 
 			m_components.push_back(cube);
 		}
-
-		return true;
+		else
+		{
+			Trace::error("No scene %d found!\n", scene);
+		}
 	}
 
 	void MainApplication::keyDown(Common::Key key)
@@ -180,6 +198,8 @@ namespace Interpolation
 			m_camera.raiseFlag(Common::Camera::LEFT);
 		else if (key == Common::KEY_MOVE_RIGHT)
 			m_camera.raiseFlag(Common::Camera::RIGHT);
+		else if (key == Common::KEY_CONTINUE)
+			setScene(++m_currentScene);
 	}
 
 	void MainApplication::keyUp(Common::Key key)
@@ -242,9 +262,9 @@ namespace Interpolation
 		//m_cube->m_transform.rotation() += glm::vec3(0, dt/100.0f, 0);
 		//Trace::info("rotation: %f\n", m_cube->m_transform.rotation().y);
 
-		/*GLenum err = glGetError();
+		GLenum err = glGetError();
 		if (err != GL_NO_ERROR)
-		Trace::error("OpenGL error: %s\n", gluErrorString(err));*/
+			Trace::error("OpenGL error: %d\n", err);
 	}
 
 	void MainApplication::draw()

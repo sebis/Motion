@@ -15,6 +15,7 @@
     <ClCompile Include="src\GameObject.cpp" />
     <ClCompile Include="src\GlutApplication.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\MeshFactory.cpp" />
     <ClCompile Include="src\MeshRenderer.cpp" />
     <ClCompile Include="src\SDLApplication.cpp" />
     <ClCompile Include="src\Shader.cpp" />

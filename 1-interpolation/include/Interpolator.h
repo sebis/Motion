@@ -35,9 +35,12 @@ namespace Interpolation
 			int k = 0;
 			float _t = keys.get_k(t, k);
 
+			// calculate whole arcs between control points
 			for (int i = 0; i < k; i++) {
 				length += arcLength(keys, i, i+1);
 			}
+
+			// calculate the correct portion _t of the last segment
 			if (_t != 0)
 				length += arcLength(keys, k, k+1, _t);
 
@@ -94,7 +97,7 @@ namespace Interpolation
 	protected:
 		T Slerp(const T& p, const T& q, float t)
 		{
-			// note: p and q are unit quaternions
+			// p and q should be unit quaternions
 			float omega = std::acos(glm::dot(p, q));
 			return (std::sin((1 - t) * omega)*p + std::sin(t*omega)*q)/std::sin(omega);
 		}
@@ -111,12 +114,13 @@ namespace Interpolation
 			const T& q2 = glm::normalize(keys[k+1].value);
 			const T& q3 = glm::normalize(keys[std::min(keys.count()-1, k+2)].value);
 
+			// Shoemaker '84
 			const T& a1 = Bisect(Double(q0, q1), q2);
 			const T& b1 = Double(a1, q1);
 			const T& a2 = Bisect(Double(q1, q2), q3);
 			const T& b2 = Double(a2, q2);
 
-			// Calculate result by using de Castlejau's algorithm
+			// Calculate result by using de Castlejau's algorithm for 3rd order Bezier curve
 			const T& p00 = q1;
 			const T& p10 = a1;
 			const T& p20 = b2;
@@ -156,11 +160,10 @@ namespace Interpolation
 	public:
 		void interpolate(T& out, Keys keys, int k, float t, T* tangent = 0)
 		{
-			// use duplicate end points we're at the end/beginning of the spline
-			const T& p0 = keys[std::max(0, k-1)].value;
+			const T& p0 = keys[k-1].value;
 			const T& p1 = keys[k].value;
 			const T& p2 = keys[k+1].value;
-			const T& p3 = keys[std::min(keys.count()-1, k+2)].value;
+			const T& p3 = keys[k+2].value;
 
 			/* Calculated from matrix form
 			   out = 0.5 * [ t^3 t^2 t 1 ] * [ -1  3 -3  1 ] * [ p0 ]
@@ -182,25 +185,11 @@ namespace Interpolation
 					(4.0f*p0 - 10.0f*p1 + 8.0f*p2 - 2.0f*p3)*t +
 					(-p0 + p2));
 			}
-
-			/*const glm::vec4 T(t*t*t, t*t, t, 1);
-
-			// Catmull-Rom basis in matrix form
-			const glm::mat4 B = 0.5f * glm::mat4(
-				-1,  3, -3,  1,
-				 2, -5,  4, -1,
-				-1,  0,  1,  0,
-				 0,  2,  0,  0);
-
-			// for some reason GLM hasn't implemented 4x4 * 4x3 multiplication, so use an extended matrix
-			const glm::mat4x4 P(glm::mat4x3(p0, p1, p2, p3));
-
-			// GLM treats matrices in column major order so flip multiplication order
-			out = glm::vec3(P * B * T);*/
 		}
 
 		virtual float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
 		{
+			// TODO: calculate integral approximation
 			const int segments = 100;
 			const float dt = _t / segments;
 			T prev, current;
@@ -260,24 +249,6 @@ namespace Interpolation
 					(-6.0f*p1 + 6.0f*p2 - 4.0f*d1 - 2.0f*d2)*_t +
 					d1);
 			}
-
-			/*const glm::vec4 TT(_t*_t*_t, _t*_t, _t, 1);
-
-			// Catmull-Rom basis in matrix form
-			const glm::mat4 B(
-				2, -2, 1, 1,
-				-3, 3, -2, -1,
-				0, 0, 1, 0,
-				1, 0, 0, 0);
-
-			const T& d1 = (0.5f*(1-t)*(1-b)*(1-c)) * (p2 - p1) + (0.5f*(1-t)*(1+b)*(1+c)) * (p1 - p0); // in
-			const T& d2 = (0.5f*(1-t)*(1-b)*(1+c)) * (p3 - p2) + (0.5f*(1-t)*(1+b)*(1-c)) * (p2 - p1); // out
-
-			// for some reason GLM hasn't implemented 4x4 * 4x3 multiplication, so use an extended matrix
-			const glm::mat4x4 P(glm::mat4x3(p1, p2, d1, d2));
-
-			// GLM treats matrices in column major order so flip multiplication order
-			out = glm::vec3(P * B * TT);*/
 		}
 	};
 }

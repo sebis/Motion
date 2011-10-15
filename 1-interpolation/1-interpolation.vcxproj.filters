@@ -59,6 +59,12 @@
     <None Include="resources\phong.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="resources\model.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\model.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MainApplication.h">

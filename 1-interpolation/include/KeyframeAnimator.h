@@ -23,28 +23,40 @@ namespace Interpolation
 	class KeyframeAnimator : public Common::Animator, public ControlPoints<Keyframe<T>>
 	{
 	public:
-		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result, bool loop = false, bool orient = false, bool reparameterize = false)
+		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result, 
+			bool reparameterize = false,
+			bool orient_to_tangent = true,
+			bool loop = true, 
+			bool connect_end_points = false
+			)
 			: Animator(gameObject, loop),
 			m_interpolator(interpolator),
 			m_renderer(0),
 			m_result(result),
 			m_time(0),
 			m_useArcLength(false),
-			m_orient(orient),
+			m_initialized(false),
+			m_subsegments(100),
 			m_reparameterize(reparameterize),
-			m_subsegments(100)
+			m_orient(orient_to_tangent),
+			m_closed(connect_end_points)
 		{}
 
 		virtual ~KeyframeAnimator() {};
 
-		inline const Keyframe<T>& operator[](const int& i) const
+		inline const Keyframe<T>& operator[](int i) const
 		{
-			return m_keyframes[i];
-		}
+			int index = i;
 
-		inline Keyframe<T>& operator[](const int& i)
-		{
-			return m_keyframes[i];
+			if (m_closed) {
+				if (i == -1) index = count()-2;
+				else if (i == count()) index = 0;
+			} else {
+				if (i == -1) index = count()-1;
+				else if (i == count()) index = count()-1;
+			}
+
+			return m_keyframes[index];
 		}
 
 		inline const int count() const
@@ -160,7 +172,9 @@ namespace Interpolation
 
 		bool m_useArcLength;
 		bool m_orient;
+		bool m_closed;
 		bool m_reparameterize;
+		bool m_initialized;
 		std::map<float, float> m_params;
 
 		T& m_result;
@@ -173,13 +187,14 @@ namespace Interpolation
 	void KeyframeAnimator<T>::update(float dt)
 	{
 		// TODO: kind of a hack..
-		static bool s_first = true;
-		if (s_first) {
-			s_first = false;
+		if (!m_initialized) {
+			m_initialized = true;
+
 			if (m_reparameterize)
 				reparameterize();
 			
-			m_renderer->init();
+			if (m_renderer)
+				m_renderer->init();
 		}
 
 		// wrap around if loop is enabled

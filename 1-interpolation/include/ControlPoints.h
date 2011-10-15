@@ -8,8 +8,7 @@ namespace Interpolation
 	{
 	public:
 		virtual ~ControlPoints() {}
-		virtual const T& operator [](const int& i) const = 0;
-		virtual T& operator[](const int& i) = 0;
+		virtual const T& operator [](int i) const = 0;
 		virtual const int count() const = 0;
 		virtual float s(float t) const = 0;
 		virtual float get_k(float t, int& k) const = 0;

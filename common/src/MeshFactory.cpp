@@ -16,40 +16,40 @@ namespace Common
 			Mesh::vertex vData[] =
 			{
 				// front face 0,1,2,3
-				{ glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
-				{ glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
-				{ glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
-				{ glm::vec3(1.0f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
+				{ glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0, 0), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
+				{ glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0, 0), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
+				{ glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0, 0), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
+				{ glm::vec3(1.0f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0, 0), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
 
 				// right face 4,5,6,7
-				{ glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f), color },
-				{ glm::vec3(1.0f, -1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f), color },
-				{ glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(1.0f, 0.0f, 0.0f), color },
-				{ glm::vec3(1.0f, -1.0f, -1.0f), glm::vec3(1.0f, 0.0f, 0.0f), color },
+				{ glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(1.0f, -1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(1.0f, -1.0f, -1.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0, 0), color },
 
 				// back face 8, 9, 10, 11
-				{ glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) },
-				{ glm::vec3(1.0f, -1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) },
-				{ glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) },
-				{ glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) },
+				{ glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0, 0), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) },
+				{ glm::vec3(1.0f, -1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0, 0), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) },
+				{ glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0, 0), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) },
+				{ glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0, 0), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) },
 
 				// left face 12, 13, 14, 15
-				{ glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), color },
-				{ glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), color },
-				{ glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), color },
-				{ glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), color },
+				{ glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0, 0), color },
 
 				// top face 16, 17, 18, 19
-				{ glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), color },
-				{ glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), color },
-				{ glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), color },
-				{ glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), color },
+				{ glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(-1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0, 0), color },
 
 				// bottom face 20, 21, 22, 23
-				{ glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f), color },
-				{ glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f), color },
-				{ glm::vec3(1.0f, -1.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f), color },
-				{ glm::vec3(1.0f, -1.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f), color },
+				{ glm::vec3(-1.0f, -1.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(1.0f, -1.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0, 0), color },
+				{ glm::vec3(1.0f, -1.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0, 0), color },
 			};
 
 			glm::uint iData[] =
@@ -112,11 +112,14 @@ namespace Common
 			{
 				std::getline(file, line);
 				double x, y, z;
-				sscanf(line.c_str(), "%lf %lf %lf", &x, &y, &z);
+				double nx, ny, nz;
+				double s, t;
+				sscanf(line.c_str(), "%lf %lf %lf %lf %lf %lf %lf %lf", &x, &y, &z, &nx, &ny, &nz, &s, &t);
 		
 				Mesh::vertex v;
 				v.position = glm::vec3(x, y, z);
-				v.normal = glm::vec3(0.0, 0.0, 0.0); // init normal to 0-vector
+				v.normal = glm::vec3(nx, ny, nz);
+				v.texcoord = glm::vec2(s, t);
 				v.color = glm::vec4(1);
 				vData.push_back(v);
 			}
@@ -125,14 +128,21 @@ namespace Common
 			for (int i = 0; file.good() && i < num_triangles; i++)
 			{
 				std::getline(file, line);
-				glm::uint i0, i1, i2;
-				sscanf(line.c_str(), "%*s %d %d %d", &i0, &i1, &i2);
+				int iCount;
+				glm::uint i0, i1, i2, i3;
+				sscanf(line.c_str(), "%d %d %d %d %d", &iCount, &i0, &i1, &i2, &i3);
 				iData.push_back(i0);
 				iData.push_back(i1);
 				iData.push_back(i2);
+				if (iCount == 4) {
+					iData.push_back(i0);
+					iData.push_back(i2);
+					iData.push_back(i3);
+					num_triangles++;
+				}
 		
 				// get vertices corresponding to this face
-				Mesh::vertex& v0 = vData[i0];
+				/*Mesh::vertex& v0 = vData[i0];
 				Mesh::vertex& v1 = vData[i1];
 				Mesh::vertex& v2 = vData[i2];
 		
@@ -141,15 +151,15 @@ namespace Common
 				
 				v0.normal += normal;
 				v1.normal += normal;
-				v2.normal += normal;
+				v2.normal += normal;*/
 			}
 	
 			file.close();
 	
 			// normalize sum normal vectors
-			for (int i = 0; i < num_vertices; i++) {
+			/*for (int i = 0; i < num_vertices; i++) {
 				vData[i].normal = glm::normalize(vData[i].normal);
-			}
+			}*/
 
 			return new Mesh(&vData[0], num_vertices, &iData[0], 3 * num_triangles);
 		}

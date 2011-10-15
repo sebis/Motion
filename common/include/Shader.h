@@ -66,6 +66,7 @@ public:
 		shader->bindAttribLocation(1, "in_Normal");
 		shader->bindAttribLocation(2, "in_Color");
 		shader->bindAttribLocation(3, "in_Size");
+		shader->bindAttribLocation(4, "in_TexCoord");
 
 		err = glGetError();
 		if (err != GL_NO_ERROR)

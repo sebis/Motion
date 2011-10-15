@@ -3,13 +3,21 @@
 
 namespace Common
 {
-	MeshRenderer::MeshRenderer(GameObject * gameObject, Mesh * mesh, Shader * shader)
-		: Renderer(gameObject), m_mesh(mesh), m_shader(shader)
+	MeshRenderer::MeshRenderer(GameObject * gameObject, Mesh * mesh, Shader * shader, Texture * texture)
+		: Renderer(gameObject), m_mesh(mesh), m_shader(shader), m_texture(texture)
 	{
+	}
+
+	MeshRenderer::~MeshRenderer()
+	{
+		delete m_texture;
 	}
 
 	void MeshRenderer::draw()
 	{
+		if (m_texture)
+			m_texture->bind();
+
 		m_shader->bind();
 		m_shader->setUniform("world", m_gameObject->m_transform.world());
 		m_shader->setUniform("view", m_gameObject->m_camera->view());
@@ -18,5 +26,8 @@ namespace Common
 		m_mesh->draw();
 
 		m_shader->unbind();
+
+		if (m_texture)
+			m_texture->unbind();
 	}
 };

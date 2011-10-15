@@ -29,6 +29,8 @@
     <None Include="resources\bunny.ply" />
     <None Include="resources\lambert.frag" />
     <None Include="resources\lambert.vert" />
+    <None Include="resources\model.frag" />
+    <None Include="resources\model.vert" />
     <None Include="resources\phong.frag" />
     <None Include="resources\phong.vert" />
     <None Include="resources\point.frag" />

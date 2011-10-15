@@ -24,6 +24,8 @@ Mesh::Mesh(Mesh::vertex vData[], size_t vSize, glm::uint iData[], size_t iSize)
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, color));
 	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, texcoord));
+	glEnableVertexAttribArray(4);
 
 	// create and fill index buffer
 	glGenBuffers(1, &m_eboID);

@@ -34,7 +34,7 @@ namespace Interpolation
 				float x = atan2(-r12,r22);
 				float z = atan2(-r01,r00);
 
-				m_gameObject->m_transform.rotation() = glm::vec3(x, y, z) * float(180.0/M_PI);
+				m_gameObject->m_transform.rotation() = glm::vec3(x, y, z) * float(180.0/3.14159265);
 			}
 		}
 	}

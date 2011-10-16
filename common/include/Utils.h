@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
+#include <ctime>
 
 #ifdef _MSC_VER
 
@@ -69,6 +70,11 @@ namespace Utils
 	class Random
 	{
 	public:
+		Random()
+		{
+			srand(time(NULL));
+		}
+
 		Random(unsigned int seed)
 		{
 			srand(seed);

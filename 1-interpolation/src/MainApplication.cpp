@@ -201,8 +201,7 @@ namespace Interpolation
 		}
 		else if (scene == 4)
 		{
-			// TODO: random seed
-			Utils::Random r(1337);
+			Utils::Random r;
 
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
 			obj->m_camera = &m_camera;
@@ -246,10 +245,10 @@ namespace Interpolation
             animator->addKeyframe(6000.0f, glm::vec3(0.0f, 90.0f, 90.0f));
 			animator->addKeyframe(9000.0f, glm::vec3(0.0f, 90.0f, 90.0f));
 			animator->addKeyframe(12000.0f, glm::vec3(-90.0f, 90.0f, 90.0f));
-			animator->addKeyframe(15000.0f, glm::vec3(-90.0f, 90.0f, 90.0f));
-			animator->addKeyframe(18000.0f, glm::vec3(180.0f, 90.0f, 90.0f));
-			animator->addKeyframe(21000.0f, glm::vec3(180.0f, 90.0f, 90.0f));
-			animator->addKeyframe(24000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+			animator->addKeyframe(13000.0f, glm::vec3(-90.0f, 90.0f, 90.0f));
+			animator->addKeyframe(16000.0f, glm::vec3(180.0f, 90.0f, 90.0f));
+			animator->addKeyframe(17000.0f, glm::vec3(180.0f, 90.0f, 90.0f));
+			animator->addKeyframe(20000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 			obj->m_animator = animator;
 
 			m_components.push_back(obj);
@@ -355,10 +354,10 @@ namespace Interpolation
 			m_camera.dropFlag(Common::Camera::RIGHT);
 			break;
 		case Common::KEY_RESET_1:
-			m_camera.reset(glm::vec3(10.0f));
+			setScene(m_currentScene);
 			break;
 		case Common::KEY_RESET_2:
-			m_camera.reset(glm::vec3(-10.0f));
+			m_camera.reset(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f));
 			break;
 		}
 	}

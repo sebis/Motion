@@ -7,8 +7,6 @@
 #include "SplineRenderer.h"
 #include "Trace.h"
 
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include <cassert>
 #include <algorithm>
 #include <functional>

@@ -77,9 +77,9 @@ namespace Common
 						keyUp(KEY_MOVE_LEFT);
 					else if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d)
 						keyUp(KEY_MOVE_RIGHT);
-					else if (event.key.keysym.sym == SDLK_1)
+					else if (event.key.keysym.sym == SDLK_RETURN)
 						keyUp(KEY_RESET_1);
-					else if (event.key.keysym.sym == SDLK_2)
+					else if (event.key.keysym.sym == SDLK_c)
 						keyUp(KEY_RESET_2);
 					else if (event.key.keysym.sym == SDLK_SPACE)
 						keyUp(KEY_CONTINUE);

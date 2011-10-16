@@ -29,28 +29,18 @@ namespace Interpolation
 
 		m_shader->setUniform("view", m_gameObject->m_camera->view());
 		m_shader->setUniform("projection", m_gameObject->m_camera->projection());
-
-		//glm::mat4 rotateX = glm::rotate(glm::mat4(1.0f), m_transform->rotation(), glm::vec3(1, 0, 0));
 		
-		glm::mat4 mx(1.0f);
-		//mx = glm::rotate(mx, m_transform->rotation().z, glm::vec3(0, 0, 1));
-		//mx = glm::rotate(mx, m_transform->rotation().y, glm::vec3(0, 1, 0));
-		mx = glm::rotate(mx, m_transform->rotation().x, glm::vec3(1, 0, 0));
+		glm::mat4 mx = glm::rotate(glm::mat4(1.0f), m_transform->rotation().x, glm::vec3(1, 0, 0));
+		glm::mat4 my = glm::rotate(glm::mat4(1.0f), m_transform->rotation().y, glm::vec3(0, 1, 0));
+		glm::mat4 mz = glm::rotate(glm::mat4(1.0f), m_transform->rotation().z, glm::vec3(0, 0, 1));
 		
 		m_shader->setUniform("world", m_gameObject->m_transform.world() * mx);
-		m_pitch->draw();
+		m_pitch->draw();		
 
-		glm::mat4 my = glm::mat4(1.0f);
-		//my = glm::rotate(my, m_transform->rotation().z, glm::vec3(0, 0, 1));
-		my = glm::rotate(my, m_transform->rotation().y, glm::vec3(0, 1, 0));
-		//glm::mat4 tmp = glm::rotate(glm::mat4(), m_transform->rotation().x, glm::vec3(1, 0, 0));
-		m_shader->setUniform("world", m_gameObject->m_transform.world() * mx * my * glm::inverse(mx));
+		m_shader->setUniform("world", m_gameObject->m_transform.world() * mx * my);
 		m_yaw->draw();
 
-		glm::mat4 mz = glm::rotate(glm::mat4(1.0f), m_transform->rotation().z, glm::vec3(0, 0, 1));
-		//mz = glm::inverse(my) * glm::inverse(mx) * mz * mx * my;
-
-		m_shader->setUniform("world", m_gameObject->m_transform.world() * (mx * my) * mz * glm::inverse(mx * my));
+		m_shader->setUniform("world", m_gameObject->m_transform.world() * mx * my * mz);
 		m_roll->draw();
 
 		m_shader->unbind();

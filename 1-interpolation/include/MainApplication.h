@@ -40,6 +40,7 @@ namespace Interpolation
 		void setScene(int scene);
 
 		int m_currentScene;
+		int m_numScenes;
 		Common::Camera m_camera;
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;

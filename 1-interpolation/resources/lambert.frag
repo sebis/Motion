@@ -1,6 +1,6 @@
 #version 150
 
-uniform vec3 lightDirection;
+vec3 lightDirection = vec3(1.0f, 0.5f, 0.25f);
 
 in vec3 pass_Normal;
 in vec4 pass_Color;

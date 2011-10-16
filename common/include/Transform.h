@@ -76,7 +76,7 @@ namespace Common
 		inline glm::vec3& scale() { return m_scale; }
 		inline glm::quat& quaternion() { return m_quaternion; }
 
-		inline bool& useQuaternions() { return m_useQuaternions; }
+		inline void enableQuaternions() { m_useQuaternions = true; }
 
 	private:
 		bool m_useQuaternions;

@@ -15,7 +15,8 @@ namespace Interpolation
 	MainApplication::MainApplication(bool fixedTimeStep, float targetElapsedTime)
 		: Base(fixedTimeStep, targetElapsedTime),
 		m_camera(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f)),
-		m_currentScene(5)
+		m_currentScene(0),
+		m_numScenes(7)
 	{
 	}
 
@@ -88,7 +89,6 @@ namespace Interpolation
 		{
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
 			obj->m_camera = &m_camera;
-			obj->m_transform.scale() *= 0.1f;
 
 			// create a linear interpolator for vec3 type
 			Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
@@ -119,7 +119,6 @@ namespace Interpolation
 		{
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
 			obj->m_camera = &m_camera;
-			obj->m_transform.scale() *= 0.1f;
 
 			Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
 			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.position(), true);
@@ -148,7 +147,6 @@ namespace Interpolation
 		{
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
 			obj->m_camera = &m_camera;
-			obj->m_transform.scale() *= 0.1f;
 
 			Interpolator<glm::vec3> * interpolator = new CatmullRomInterpolator<glm::vec3>;
 			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.position(), false, true);
@@ -177,7 +175,6 @@ namespace Interpolation
 		{
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
 			obj->m_camera = &m_camera;
-			obj->m_transform.scale() *= 0.1f;
 
 			Interpolator<glm::vec3> * interpolator = new CatmullRomInterpolator<glm::vec3>;
 			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.position(), true, true);
@@ -209,7 +206,6 @@ namespace Interpolation
 
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
 			obj->m_camera = &m_camera;
-			obj->m_transform.scale() *= 0.1f;
 
 			Interpolator<glm::vec3> * interpolator = new KochanekBartelsInterpolator<glm::vec3>;
 			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.position(), true, true);
@@ -239,108 +235,92 @@ namespace Interpolation
 			glm::vec3 translation(-10.0f, 0.0f, 0.0f);
 			glm::vec3 scale(5.0f);
 
-			Common::GameObject * cube = new MeshObject(Shader::find("model"), "resources/spacecraft.ply", "resources/spacecraft.bmp");
-			cube->m_camera = &m_camera;
-			cube->m_transform.translate(translation);
+			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/spacecraft.ply", "resources/spacecraft.bmp");
+			obj->m_camera = &m_camera;
+			obj->m_transform.translate(translation);
 
 			Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
-			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(cube, interpolator, cube->m_transform.rotation(), false, false, false);
-
-			//animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-            //animator->addKeyframe(4000.0f, glm::vec3(180.0f, 0.0f, 0.0f));
-
+			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.rotation(), false, false, false);
 			animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-            animator->addKeyframe(4000.0f, glm::vec3(90.0f, 0.0f, 0.0f));
-            animator->addKeyframe(8000.0f, glm::vec3(90.0f, 90.0f, 0.0f));
-			animator->addKeyframe(12000.0f, glm::vec3(90.0f, 90.0f, 0.0f));
-			animator->addKeyframe(16000.0f, glm::vec3(90.0f, 90.0f, -90.0f));
-            //animator->addKeyframe(8000.0f, glm::vec3(180.0f, 90.0f, 0.0f));
-            //animator->addKeyframe(10000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+            animator->addKeyframe(3000.0f, glm::vec3(0.0f, 0.0f, 90.0f));
+            animator->addKeyframe(6000.0f, glm::vec3(0.0f, 90.0f, 90.0f));
+			animator->addKeyframe(9000.0f, glm::vec3(0.0f, 90.0f, 90.0f));
+			animator->addKeyframe(12000.0f, glm::vec3(-90.0f, 90.0f, 90.0f));
+			animator->addKeyframe(15000.0f, glm::vec3(-90.0f, 90.0f, 90.0f));
+			animator->addKeyframe(18000.0f, glm::vec3(180.0f, 90.0f, 90.0f));
+			animator->addKeyframe(21000.0f, glm::vec3(180.0f, 90.0f, 90.0f));
+			animator->addKeyframe(24000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+			obj->m_animator = animator;
 
-			cube->m_animator = animator;
-
-			m_components.push_back(cube);
+			m_components.push_back(obj);
 
 			Common::GameObject * gyroscope = new Common::GameObject;
 			gyroscope->m_camera = &m_camera;
-			gyroscope->m_renderer = new TransformRenderer(gyroscope, Shader::find("solid"), &cube->m_transform);
-
+			gyroscope->m_renderer = new TransformRenderer(gyroscope, Shader::find("lambert"), &obj->m_transform);
 			gyroscope->m_transform.translate(translation);
 			gyroscope->m_transform.scale(glm::vec3(5.0f));
-
+			
 			m_components.push_back(gyroscope);
-		}
-		else if (scene == 5)
-		{
-			Common::GameObject * cube = new MeshObject(Shader::find("lambert"), Common::MeshFactory::Cube());
-			cube->m_camera = &m_camera;
-			cube->m_transform.useQuaternions() = true;
-			cube->m_transform.translate(glm::vec3(6.0f, 0.0f, -4.0f));
-
-			Interpolator<glm::quat> * interpolator = new SphericalLinearInterpolator<glm::quat>;
-			KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(cube, interpolator, cube->m_transform.quaternion(), false, false, false);
-
-			glm::quat q;
-			q = glm::rotate(q, 0.0f, glm::vec3(1, 0, 0));
-			animator->addKeyframe(0.0f, q);
-			q = glm::rotate(q, -90.0f, glm::vec3(1, 0, 0));
-			animator->addKeyframe(2000.0f, q);
-			q = glm::rotate(q, 90.0f, glm::vec3(0, 1, 0));
-			animator->addKeyframe(4000.0f, q);
-			q = glm::rotate(q, -90.0f, glm::vec3(1, 0, 0));
-			animator->addKeyframe(6000.0f, q);
-			q = glm::rotate(q, 180.0f, glm::vec3(0, 1, 0));
-			animator->addKeyframe(8000.0f, q);
-
-			/*float omega = (15.0f/180.0f)*M_PI;
-			float s = std::cos(omega/2);
-			glm::vec3 v = std::sin(omega/2)*glm::vec3(0, 1, 0);
-
-			animator->addKeyframe(0.0f, glm::quat(1, glm::vec3(0)));
-			animator->addKeyframe(2000.0f, glm::quat(s, v));*/
-
-			cube->m_animator = animator;
-
-			m_components.push_back(cube);
 		}
 		else if (scene == 6)
 		{
-			Common::GameObject * cube = new MeshObject(Shader::find("phong"), Common::MeshFactory::Cube());
-			cube->m_camera = &m_camera;
-			cube->m_transform.useQuaternions() = true;
-			cube->m_transform.translate(glm::vec3(0.0f, 0.0f, -10.0f));
+			{ // First object using SLERP
+				Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/spacecraft.ply", "resources/spacecraft.bmp");
+				obj->m_camera = &m_camera;
+				obj->m_transform.enableQuaternions();
+				obj->m_transform.translate(glm::vec3(6.0f, 0.0f, -4.0f));
 
-			Interpolator<glm::quat> * interpolator = new BezierSphericalLinearInterpolator<glm::quat>;
-			KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(cube, interpolator, cube->m_transform.quaternion(), false, false, false);
+				Interpolator<glm::quat> * interpolator = new SphericalLinearInterpolator<glm::quat>;
+				KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(obj, interpolator, obj->m_transform.quaternion(), false, true, false);
 
-			glm::quat q;
-			q = glm::rotate(q, 0.0f, glm::vec3(1, 0, 0));
-			animator->addKeyframe(0.0f, q);
-			q = glm::rotate(q, -90.0f, glm::vec3(1, 0, 0));
-			animator->addKeyframe(2000.0f, q);
-			q = glm::rotate(q, 90.0f, glm::vec3(0, 1, 0));
-			animator->addKeyframe(4000.0f, q);
-			q = glm::rotate(q, -90.0f, glm::vec3(1, 0, 0));
-			animator->addKeyframe(6000.0f, q);
-			q = glm::rotate(q, 180.0f, glm::vec3(0, 1, 0));
-			animator->addKeyframe(8000.0f, q);
-			/*q = glm::rotate(q, 90.0f, glm::vec3(1, 0, 0));
-			animator->addKeyframe(10000.0f, q);*/
+				glm::quat q = glm::rotate(glm::quat(), 0.0f, glm::vec3(1, 0, 0));
+				animator->addKeyframe(0.0f, q);
+				q = glm::rotate(q, -90.0f, glm::vec3(1, 0, 0));
+				animator->addKeyframe(2000.0f, q);
+				q = glm::rotate(q, 90.0f, glm::vec3(0, 1, 0));
+				animator->addKeyframe(4000.0f, q);
+				q = glm::rotate(q, -90.0f, glm::vec3(1, 0, 0));
+				animator->addKeyframe(6000.0f, q);
+				q = glm::rotate(q, 180.0f, glm::vec3(0, 1, 0));
+				animator->addKeyframe(8000.0f, q);
+				q = glm::rotate(q, -90.0f, glm::vec3(0, 0, 1));
+				animator->addKeyframe(10000.0f, q);
 
-			/*float omega = (15.0f/180.0f)*M_PI;
-			float s = std::cos(omega/2);
-			glm::vec3 v = std::sin(omega/2)*glm::vec3(0, 1, 0);
+				obj->m_animator = animator;
 
-			animator->addKeyframe(0.0f, glm::quat(1, glm::vec3(0)));
-			animator->addKeyframe(2000.0f, glm::quat(s, v));*/
+				m_components.push_back(obj);
+			}
 
-			cube->m_animator = animator;
+			{ // Second object using Bezier-SLERP
+				Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/spacecraft.ply", "resources/spacecraft.bmp");
+				obj->m_camera = &m_camera;
+				obj->m_transform.enableQuaternions();
+				obj->m_transform.translate(glm::vec3(0.0f, 0.0f, -10.0f));
 
-			m_components.push_back(cube);
+				Interpolator<glm::quat> * interpolator = new BezierSphericalLinearInterpolator<glm::quat>;
+				KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(obj, interpolator, obj->m_transform.quaternion(), false, false, false);
+
+				glm::quat q = glm::rotate(glm::quat(), 0.0f, glm::vec3(1, 0, 0));
+				animator->addKeyframe(0.0f, q);
+				q = glm::rotate(q, -90.0f, glm::vec3(1, 0, 0));
+				animator->addKeyframe(2000.0f, q);
+				q = glm::rotate(q, 90.0f, glm::vec3(0, 1, 0));
+				animator->addKeyframe(4000.0f, q);
+				q = glm::rotate(q, -90.0f, glm::vec3(1, 0, 0));
+				animator->addKeyframe(6000.0f, q);
+				q = glm::rotate(q, 180.0f, glm::vec3(0, 1, 0));
+				animator->addKeyframe(8000.0f, q);
+				q = glm::rotate(q, -90.0f, glm::vec3(0, 0, 1));
+				animator->addKeyframe(10000.0f, q);
+
+				obj->m_animator = animator;
+
+				m_components.push_back(obj);
+			}
 		}
 		else
 		{
-			Trace::error("No scene %d found!\n", scene);
+			Trace::warning("No scene %d found!\n", scene);
 		}
 	}
 
@@ -355,7 +335,7 @@ namespace Interpolation
 		else if (key == Common::KEY_MOVE_RIGHT)
 			m_camera.raiseFlag(Common::Camera::RIGHT);
 		else if (key == Common::KEY_CONTINUE)
-			setScene(++m_currentScene);
+			setScene(++m_currentScene % m_numScenes);
 	}
 
 	void MainApplication::keyUp(Common::Key key)
@@ -400,13 +380,6 @@ namespace Interpolation
 
 	void MainApplication::update(float dt)
 	{
-		/*Trace::info("Update (%f)\n", dt);
-		static float rotation = 0.0f;
-		rotation += 0.01f * dt;
-
-		m_cube->m_transform.reset();
-		m_cube->m_transform.Translate(glm::vec3(glm::sin(rotation), 0.0f, 0.0f));*/
-
 		m_camera.update(dt);
 
 		for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)
@@ -414,9 +387,7 @@ namespace Interpolation
 			(*it)->update(dt);
 		}
 
-		//m_cube->m_transform.rotation() += glm::vec3(0, dt/100.0f, 0);
-		//Trace::info("rotation: %f\n", m_cube->m_transform.rotation().y);
-
+		// check for GL errors
 		GLenum err = glGetError();
 		if (err != GL_NO_ERROR)
 			Trace::error("OpenGL error: %d\n", err);
@@ -424,8 +395,6 @@ namespace Interpolation
 
 	void MainApplication::draw()
 	{
-		//Trace::info("Draw\n");
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)

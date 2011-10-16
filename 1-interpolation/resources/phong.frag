@@ -28,6 +28,6 @@ void main() {
 		specular = pow(max(dot(R, V), 0), shininess);
 	}
 
-    out_Color = ambient * ambientColor + diffuse * diffuseColor + specular * specularColor;
-	//out_Color = (ambient + diffuse + specular) * pass_Color;
+    //out_Color = ambient * ambientColor + diffuse * pass_Color + specular * specularColor;
+	out_Color = (ambient + diffuse + specular) * pass_Color;
 }

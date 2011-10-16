@@ -25,10 +25,9 @@ namespace Interpolation
 	public:
 		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result, 
 			bool reparameterize = false,
+			bool connect_end_points = false,
 			bool orient_to_tangent = true,
-			bool loop = true, 
-			bool connect_end_points = false
-			)
+			bool loop = true)
 			: Animator(gameObject, loop),
 			m_interpolator(interpolator),
 			m_renderer(0),
@@ -36,10 +35,10 @@ namespace Interpolation
 			m_time(0),
 			m_useArcLength(false),
 			m_initialized(false),
-			m_subsegments(100),
+			m_subsegments(1000),
 			m_reparameterize(reparameterize),
-			m_orient(orient_to_tangent),
-			m_closed(connect_end_points)
+			m_closed(connect_end_points),
+			m_orient(orient_to_tangent)
 		{}
 
 		virtual ~KeyframeAnimator() {};
@@ -47,13 +46,18 @@ namespace Interpolation
 		inline const Keyframe<T>& operator[](int i) const
 		{
 			int index = i;
-
+			// TODO: better way to define closed loops
 			if (m_closed) {
-				if (i == -1) index = count()-2;
-				else if (i == count()) index = 0;
+				/* In our case if we have a closed loop, the start and end point
+				   have the same values but different times so we can't just wrap the index.
+				   Depending whether we are at the end or the beginning we need to skip 
+				   one of the keys */
+				if (i == -1) index = count()-2;   // skip count()-1
+				else if (i == count()) index = 1; // skip 0
 			} else {
-				if (i == -1) index = count()-1;
-				else if (i == count()) index = count()-1;
+				// For a non-closed loop, just clamp the value so that end points are duplicated
+				if (i < 0) index = 0;
+				else if (i > count()-1) index = count()-1;
 			}
 
 			return m_keyframes[index];
@@ -154,11 +158,12 @@ namespace Interpolation
 			// calculate total length of the curve
 			float s = m_interpolator->arcLengthAt(*this, 1.0f);
 			Trace::info("Length: %f\n", s);
+			float is = 1.0f/s;
 
 			// for each delta segment calculate the current length and store it in a map
 			for (unsigned i = 0; i <= m_subsegments; i++) {
 				float ds = m_interpolator->arcLengthAt(*this, i*dt);
-				m_params.insert(std::make_pair<float,float>(ds/s, i*dt));
+				m_params.insert(std::make_pair<float,float>(is*ds, i*dt));
 			}
 
 			// notify that reparameterized values can be used

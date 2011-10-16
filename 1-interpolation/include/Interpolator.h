@@ -109,10 +109,10 @@ namespace Interpolation
 	public:
 		void interpolate(T& out, Keys keys, int k, float _t, T* tangent = 0)
 		{
-			const T& q0 = glm::normalize(keys[std::max(0, k-1)].value);
+			const T& q0 = glm::normalize(keys[k-1].value);
 			const T& q1 = glm::normalize(keys[k].value);
 			const T& q2 = glm::normalize(keys[k+1].value);
-			const T& q3 = glm::normalize(keys[std::min(keys.count()-1, k+2)].value);
+			const T& q3 = glm::normalize(keys[k+2].value);
 
 			// Shoemaker '84
 			const T& a1 = Bisect(Double(q0, q1), q2);
@@ -220,10 +220,10 @@ namespace Interpolation
 			const float& b = keys[k].bias;
 			const float& c = keys[k].continuity;
 
-			const T& p0 = keys[std::max(0, k-1)].value;
+			const T& p0 = keys[k-1].value;
 			const T& p1 = keys[k].value;
 			const T& p2 = keys[k+1].value;
-			const T& p3 = keys[std::min(keys.count()-1, k+2)].value;
+			const T& p3 = keys[k+2].value;
 
 			// calculate incoming and outgoing tangents
 			const T& d1 = (0.5f*(1-t)*(1-b)*(1-c)) * (p2 - p1) + (0.5f*(1-t)*(1+b)*(1+c)) * (p1 - p0); // in

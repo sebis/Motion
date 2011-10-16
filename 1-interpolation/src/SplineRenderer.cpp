@@ -30,7 +30,7 @@ namespace Interpolation
 		float t = 0.0f;
 		float time = (m_vertices[m_vertices.count()-1].time - m_vertices[0].time);
 
-		float dt = 1000.0f/(time*m_segments);
+		float dt = 500.0f/(time*m_segments);
 
 		for (int i = 0; i < m_vertices.count() - 1; i++) {
 			vertex v(m_vertices[i].value, m_color, m_majorSize);

@@ -32,7 +32,7 @@ namespace Common
 {
 	namespace MeshFactory
 	{
-		Mesh * Cube(glm::vec4 color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+		Mesh * Cube(bool override_color = true, glm::vec4 color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		Mesh * FromFile(std::string str);
 	}
 }

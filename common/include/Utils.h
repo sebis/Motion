@@ -64,6 +64,21 @@ namespace Utils
 		return str;
 	}
 
+	// TODO: do not inline these
+	class Random
+	{
+	public:
+		Random(unsigned int seed)
+		{
+			srand(seed);
+		}
+
+		inline double rand11()
+		{
+			return (double(rand()) / double(RAND_MAX)) * 2.0 - 1.0;
+		}
+	};
+
 	inline bool read_texture(const char * filename, int* width, int* height, char** data)
 	{
 		// create binary input stream

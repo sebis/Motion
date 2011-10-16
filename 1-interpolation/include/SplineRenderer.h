@@ -58,7 +58,7 @@ namespace Interpolation
 		float m_minorSize;
 		glm::vec4 m_color;
 
-		const Vertices& m_vertices;
+		Vertices m_vertices;
 
 	};
 };

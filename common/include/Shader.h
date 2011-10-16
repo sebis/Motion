@@ -37,7 +37,7 @@ public:
 	void setUniform(const GLchar *name, const glm::vec4& v);
 	void setUniform(const GLchar *name, const glm::mat4& m);
 
-	static Shader* find(std::string technique)
+	static Shader* find(const std::string& technique)
 	{
 		static std::map<std::string, Shader*> shaders;
 
@@ -47,14 +47,14 @@ public:
 
 		Shader* shader = new Shader;
 
-		static const std::string path("resources/");
+		static std::string path("resources/");
 
 		if (!shader->load(path + technique + ".vert", GL_VERTEX_SHADER)) {
-			Trace::error("Could not find %s.vert\n", path + technique);
+			Trace::error("Could not find %s.vert\n", (path + technique).c_str());
 			return 0;
 		}
 		if (!shader->load(path + technique + ".frag", GL_FRAGMENT_SHADER)) {
-			Trace::error("Could not find %s.frag\n", path + technique);
+			Trace::error("Could not find %s.frag\n", (path + technique).c_str());
 			return 0;
 		}
 

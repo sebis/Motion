@@ -20,7 +20,7 @@ namespace Interpolation
 	class Common::GameObject;
 
 	template<typename T>
-	class KeyframeAnimator : public Common::Animator, public ControlPoints<Keyframe<T>>
+	class KeyframeAnimator : public Common::Animator, public ControlPoints<Keyframe<T> >
 	{
 	public:
 		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result, 
@@ -63,7 +63,7 @@ namespace Interpolation
 			return m_keyframes[index];
 		}
 
-		inline const int count() const
+		inline int count() const
 		{
 			return m_keyframes.size();
 		}
@@ -92,7 +92,7 @@ namespace Interpolation
 			assert(0 <= t && t <= 1);
 			float time = t * max();
 
-			typename std::vector<Keyframe<T>>::const_iterator low = std::upper_bound(m_keyframes.begin(), m_keyframes.end() - 1, time, Keyframe<T>::Less());
+			typename std::vector<Keyframe<T> >::const_iterator low = std::upper_bound(m_keyframes.begin(), m_keyframes.end() - 1, time, typename Keyframe<T>::Less());
 			k = int(low - m_keyframes.begin() - 1);
 
 			float _t = (time - m_keyframes[k].time) / (m_keyframes[k+1].time - m_keyframes[k].time);
@@ -173,7 +173,7 @@ namespace Interpolation
 
 		SplineRenderer * m_renderer;
 		Interpolator<T> * m_interpolator;
-		std::vector<Keyframe<T>> m_keyframes;
+		std::vector<Keyframe<T> > m_keyframes;
 
 		bool m_useArcLength;
 		bool m_orient;
@@ -187,6 +187,10 @@ namespace Interpolation
 		float m_time;
 		const unsigned m_subsegments;
 	};
+
+	
+	template<>
+	void KeyframeAnimator<glm::vec3>::orient(glm::vec3 tangent);
 
 	template<typename T>
 	void KeyframeAnimator<T>::update(float dt)
@@ -203,7 +207,7 @@ namespace Interpolation
 		}
 
 		// wrap around if loop is enabled
-		m_time = m_loop ? std::fmodf(m_time, max()) : std::min(m_time, max());
+		m_time = m_loop ? std::fmod(m_time, max()) : std::min(m_time, max());
 
 		// map m_time to interval [0,1] based on first and last key frames
 		float t = (m_time - m_keyframes[0].time) / (m_keyframes[count() - 1].time - m_keyframes[0].time);
@@ -228,37 +232,6 @@ namespace Interpolation
 		m_time += dt;
 	}
 
-	template<>
-	void KeyframeAnimator<glm::vec3>::orient(glm::vec3 tangent)
-	{
-		if (m_orient) {
-			glm::vec3 up = glm::vec3(0, 1, 0);
-
-			glm::vec3 forward = glm::normalize(tangent);
-			glm::vec3 right = glm::cross(up, forward);
-
-			up = glm::cross(forward, right);
-
-			glm::mat3 r(right, up, forward);
-
-			// Extract euler rotations from the rotation matrix
-			/* This is basically a useless operation because we could just use the computed
-			   rotation matrix for the transformation. However, The current transform component
-			   works with euler angles so that they can be interpolated. Thus we extract and save
-			   the rotation as euler angles instead. */
-			{
-				float r00 = r[0][0], r01 = r[1][0], r02 = r[2][0],
-					  r10 = r[0][1], r11 = r[1][1], r12 = r[2][1],
-					  r20 = r[0][2], r21 = r[1][2], r22 = r[2][2];
-
-				float y = asin(r02);
-				float x = atan2(-r12,r22);
-				float z = atan2(-r01,r00);
-
-				m_gameObject->m_transform.rotation() = glm::vec3(x, y, z) * float(180.0/M_PI);
-			}
-		}
-	}
 
 } /* namespace Interpolation */
 

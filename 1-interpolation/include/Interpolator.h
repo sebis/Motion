@@ -13,7 +13,7 @@ namespace Interpolation
 	class Interpolator
 	{
 	public:
-		typedef const ControlPoints<Keyframe<T>>& Keys;
+		typedef const ControlPoints<Keyframe<T> >& Keys;
 
 		virtual void interpolate(T& out, Keys keys, int k, float t, T* tangent = 0) = 0;
 
@@ -52,7 +52,7 @@ namespace Interpolation
 	class LinearInterpolator : public Interpolator<T>
 	{
 	public:
-		void interpolate(T& out, Keys keys, int k, float _t, T* tangent = 0)
+		void interpolate(T& out, typename Interpolator<T>::Keys keys, int k, float _t, T* tangent = 0)
 		{
 			const T& p1 = keys[k].value;
 			const T& p2 = keys[k+1].value;
@@ -63,7 +63,7 @@ namespace Interpolation
 				*tangent = glm::normalize(p2 - p1);
 		}
 
-		float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
+		float arcLength(typename Interpolator<T>::Keys keys, int k1, int k2, float _t = 1.0f)
 		{
 			const T& p1 = keys[k1].value;
 			const T& p2 = keys[k2].value;
@@ -80,7 +80,7 @@ namespace Interpolation
 	class SphericalLinearInterpolator : public Interpolator<T>
 	{
 	public:
-		virtual void interpolate(T& out, Keys keys, int k, float _t, T* tangent = 0)
+		virtual void interpolate(T& out, typename Interpolator<T>::Keys keys, int k, float _t, T* tangent = 0)
 		{
 			const T& q1 = glm::normalize(keys[k].value);
 			const T& q2 = glm::normalize(keys[k+1].value);
@@ -88,7 +88,7 @@ namespace Interpolation
 			out = Slerp(q1, q2, _t);
 		}
 
-		virtual float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
+		virtual float arcLength(typename Interpolator<T>::Keys keys, int k1, int k2, float _t = 1.0f)
 		{
 			// TODO: implement slerp arclength
 			return 0.0f;
@@ -107,7 +107,7 @@ namespace Interpolation
 	class BezierSphericalLinearInterpolator : public SphericalLinearInterpolator<T>
 	{
 	public:
-		void interpolate(T& out, Keys keys, int k, float _t, T* tangent = 0)
+		void interpolate(T& out, typename Interpolator<T>::Keys keys, int k, float _t, T* tangent = 0)
 		{
 			const T& q0 = glm::normalize(keys[k-1].value);
 			const T& q1 = glm::normalize(keys[k].value);
@@ -136,7 +136,7 @@ namespace Interpolation
 			out = Slerp(p02, p12, _t);
 		}
 
-		float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
+		float arcLength(typename Interpolator<T>::Keys keys, int k1, int k2, float _t = 1.0f)
 		{
 			// TODO: implement bezier slerp arclength
 			return 0.0f;
@@ -158,7 +158,7 @@ namespace Interpolation
 	class CatmullRomInterpolator : public Interpolator<T>
 	{
 	public:
-		void interpolate(T& out, Keys keys, int k, float t, T* tangent = 0)
+		void interpolate(T& out, typename Interpolator<T>::Keys keys, int k, float t, T* tangent = 0)
 		{
 			const T& p0 = keys[k-1].value;
 			const T& p1 = keys[k].value;
@@ -187,7 +187,7 @@ namespace Interpolation
 			}
 		}
 
-		virtual float arcLength(Keys keys, int k1, int k2, float _t = 1.0f)
+		virtual float arcLength(typename Interpolator<T>::Keys keys, int k1, int k2, float _t = 1.0f)
 		{
 			// TODO: calculate integral approximation
 			const int segments = 100;
@@ -214,7 +214,7 @@ namespace Interpolation
 	class KochanekBartelsInterpolator : public CatmullRomInterpolator<T>
 	{
 	public:
-		void interpolate(T& out, Keys keys, int k, float _t, T* tangent = 0)
+		void interpolate(T& out, typename Interpolator<T>::Keys keys, int k, float _t, T* tangent = 0)
 		{
 			const float& t = keys[k].tension;
 			const float& b = keys[k].bias;

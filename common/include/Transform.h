@@ -11,11 +11,11 @@ namespace Common
 	{
 	public:
 		Transform()
-			: m_position(glm::vec3(0.0f)),
+			: m_useQuaternions(false),
+			  m_position(glm::vec3(0.0f)),
 			  m_rotation(glm::vec3(0.0f)),
 			  m_scale(glm::vec3(1.0f)),
-			  m_transform(glm::mat4(1.0f)),
-			  m_useQuaternions(false)
+			  m_transform(glm::mat4(1.0f))
 		{}
 
 		static Transform Translation(const float& x, const float& y, const float& z)

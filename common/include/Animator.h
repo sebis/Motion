@@ -13,8 +13,8 @@ namespace Common
 		Animator(GameObject * gameObject, bool loop = false) : m_gameObject(gameObject), m_loop(loop) {};
 		virtual ~Animator() {};
 
-		virtual void update(float dt) { Trace::error("Not HERE!\n"); }
-		virtual void visualize() = 0;
+		virtual void update(float dt) = 0;
+		virtual void visualize() {}
 
 	protected:
 		GameObject * m_gameObject;

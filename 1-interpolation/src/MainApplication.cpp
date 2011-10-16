@@ -191,7 +191,8 @@ namespace Interpolation
 		}
 		else if (scene == 4)
 		{
-			Utils::Random r(unsigned(this));
+			// TODO: random seed
+			Utils::Random r(1337);
 
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
 			obj->m_camera = &m_camera;

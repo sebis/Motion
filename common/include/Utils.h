@@ -5,6 +5,7 @@
 
 #include <string>
 #include <fstream>
+#include <cstdlib>
 
 #ifdef _MSC_VER
 

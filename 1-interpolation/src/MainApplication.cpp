@@ -42,6 +42,7 @@ namespace Interpolation
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 
+		glEnable(GL_POINT_SMOOTH);
 		glEnable(GL_PROGRAM_POINT_SIZE);
 
 		// TODO: Shouldn't need to "initialize" uniforms like this

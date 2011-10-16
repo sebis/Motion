@@ -14,6 +14,9 @@ namespace Common
 		GameObject();
 		virtual ~GameObject();
 
+		virtual void draw();
+		virtual void update(float dt);
+
 		Transform m_transform;
 		Animator * m_animator;
 		Camera * m_camera;

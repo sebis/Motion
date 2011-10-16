@@ -35,6 +35,16 @@ namespace Common
 			m_position += translate;
 		}
 
+		inline void rotate(const glm::vec3& rotate)
+		{
+			m_rotation += rotate;
+		}
+
+		inline void scale(const glm::vec3& scale)
+		{
+			m_scale = scale;
+		}
+
 		inline const glm::mat4 world() const
 		{
 			// TODO: this is now unnecessarily recomputed each time it is called.
@@ -62,6 +72,7 @@ namespace Common
 
 		inline glm::vec3& position() { return m_position; }
 		inline glm::vec3& rotation() { return m_rotation; }
+		inline const glm::vec3& rotation() const { return m_rotation; }
 		inline glm::vec3& scale() { return m_scale; }
 		inline glm::quat& quaternion() { return m_quaternion; }
 

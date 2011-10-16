@@ -7,6 +7,20 @@ namespace Common
 	{
 	}
 
+	void GameObject::update(float dt)
+	{
+		if (m_animator)
+			m_animator->update(dt);
+	}
+
+	void GameObject::draw()
+	{
+		if (m_renderer)
+			m_renderer->draw();
+		if (m_animator)
+			m_animator->visualize();
+	}
+
 	GameObject::~GameObject()
 	{
 		delete m_renderer;

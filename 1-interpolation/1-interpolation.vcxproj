@@ -16,6 +16,7 @@
     <ClCompile Include="src\MainApplication.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\SplineRenderer.cpp" />
+    <ClCompile Include="src\TransformRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ControlPoints.h" />
@@ -23,6 +24,7 @@
     <ClInclude Include="include\Interpolator.h" />
     <ClInclude Include="include\KeyframeAnimator.h" />
     <ClInclude Include="include\MainApplication.h" />
+    <ClInclude Include="include\TransformRenderer.h" />
     <ClInclude Include="include\SplineRenderer.h" />
   </ItemGroup>
   <ItemGroup>

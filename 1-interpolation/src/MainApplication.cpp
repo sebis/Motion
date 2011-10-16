@@ -3,6 +3,7 @@
 #include "KeyframeAnimator.h"
 #include "MainApplication.h"
 #include "Texture.h"
+#include "TransformRenderer.h"
 #include "Trace.h"
 #include "Utils.h"
 
@@ -14,7 +15,7 @@ namespace Interpolation
 	MainApplication::MainApplication(bool fixedTimeStep, float targetElapsedTime)
 		: Base(fixedTimeStep, targetElapsedTime),
 		m_camera(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f)),
-		m_currentScene(0)
+		m_currentScene(5)
 	{
 	}
 
@@ -42,8 +43,19 @@ namespace Interpolation
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 
-		glEnable(GL_POINT_SMOOTH);
+		glLineWidth(1.5f);
+		glEnable(GL_LINE_SMOOTH);
+		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
 		glEnable(GL_PROGRAM_POINT_SIZE);
+		glEnable(GL_POINT_SMOOTH);
+		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+
+		glEnable(GL_POLYGON_SMOOTH);
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+
+		glEnable(GL_BLEND);
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE);
 
 		// TODO: Shouldn't need to "initialize" uniforms like this
 		Shader * shader = Shader::find("lambert");
@@ -212,34 +224,51 @@ namespace Interpolation
 			animator->addKeyframe(13000.0f, glm::vec3(-0.5f, 3.0f, 6.0f), r.rand11(), r.rand11(), r.rand11());
 			animator->addKeyframe(15000.0f, glm::vec3(-9.0f, 0.0f, 3.0f), r.rand11(), r.rand11(), r.rand11());
 			animator->addKeyframe(16000.0f, glm::vec3(-6.0f, 2.0f, -8.0f), r.rand11(), r.rand11(), r.rand11());
-			animator->addKeyframe(18000.0f, glm::vec3(-3.0f, 0.0f, -8.0f), 0, -1, 0);
-			animator->addKeyframe(20000.0f, glm::vec3(-4.0f, 0.0f, -13.0f), 0, -1, 0);
-			animator->addKeyframe(21000.0f, glm::vec3(-1.0f, 0.0f, -12.0f), 0, -1, 0);
-			animator->addKeyframe(23000.0f, glm::vec3(4.0f, 0.0f, -6.0f), 0, -1, 0);
-			animator->addKeyframe(24000.0f, glm::vec3(0.0f, 0.0f, 0.0f), 0, -1, 0);
+			animator->addKeyframe(18000.0f, glm::vec3(-3.0f, 0.0f, -8.0f), r.rand11(), r.rand11(), r.rand11());
+			animator->addKeyframe(20000.0f, glm::vec3(-4.0f, 0.0f, -13.0f), r.rand11(), r.rand11(), r.rand11());
+			animator->addKeyframe(21000.0f, glm::vec3(-1.0f, 0.0f, -12.0f), r.rand11(), r.rand11(), r.rand11());
+			animator->addKeyframe(23000.0f, glm::vec3(4.0f, 0.0f, -6.0f), r.rand11(), r.rand11(), r.rand11());
+			animator->addKeyframe(24000.0f, glm::vec3(0.0f, 0.0f, 0.0f), r.rand11(), r.rand11(), r.rand11());
 
 			obj->m_animator = animator;
 
 			m_components.push_back(obj);
 		}
-		else if (scene == 4)
+		else if (scene == 5)
 		{
-			Common::GameObject * cube = new MeshObject(Shader::find("lambert"), Common::MeshFactory::Cube());
+			glm::vec3 translation(-10.0f, 0.0f, 0.0f);
+			glm::vec3 scale(5.0f);
+
+			Common::GameObject * cube = new MeshObject(Shader::find("model"), "resources/spacecraft.ply", "resources/spacecraft.bmp");
 			cube->m_camera = &m_camera;
-			cube->m_transform.translate(glm::vec3(-10.0f, 0.0f, 0.0f));
+			cube->m_transform.translate(translation);
 
 			Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
 			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(cube, interpolator, cube->m_transform.rotation(), false, false, false);
 
+			//animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+            //animator->addKeyframe(4000.0f, glm::vec3(180.0f, 0.0f, 0.0f));
+
 			animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-			animator->addKeyframe(2000.0f, glm::vec3(90.0f, 0.0f, 0.0f));
-			animator->addKeyframe(4000.0f, glm::vec3(90.0f, 90.0f, 0.0f));
-			animator->addKeyframe(6000.0f, glm::vec3(90.0f, 90.0f, 90.0f));
-			animator->addKeyframe(8000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+            animator->addKeyframe(4000.0f, glm::vec3(90.0f, 0.0f, 0.0f));
+            animator->addKeyframe(8000.0f, glm::vec3(90.0f, 90.0f, 0.0f));
+			animator->addKeyframe(12000.0f, glm::vec3(90.0f, 90.0f, 0.0f));
+			animator->addKeyframe(16000.0f, glm::vec3(90.0f, 90.0f, -90.0f));
+            //animator->addKeyframe(8000.0f, glm::vec3(180.0f, 90.0f, 0.0f));
+            //animator->addKeyframe(10000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 
 			cube->m_animator = animator;
 
 			m_components.push_back(cube);
+
+			Common::GameObject * gyroscope = new Common::GameObject;
+			gyroscope->m_camera = &m_camera;
+			gyroscope->m_renderer = new TransformRenderer(gyroscope, Shader::find("solid"), &cube->m_transform);
+
+			gyroscope->m_transform.translate(translation);
+			gyroscope->m_transform.scale(glm::vec3(5.0f));
+
+			m_components.push_back(gyroscope);
 		}
 		else if (scene == 5)
 		{
@@ -382,8 +411,7 @@ namespace Interpolation
 
 		for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)
 		{
-			if ((*it)->m_animator)
-				(*it)->m_animator->update(dt);
+			(*it)->update(dt);
 		}
 
 		//m_cube->m_transform.rotation() += glm::vec3(0, dt/100.0f, 0);
@@ -402,10 +430,7 @@ namespace Interpolation
 
 		for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)
 		{
-			if ((*it)->m_renderer)
-				(*it)->m_renderer->draw();
-			if ((*it)->m_animator)
-				(*it)->m_animator->visualize();
+			(*it)->draw();
 		}
 	}
 }

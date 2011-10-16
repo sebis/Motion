@@ -71,7 +71,7 @@ namespace Common
 			return new Mesh(vData, 24, iData, 36);
 		}
 
-		Mesh * FromFile(std::string str)
+		Mesh * FromFile(std::string str, glm::vec4 color)
 		{
 			int num_vertices = 0;
 			int num_triangles = 0;
@@ -126,7 +126,7 @@ namespace Common
 				v.position = glm::vec3(x, y, z);
 				v.normal = glm::vec3(nx, ny, nz);
 				v.texcoord = glm::vec2(s, t);
-				v.color = glm::vec4(1);
+				v.color = color;
 				vData.push_back(v);
 			}
 

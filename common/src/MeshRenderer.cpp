@@ -15,6 +15,9 @@ namespace Common
 
 	void MeshRenderer::draw()
 	{
+		// TODO: proper way to change render states
+		glDisable(GL_BLEND);
+
 		if (m_texture)
 			m_texture->bind();
 
@@ -29,5 +32,7 @@ namespace Common
 
 		if (m_texture)
 			m_texture->unbind();
+
+		glEnable(GL_BLEND);
 	}
 };

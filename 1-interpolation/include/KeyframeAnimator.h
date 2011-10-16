@@ -115,7 +115,7 @@ namespace Interpolation
 		void update(float dt);
 
 	private:
-		void orient(T tangent) {}
+		void orient(T tangent);
 		
 		inline float s(float t) const
 		{
@@ -193,6 +193,11 @@ namespace Interpolation
 	void KeyframeAnimator<glm::vec3>::orient(glm::vec3 tangent);
 
 	template<typename T>
+	void KeyframeAnimator<T>::orient(T tangent)
+	{
+	}
+
+	template<typename T>
 	void KeyframeAnimator<T>::update(float dt)
 	{
 		// TODO: kind of a hack..
@@ -231,7 +236,6 @@ namespace Interpolation
 		// accumulate time
 		m_time += dt;
 	}
-
 
 } /* namespace Interpolation */
 

@@ -56,7 +56,7 @@ namespace Interpolation
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
 		glEnable(GL_BLEND);
-		glBlendFunc (GL_SRC_ALPHA, GL_ONE);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		// TODO: Shouldn't need to "initialize" uniforms like this
 		Shader * shader = Shader::find("lambert");

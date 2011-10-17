@@ -45,7 +45,9 @@ namespace Common
 		}
 
 		glutKeyboardFunc(keyboardWrapper);
+		glutKeyboardUpFunc(keyboardUpWrapper);
 		glutSpecialFunc(specialWrapper);
+		glutSpecialUpFunc(specialUpWrapper);
 		glutMouseFunc(mouseWrapper);
 		glutMotionFunc(motionWrapper);
 		glutReshapeFunc(reshapeWrapper);
@@ -95,20 +97,40 @@ namespace Common
 	{
 		if (key == 'q' || key == 'Q' || key == 27)
 			glutLeaveMainLoop();
-		else if (key == ' ')
-			m_instance->keyDown(KEY_CONTINUE);
-		else if (key == 'a')
+		else if (key == 'a' || key == 'A')
 			m_instance->keyDown(KEY_MOVE_LEFT);
-		else if (key == 'd')
+		else if (key == 'd' || key == 'D')
 			m_instance->keyDown(KEY_MOVE_RIGHT);
-		else if (key == 'w')
+		else if (key == 'w' || key == 'W')
 			m_instance->keyDown(KEY_MOVE_FORWARD);
-		else if (key == 's')
+		else if (key == 's' || key == 'S')
 			m_instance->keyDown(KEY_MOVE_BACKWARD);
-		else if (key == 'c')
+		else if (key == 'c' || key == 'C')
+			m_instance->keyDown(KEY_RESET_2);
+		else if (key == 13) // return
+			m_instance->keyDown(KEY_RESET_1);
+		else if (key == 32) // space
+			m_instance->keyDown(KEY_CONTINUE);
+	}
+
+	void GlutApplication::keyboardUpWrapper(unsigned char key, int x, int y)
+	{
+		if (key == 'q' || key == 'Q' || key == 27)
+			glutLeaveMainLoop();
+		else if (key == 'a' || key == 'A')
+			m_instance->keyUp(KEY_MOVE_LEFT);
+		else if (key == 'd' || key == 'D')
+			m_instance->keyUp(KEY_MOVE_RIGHT);
+		else if (key == 'w' || key == 'W')
+			m_instance->keyUp(KEY_MOVE_FORWARD);
+		else if (key == 's' || key == 'S')
+			m_instance->keyUp(KEY_MOVE_BACKWARD);
+		else if (key == 'c' || key == 'C')
 			m_instance->keyUp(KEY_RESET_2);
-		else if (key == '\n')
+		else if (key == 13) // return
 			m_instance->keyUp(KEY_RESET_1);
+		else if (key == 32) // space
+			m_instance->keyUp(KEY_CONTINUE);
 	}
 
 	void GlutApplication::specialWrapper(int key, int x, int y)
@@ -121,6 +143,18 @@ namespace Common
 			m_instance->keyDown(KEY_MOVE_FORWARD);
 		else if (key == GLUT_KEY_DOWN)
 			m_instance->keyDown(KEY_MOVE_BACKWARD);
+	}
+
+	void GlutApplication::specialUpWrapper(int key, int x, int y)
+	{
+		if (key == GLUT_KEY_LEFT)
+			m_instance->keyUp(KEY_MOVE_LEFT);
+		else if (key == GLUT_KEY_RIGHT)
+			m_instance->keyUp(KEY_MOVE_RIGHT);
+		else if (key == GLUT_KEY_UP)
+			m_instance->keyUp(KEY_MOVE_FORWARD);
+		else if (key == GLUT_KEY_DOWN)
+			m_instance->keyUp(KEY_MOVE_BACKWARD);
 	}
 
 	void GlutApplication::reshapeWrapper(int width, int height)

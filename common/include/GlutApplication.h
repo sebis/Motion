@@ -33,7 +33,9 @@ namespace Common
 		static void updateWrapper(int value);
 		static void drawWrapper();
 		static void keyboardWrapper(unsigned char key, int x, int y);
+		static void keyboardUpWrapper(unsigned char key, int x, int y);
 		static void specialWrapper(int key, int x, int y);
+		static void specialUpWrapper(int key, int x, int y);
 		static void motionWrapper(int x, int y);
 		static void mouseWrapper(int button, int state, int x, int y);
 		static void reshapeWrapper(int width, int height);

@@ -82,19 +82,25 @@ namespace Interpolation
 			m_renderer = renderer;
 		}
 
+		// get the keyframe index interval [k,k+1] for global parameter t and return value _t that is the local parameter between [k,k+1]
 		inline float get_k(float t, int& k) const
 		{
 			if (m_useArcLength)
 				t = s(t);
 
 			assert(0 <= t && t <= 1);
+
 			float time = t * max();
 
+			// get a value k so that k is in the interval [0, count-2]. That way k+1 is always valid
 			typename std::vector<Keyframe<T> >::const_iterator low = std::upper_bound(m_keyframes.begin(), m_keyframes.end() - 1, time, typename Keyframe<T>::Less());
 			k = int(low - m_keyframes.begin() - 1);
 
+			// interpolate the local paramter linearly based on keyframe times
 			float _t = (time - m_keyframes[k].time) / (m_keyframes[k+1].time - m_keyframes[k].time);
+
 			assert(0.0f <= _t && _t <= 1.0f);
+
 			return _t;
 			
 		}
@@ -113,32 +119,33 @@ namespace Interpolation
 		void update(float dt);
 
 	private:
+		// orients the parent gameobject of this animator parallel to the tangent
 		void orient(T tangent);
 		
+		// find global arc-length parameter s from a pre-calculated table based on t
 		inline float s(float t) const
 		{
+			// find values t0 and t1 so that t0 <= t < t1
 			std::map<float,float>::const_iterator it = m_params.upper_bound(t);
 
 			if (it == m_params.end())
 				return 1.0f;
 
-			//return it->second;
-
 			assert(it != m_params.end());
 
+			// get s and t values from table
 			float s1 = it->first;
 			float t1 = it->second;
 			--it;
 			float s0 = it->first;
 			float t0 = it->second;
 
+			// linearly interpolate between [s0,s1] based on t
 			float r = (t - s0) / (s1 - s0);
 			float s = t0 + r*(t1 - t0);
 
-			//return 0.5 * (s0  + s1);
-
 			assert(0 <= s0 && s0 <= 1 && 0 <= s1 && s1 <= 1);
-			//Trace::info("%f < %f < %f\n", s0, t, s1);
+
 			return s;
 		}
 
@@ -170,26 +177,36 @@ namespace Interpolation
 
 
 		SplineRenderer * m_renderer;
+		// The interpolator used for interpolating values between key frames
 		Interpolator<T> * m_interpolator;
 		std::vector<Keyframe<T> > m_keyframes;
 
+		// flag to notify if the current parameterization should use original or arc-length
 		bool m_useArcLength;
+		// flag if the owner game object should be rotated towards the tangent of the curve
 		bool m_orient;
+		// tells if the first and last keyframes should be connected
 		bool m_closed;
+		// value to indicate that the curve should be reparameterized
 		bool m_reparameterize;
+
 		bool m_initialized;
 		std::map<float, float> m_params;
 
+		// result of the animation and interpolation should be updated here
 		T& m_result;
 
 		float m_time;
+
+		// number of subsegments to use when calculating the arc-length approximation between key frames
 		const unsigned m_subsegments;
 	};
 
-	
+	// declare template function specialization
 	template<>
 	void KeyframeAnimator<glm::vec3>::orient(glm::vec3 tangent);
 
+	// define template function for all other types
 	template<typename T>
 	void KeyframeAnimator<T>::orient(T tangent)
 	{

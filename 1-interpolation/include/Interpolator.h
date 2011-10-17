@@ -28,6 +28,8 @@ namespace Interpolation
 
 		float arcLengthAt(Keys keys, float t)
 		{
+			// TODO: this could be much more efficient...
+
 			float length = 0;
 			if (keys.count() < 2)
 				return length;
@@ -97,7 +99,7 @@ namespace Interpolation
 	protected:
 		T Slerp(const T& p, const T& q, float t)
 		{
-			// p and q should be unit quaternions
+			// p and q are unit quaternions
 			float omega = std::acos(glm::dot(p, q));
 			return (std::sin((1 - t) * omega)*p + std::sin(t*omega)*q)/std::sin(omega);
 		}

@@ -87,6 +87,10 @@ namespace Interpolation
 
 		if (scene == 0)
 		{
+			m_description = "Scene 1:\n"
+				"Linear interpolation between control points (big dots).\n"
+				"Time between small dots: 500ms.";
+
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
 			obj->m_camera = &m_camera;
 
@@ -117,6 +121,11 @@ namespace Interpolation
 		}
 		else if (scene == 1)
 		{
+			m_description = "Scene 2:\n"
+				"Linear interpolation with reparameterization\n"
+				"based on arc-length between control points.\n"
+				"Dot interval: 500ms.";
+
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
 			obj->m_camera = &m_camera;
 
@@ -145,6 +154,10 @@ namespace Interpolation
 		}
 		else if (scene == 2)
 		{
+			m_description = "Scene 3:\n"
+				"Interpolating the position on a CatmullRom-spline\n"
+				"without arc-length parameterization.";
+
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
 			obj->m_camera = &m_camera;
 
@@ -173,6 +186,11 @@ namespace Interpolation
 		} 
 		else if (scene == 3)
 		{
+			m_description = "Scene 4:\n"
+				"Interpolating the position on a CatmullRom-spline\n"
+				"with arc-length parameterization. Arc length is\n"
+				"approximated by summing small linear segments.";
+
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
 			obj->m_camera = &m_camera;
 
@@ -201,6 +219,11 @@ namespace Interpolation
 		}
 		else if (scene == 4)
 		{
+			m_description = "Scene 5:\n"
+				"Interpolating the position on a Kochanek-Bartels-spline (TCB-spline)\n"
+				"with arc-length paramtereization. TCB-values are randomly\n"
+				"generated for each control point independently.";
+
 			Utils::Random r;
 
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
@@ -231,7 +254,15 @@ namespace Interpolation
 		}
 		else if (scene == 5)
 		{
-			glm::vec3 translation(-10.0f, 0.0f, 0.0f);
+			m_description = "Scene 6:\n"
+				"Linear interpolation of orientation using euler angles.\n"
+				"Gimbal lock occurs when one degree of freedom is lost when\n"
+				"two rotation axes become parallel due to rotation ordering.\n"
+				"Also linear interpolation doesn't take into account the\n"
+				"continuity of spherical coordinates (eg. interpolating\n"
+				"from -350 to 0 will always take the longer route).";
+
+			glm::vec3 translation(-3.0f, 0.0f, -7.5f);
 			glm::vec3 scale(5.0f);
 
 			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/spacecraft.ply", "resources/spacecraft.bmp");
@@ -263,11 +294,17 @@ namespace Interpolation
 		}
 		else if (scene == 6)
 		{
+			m_description = "Scene 7:\n"
+				"Spherical interpolation using quaternions.\n"
+				"Demonstrating the same animation using\n"
+				"  a) linear interpolation on the sphere\n"
+				"  b) spline interpolation using a cubic Bezier curve on the sphere.";
+
 			{ // First object using SLERP
 				Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/spacecraft.ply", "resources/spacecraft.bmp");
 				obj->m_camera = &m_camera;
 				obj->m_transform.enableQuaternions();
-				obj->m_transform.translate(glm::vec3(6.0f, 0.0f, -4.0f));
+				obj->m_transform.translate(glm::vec3(4.0f, 0.0f, -1.0f));
 
 				Interpolator<glm::quat> * interpolator = new SphericalLinearInterpolator<glm::quat>;
 				KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(obj, interpolator, obj->m_transform.quaternion(), false, true, false);
@@ -294,7 +331,7 @@ namespace Interpolation
 				Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/spacecraft.ply", "resources/spacecraft.bmp");
 				obj->m_camera = &m_camera;
 				obj->m_transform.enableQuaternions();
-				obj->m_transform.translate(glm::vec3(0.0f, 0.0f, -10.0f));
+				obj->m_transform.translate(glm::vec3(-3.0f, 0.0f, -7.5f));
 
 				Interpolator<glm::quat> * interpolator = new BezierSphericalLinearInterpolator<glm::quat>;
 				KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(obj, interpolator, obj->m_transform.quaternion(), false, false, false);
@@ -400,5 +437,7 @@ namespace Interpolation
 		{
 			(*it)->draw();
 		}
+
+		display_text(m_description.c_str(), 10, 25);
 	}
 }

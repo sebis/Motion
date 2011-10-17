@@ -1,7 +1,7 @@
 #ifndef MAIN_APPLICATION
 #define MAIN_APPLICATION
 
-#if 1
+#if 0
 #include <SDLApplication.h>
 typedef Common::SDLApplication Base;
 #else
@@ -41,6 +41,9 @@ namespace Interpolation
 
 		int m_currentScene;
 		int m_numScenes;
+
+		std::string m_description;
+
 		Common::Camera m_camera;
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;

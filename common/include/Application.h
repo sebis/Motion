@@ -20,6 +20,8 @@ namespace Common
 
 		virtual void window_resized(int width, int height) = 0;
 
+		virtual void display_text(const char * text, int x, int y) = 0;
+
 		virtual void update(float dt) = 0;
 		virtual void draw() = 0;
 

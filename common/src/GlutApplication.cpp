@@ -20,14 +20,16 @@ namespace Common
 	{
 		m_instance = this;
 
-		glutInitContextVersion(3, 1);
-		glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
-		glutInitContextProfile(GLUT_CORE_PROFILE);
+		//glutInitContextVersion(3, 1);
+		//glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
+		//glutInitContextProfile(GLUT_CORE_PROFILE);
 
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 		glutInitWindowSize(800, 600);
 		glutCreateWindow("GlutApplication");
+
+		reshapeWrapper(800, 600);
 
 		return true;
 	}
@@ -43,6 +45,10 @@ namespace Common
 		}
 
 		glutKeyboardFunc(keyboardWrapper);
+		glutSpecialFunc(specialWrapper);
+		glutMouseFunc(mouseWrapper);
+		glutMotionFunc(motionWrapper);
+		glutReshapeFunc(reshapeWrapper);
 
 		glutMainLoop();
 
@@ -57,15 +63,69 @@ namespace Common
 	{
 	}
 
-	void GlutApplication::input(unsigned char key)
+	void GlutApplication::display_text(const char * text, int x, int y)
 	{
-		if (key == 'q' || key == 'Q' || key == 27)
-			glutLeaveMainLoop();
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0, m_width, m_height, 0);
+
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		glRasterPos3f(x, y, 0.0f);
+		glutBitmapString(GLUT_BITMAP_9_BY_15, (const unsigned char*)text);
+	}
+
+	void GlutApplication::motionWrapper(int x, int y)
+	{
+		int middleX = int(m_instance->m_width/2);
+		int middleY = int(m_instance->m_height/2);
+
+		if (middleX != x || middleY != y)
+		{
+			m_instance->mouse(KEY_MOUSE_LEFT, middleX - x, middleY - y);
+			glutWarpPointer(middleX, middleY);
+		}
+	}
+
+	void GlutApplication::mouseWrapper(int button, int state, int x, int y)
+	{
+		glutWarpPointer(int(m_instance->m_width/2), int(m_instance->m_height/2));
 	}
 
 	void GlutApplication::keyboardWrapper(unsigned char key, int x, int y)
 	{
-		m_instance->input(key);
+		if (key == 'q' || key == 'Q' || key == 27)
+			glutLeaveMainLoop();
+		else if (key == ' ')
+			m_instance->keyDown(KEY_CONTINUE);
+		else if (key == 'a')
+			m_instance->keyDown(KEY_MOVE_LEFT);
+		else if (key == 'd')
+			m_instance->keyDown(KEY_MOVE_RIGHT);
+		else if (key == 'w')
+			m_instance->keyDown(KEY_MOVE_FORWARD);
+		else if (key == 's')
+			m_instance->keyDown(KEY_MOVE_BACKWARD);
+		else if (key == 'c')
+			m_instance->keyUp(KEY_RESET_2);
+		else if (key == '\n')
+			m_instance->keyUp(KEY_RESET_1);
+	}
+
+	void GlutApplication::specialWrapper(int key, int x, int y)
+	{
+		if (key == GLUT_KEY_LEFT)
+			m_instance->keyDown(KEY_MOVE_LEFT);
+		else if (key == GLUT_KEY_RIGHT)
+			m_instance->keyDown(KEY_MOVE_RIGHT);
+		else if (key == GLUT_KEY_UP)
+			m_instance->keyDown(KEY_MOVE_FORWARD);
+		else if (key == GLUT_KEY_DOWN)
+			m_instance->keyDown(KEY_MOVE_BACKWARD);
+	}
+
+	void GlutApplication::reshapeWrapper(int width, int height)
+	{
+		m_instance->window_resized(width, height);
 	}
 
 	void GlutApplication::updateWrapper(int value)

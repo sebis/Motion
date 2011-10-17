@@ -11,6 +11,7 @@ namespace Common
 		KEY_RESET_1 = 104,
 		KEY_RESET_2 = 105,
 		KEY_CONTINUE = 106,
+		KEY_QUIT = 107,
 
 		KEY_MOUSE_NONE = 200,
 		KEY_MOUSE_LEFT = 201,

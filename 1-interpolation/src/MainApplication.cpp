@@ -391,7 +391,7 @@ namespace Interpolation
 			m_camera.dropFlag(Common::Camera::RIGHT);
 			break;
 		case Common::KEY_RESET_1:
-			setScene(m_currentScene);
+			setScene(m_currentScene % m_numScenes);
 			break;
 		case Common::KEY_RESET_2:
 			m_camera.reset(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f));

@@ -157,7 +157,8 @@ HEADERS += include/Animator.h \
            include/glm/gtx/vector_query.hpp \
            include/glm/gtx/verbose_operator.hpp \
            include/glm/gtx/wrap.hpp \
-           include/glm/virtrev/xstream.hpp
+           include/glm/virtrev/xstream.hpp \
+    include/MeshObject.h
 SOURCES += src/Camera.cpp \
            src/GameObject.cpp \
            src/GlutApplication.cpp \
@@ -167,8 +168,11 @@ SOURCES += src/Camera.cpp \
            src/SDLApplication.cpp \
            src/Shader.cpp \
            src/Texture.cpp \
-           include/glm/core/dummy.cpp
+           include/glm/core/dummy.cpp \
+    src/MeshObject.cpp
 CONFIG += staticlib
 LIBS += -Llib -lGL -lGLU -lGLEW -lglut
 OBJECTS_DIR = obj
 DESTDIR = lib
+
+

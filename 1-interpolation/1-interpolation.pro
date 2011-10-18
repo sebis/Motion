@@ -11,13 +11,11 @@ HEADERS += include/ControlPoints.h \
            include/Interpolator.h \
            include/KeyframeAnimator.h \
            include/MainApplication.h \
-           include/MeshObject.h \
            include/SplineRenderer.h \
            include/TransformRenderer.h
 SOURCES += src/KeyframeAnimator.cpp \
            src/Main.cpp \
            src/MainApplication.cpp \
-           src/MeshObject.cpp \
            src/SplineRenderer.cpp \
            src/TransformRenderer.cpp
 LIBS += -lGL -lGLU -lGLEW -lglut -L../common/lib -lcommon

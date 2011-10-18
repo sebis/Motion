@@ -1,12 +1,7 @@
 #include "MeshObject.h"
-#include "Interpolator.h"
-#include "KeyframeAnimator.h"
 #include "MeshRenderer.h"
-#include "Transform.h"
 
-using namespace Common;
-
-namespace Interpolation
+namespace Common
 {
 	MeshObject::MeshObject(Shader * shader, Mesh * mesh, Texture * texture)
 	{
@@ -24,4 +19,4 @@ namespace Interpolation
 	{
 		delete m_mesh;
 	}
-};
+}

@@ -12,6 +12,8 @@
 
 namespace Interpolation
 {
+	using namespace Common;
+
 	MainApplication::MainApplication(bool fixedTimeStep, float targetElapsedTime)
 		: Base(fixedTimeStep, targetElapsedTime),
 		m_camera(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f)),

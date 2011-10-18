@@ -11,6 +11,23 @@ namespace Common
 {
 	namespace MeshFactory
 	{
+		Mesh * Plane(glm::vec4 color)
+		{
+			Mesh::vertex vData[] = {
+				{ glm::vec3(-1.0f, 0, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0, 1), color },
+				{ glm::vec3(1.0f, 0, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1, 1), color },
+				{ glm::vec3(1.0f, 0, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1, 0), color },
+				{ glm::vec3(-1.0f, 0, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0, 0), color },
+			};
+
+			glm::uint iData[] = {
+				0, 1, 2,
+				2, 1, 3
+			};
+
+			return new Mesh(vData, 4, iData, 6);
+		}
+
 		Mesh * Cube(bool override_color, glm::vec4 color)
 		{
 			glm::vec4 front_color = override_color ? glm::vec4(1.0f, 0.65f, 0.0f, 1.0f) : color;

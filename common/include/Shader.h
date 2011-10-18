@@ -47,6 +47,7 @@ public:
 
 		Shader* shader = new Shader;
 
+		// TODO: some better way to add resources per project but to find them globally
 		static std::string path("resources/");
 
 		if (!shader->load(path + technique + ".vert", GL_VERTEX_SHADER)) {

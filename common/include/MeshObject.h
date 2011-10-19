@@ -2,17 +2,15 @@
 #define COMMON_MESHOBJECT
 
 #include "GameObject.h"
+#include "Material.h"
 #include "Mesh.h"
-#include "Shader.h"
-#include "Texture.h"
 
 namespace Common
 {
 	class MeshObject : public GameObject
 	{
 	public:
-		MeshObject(Shader * shader, Mesh * mesh, Texture * texture = 0);
-		MeshObject(Shader * shader, std::string file, std::string texture = "");
+		MeshObject(Mesh * mesh, Material * material);
 		virtual ~MeshObject();
 	private:
 		Mesh * m_mesh;

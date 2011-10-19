@@ -1,6 +1,8 @@
 #ifndef COMMON_TEXTURE
 #define COMMON_TEXTURE
 
+#include <string>
+
 namespace Common
 {
 	class Texture

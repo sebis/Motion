@@ -25,17 +25,28 @@ private:
 	bool compile(unsigned id);
 	void link();
 
+	void bindAttribute(GLuint index, const GLchar* name);
+
 public:
 	virtual ~Shader();
+
+	enum ATTRIBUTE
+	{
+		POSITION = 0,
+		COLOR = 1,
+		NORMAL = 2,
+		TEXCOORD = 3,
+		POINTSIZE = 4,
+	};
 
 	void bind() const;
 	void unbind() const;
 
-	void bindAttribLocation(GLuint index, const GLchar* name);
-
 	void setUniform(const GLchar *name, const glm::vec3& v);
 	void setUniform(const GLchar *name, const glm::vec4& v);
 	void setUniform(const GLchar *name, const glm::mat4& m);
+	void setUniform(const GLchar *name, const glm::float_t& f);
+	void setUniform(const GLchar *name, bool b);
 
 	static Shader* find(const std::string& technique)
 	{
@@ -63,11 +74,11 @@ public:
 		if (err != GL_NO_ERROR)
 			Trace::error("OpenGL error: %d\n", err);
 
-		shader->bindAttribLocation(0, "in_Position");
-		shader->bindAttribLocation(1, "in_Normal");
-		shader->bindAttribLocation(2, "in_Color");
-		shader->bindAttribLocation(3, "in_Size");
-		shader->bindAttribLocation(4, "in_TexCoord");
+		shader->bindAttribute(POSITION, "in_Position");
+		shader->bindAttribute(NORMAL, "in_Normal");
+		shader->bindAttribute(COLOR, "in_Color");
+		shader->bindAttribute(TEXCOORD, "in_TexCoord");
+		shader->bindAttribute(POINTSIZE, "in_Size");
 
 		err = glGetError();
 		if (err != GL_NO_ERROR)

@@ -1,4 +1,6 @@
 #include "MainApplication.h"
+#include "Material.h"
+#include "MeshObject.h"
 #include "Texture.h"
 #include "Trace.h"
 #include "Utils.h"
@@ -8,9 +10,12 @@
 
 namespace IK
 {
+	using namespace Common;
+
 	MainApplication::MainApplication(bool fixedTimeStep, float targetElapsedTime)
 		: Base(fixedTimeStep, targetElapsedTime),
-		m_camera(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f))
+		//m_camera(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f))
+		m_camera(glm::vec3(10.0f), glm::vec3(0.0f))
 	{
 	}
 
@@ -52,11 +57,14 @@ namespace IK
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		// TODO: Shouldn't need to "initialize" uniforms like this
-		Shader * shader = Shader::find("phong");
-		shader->bind();
-		shader->setUniform("lightDirection", glm::vec3(1.0f, 0.5f, 0.25f));
-		shader->unbind();
+		Material * material = new Material(Shader::find("shader"));
+		material->setTexture(new Texture("resources/space_frigate.bmp"));
+
+		MeshObject * frigate = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
+		// TODO: shouldn't need to set camera
+		frigate->m_camera = &m_camera;
+		
+		m_components.push_back(frigate);
 
 		return true;
 	}

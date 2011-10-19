@@ -69,10 +69,10 @@ namespace Interpolation
 		glBufferData(GL_ARRAY_BUFFER, m_vertexCount*sizeof(vertex), &vData[0], GL_DYNAMIC_DRAW);
 
 		// create vertex attribute pointers into our buffer data with correct strides and offsets
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, color));
-		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(Shader::POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
+		glEnableVertexAttribArray(Shader::POSITION);
+		glVertexAttribPointer(Shader::COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, color));
+		glEnableVertexAttribArray(Shader::COLOR);
 
 		// bind the next VAO
 		glBindVertexArray(m_vaoID[1]);
@@ -83,12 +83,12 @@ namespace Interpolation
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboID[1]);
 		glBufferData(GL_ARRAY_BUFFER, m_pointCount*sizeof(vertex), &vPointData[0], GL_DYNAMIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, color));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, size));
-		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(Shader::POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
+		glEnableVertexAttribArray(Shader::POSITION);
+		glVertexAttribPointer(Shader::COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, color));
+		glEnableVertexAttribArray(Shader::COLOR);
+		glVertexAttribPointer(Shader::POINTSIZE, 1, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, size));
+		glEnableVertexAttribArray(Shader::POINTSIZE);
 
 		// we're finished with the VAO so unbind it
 		glBindVertexArray(0);

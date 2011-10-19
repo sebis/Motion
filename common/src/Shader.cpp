@@ -26,9 +26,30 @@ void Shader::link()
 {
 	// link the program
 	glLinkProgram(p_id);
+
+	// query information about the linked program
+	/*int num_active;
+	int max_length;
+
+	glGetProgramiv(p_id, GL_ACTIVE_ATTRIBUTES, &num_active);
+	glGetProgramiv(p_id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &max_length);
+
+	char * attr_name = new char[max_length];
+
+	// loop through all active attributes
+	for (int i = 0; i < num_active; i++)
+	{
+		int attrib_size;
+		GLenum attrib_type;
+
+		glGetActiveAttrib(p_id, i, max_length, 0, &attrib_size, &attrib_type, attr_name);
+		Trace::info("Found GLSL attibute %s\n", attr_name);
+	}
+
+	delete [] attr_name;*/
 }
 
-void Shader::bindAttribLocation(GLuint index, const GLchar* name)
+void Shader::bindAttribute(GLuint index, const GLchar* name)
 {
 	glBindAttribLocation(p_id, index, name);
 }
@@ -97,6 +118,16 @@ void Shader::setUniform(const GLchar *name, const glm::vec4& v)
 void Shader::setUniform(const GLchar *name, const glm::mat4& m)
 {
 	glUniformMatrix4fv(glGetUniformLocation(p_id, name), 1, GL_FALSE, glm::value_ptr(m));
+}
+
+void Shader::setUniform(const GLchar *name, const glm::float_t& f)
+{
+	glUniform1f(glGetUniformLocation(p_id, name), f);
+}
+
+void Shader::setUniform(const GLchar *name, bool b)
+{
+	glUniform1i(glGetUniformLocation(p_id, name), b);
 }
 
 void Shader::bind() const

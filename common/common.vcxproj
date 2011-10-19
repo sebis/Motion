@@ -14,8 +14,10 @@
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\GameObject.cpp" />
     <ClCompile Include="src\GlutApplication.cpp" />
+    <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\MeshFactory.cpp" />
+    <ClCompile Include="src\MeshObject.cpp" />
     <ClCompile Include="src\MeshRenderer.cpp" />
     <ClCompile Include="src\SDLApplication.cpp" />
     <ClCompile Include="src\Shader.cpp" />
@@ -27,7 +29,9 @@
     <ClInclude Include="include\GameObject.h" />
     <ClInclude Include="include\GlutApplication.h" />
     <ClInclude Include="include\Keymap.h" />
+    <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\MeshObject.h" />
     <ClInclude Include="include\MeshRenderer.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\SDLApplication.h" />

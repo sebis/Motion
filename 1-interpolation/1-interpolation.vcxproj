@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\MeshObject.cpp" />
     <ClCompile Include="src\KeyframeAnimator.cpp" />
     <ClCompile Include="src\MainApplication.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -20,7 +19,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ControlPoints.h" />
-    <ClInclude Include="include\MeshObject.h" />
     <ClInclude Include="include\Interpolator.h" />
     <ClInclude Include="include\KeyframeAnimator.h" />
     <ClInclude Include="include\MainApplication.h" />

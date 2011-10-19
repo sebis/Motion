@@ -8,6 +8,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1-interpolation", "1-interp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcxproj", "{42E6A93E-66F1-4103-A983-170A427BEF83}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2-ik", "2-ik\2-ik.vcxproj", "{257B05F7-9B91-4DD4-9A5D-0D771B68E646}"
+	ProjectSection(ProjectDependencies) = postProject
+		{42E6A93E-66F1-4103-A983-170A427BEF83} = {42E6A93E-66F1-4103-A983-170A427BEF83}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -22,6 +27,10 @@ Global
 		{42E6A93E-66F1-4103-A983-170A427BEF83}.Debug|Win32.Build.0 = Debug|Win32
 		{42E6A93E-66F1-4103-A983-170A427BEF83}.Release|Win32.ActiveCfg = Release|Win32
 		{42E6A93E-66F1-4103-A983-170A427BEF83}.Release|Win32.Build.0 = Release|Win32
+		{257B05F7-9B91-4DD4-9A5D-0D771B68E646}.Debug|Win32.ActiveCfg = Debug|Win32
+		{257B05F7-9B91-4DD4-9A5D-0D771B68E646}.Debug|Win32.Build.0 = Debug|Win32
+		{257B05F7-9B91-4DD4-9A5D-0D771B68E646}.Release|Win32.ActiveCfg = Release|Win32
+		{257B05F7-9B91-4DD4-9A5D-0D771B68E646}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

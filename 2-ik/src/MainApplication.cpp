@@ -105,6 +105,7 @@ namespace IK
 				material->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
 				MeshObject * foot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), material);
+				//GameObject * foot = new GameObject();
 				foot->m_camera = &m_camera;
 				//foot->transform().setParent(knee->transform());
 				m_components.push_back(foot);

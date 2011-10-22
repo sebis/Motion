@@ -84,23 +84,6 @@ namespace IK
 		pelvis->m_camera = &m_camera;
 		m_components.push_back(pelvis);
 
-		Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
-		KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(pelvis, interpolator, pelvis->transform().position());
-
-		/*animator->addKeyframe(0.0f, glm::vec3(0.0f, 30.0f, 0.0f));
-		animator->addKeyframe(2000.0f, glm::vec3(0.0f, 60.0f, 0.0f));
-		animator->addKeyframe(4000.0f, glm::vec3(0.0f, 90.0f, 0.0f));
-		animator->addKeyframe(6000.0f, glm::vec3(0.0f, 120.0f, 0.0f));
-		animator->addKeyframe(8000.0f, glm::vec3(0.0f, 150.0f, 0.0f));*/
-
-		animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-		animator->addKeyframe(2000.0f, glm::vec3(5.0f, 0.0f, 0.0f));
-		animator->addKeyframe(4000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-		animator->addKeyframe(6000.0f, glm::vec3(-5.0f, 0.0f, 0.0f));
-		animator->addKeyframe(8000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-
-		pelvis->m_animator = animator;
-
 		Bone * pelvisBone = new Bone(pelvis->transform());
 
 		{
@@ -123,9 +106,19 @@ namespace IK
 
 				MeshObject * foot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), material);
 				foot->m_camera = &m_camera;
-				foot->transform().setParent(knee->transform());
-				foot->transform().translate(glm::vec3(0.0, 0.0, 5.0f));
+				//foot->transform().setParent(knee->transform());
 				m_components.push_back(foot);
+
+				Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
+				KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(foot, interpolator, foot->transform().position());
+
+				animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 5.0f));
+				animator->addKeyframe(2000.0f, glm::vec3(5.0f, 0.0f, 5.0f));
+				animator->addKeyframe(4000.0f, glm::vec3(0.0f, 0.0f, 5.0f));
+				animator->addKeyframe(6000.0f, glm::vec3(-5.0f, 0.0f, 5.0f));
+				animator->addKeyframe(8000.0f, glm::vec3(0.0f, 0.0f, 5.0f));
+
+				foot->m_animator = animator;
 
 				Bone * footBone = new Bone(foot->transform(), kneeBone);
 

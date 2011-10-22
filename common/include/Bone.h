@@ -8,15 +8,15 @@ namespace Common
 	class Bone
 	{
 	public:
-		Bone(Bone * parent = 0);
+		Bone(Transform& transform, Bone * parent = 0);
 		virtual ~Bone() {}
 
 		inline Transform& transform() { return m_transform; }
 		inline const Transform& transform() const { return m_transform; }
-		glm::mat4 absoluteTransform() const;
 
+		inline Bone * parent() const { return m_parent; }
 	private:
-		Transform m_transform;
+		Transform& m_transform;
 
 		Bone * m_parent;
 	};

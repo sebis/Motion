@@ -1,10 +1,12 @@
 #include "MainApplication.h"
 #include "Material.h"
 #include "MeshObject.h"
+#include "Skeleton.h"
 #include "Texture.h"
 #include "Trace.h"
 #include "Utils.h"
 
+#include "KeyframeAnimator.h"
 #include "Interpolator.h"
 
 #include <GL/glew.h>
@@ -68,22 +70,74 @@ namespace IK
 		floor->m_camera = &m_camera;
 
 		floor->transform().scale() = glm::vec3(50.0f);
+		floor->transform().position() = glm::vec3(0.0f, -1.0f, 0.0f);
 		
 		m_components.push_back(floor);
 
-		Material * material2 = new Material(Shader::find("shader"));
-		material2->setTexture(new Texture("resources/space_frigate.bmp"));
+		Skeleton * skeleton = new Skeleton;
+		m_components.push_back(skeleton);
 
-		MeshObject * base = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material2);
-		base->m_camera = &m_camera;
+		Material * green = new Material(Shader::find("shader"));
+		green->setDiffuseColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
-		Bone * pelvis = new Bone();
-		pelvis->transform().translate(glm::vec3(-5.0f, 0.0f, 0.0f));
-		base->setBone(pelvis);
+		MeshObject * pelvis = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), green);
+		pelvis->m_camera = &m_camera;
+		m_components.push_back(pelvis);
+
+		Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
+		KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(pelvis, interpolator, pelvis->transform().position());
+
+		/*animator->addKeyframe(0.0f, glm::vec3(0.0f, 30.0f, 0.0f));
+		animator->addKeyframe(2000.0f, glm::vec3(0.0f, 60.0f, 0.0f));
+		animator->addKeyframe(4000.0f, glm::vec3(0.0f, 90.0f, 0.0f));
+		animator->addKeyframe(6000.0f, glm::vec3(0.0f, 120.0f, 0.0f));
+		animator->addKeyframe(8000.0f, glm::vec3(0.0f, 150.0f, 0.0f));*/
+
+		animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+		animator->addKeyframe(2000.0f, glm::vec3(5.0f, 0.0f, 0.0f));
+		animator->addKeyframe(4000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+		animator->addKeyframe(6000.0f, glm::vec3(-5.0f, 0.0f, 0.0f));
+		animator->addKeyframe(8000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+
+		pelvis->m_animator = animator;
+
+		Bone * pelvisBone = new Bone(pelvis->transform());
+
+		{
+			Material * yellow = new Material(Shader::find("shader"));
+			yellow->setDiffuseColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+			MeshObject * knee = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), yellow);
+			knee->transform().setParent(pelvis->transform());
+			knee->transform().translate(glm::vec3(5.0f, 0.0f, 0.0f));
+
+			knee->m_camera = &m_camera;
+
+			m_components.push_back(knee);
+
+			Bone * kneeBone = new Bone(knee->transform(), pelvisBone);
+
+			{
+				Material * material = new Material(Shader::find("shader"));
+				material->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+				MeshObject * foot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), material);
+				foot->m_camera = &m_camera;
+				foot->transform().setParent(knee->transform());
+				foot->transform().translate(glm::vec3(0.0, 0.0, 5.0f));
+				m_components.push_back(foot);
+
+				Bone * footBone = new Bone(foot->transform(), kneeBone);
+
+				skeleton->addEndEffector(footBone);
+			}
+		}
+
+
 
 		///// 
 
-		Material * red = new Material(Shader::find("shader"));
+		/*Material * red = new Material(Shader::find("shader"));
 		red->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
 		MeshObject * arm = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), red);
@@ -91,10 +145,10 @@ namespace IK
 
 		Bone * armBone = new Bone(pelvis);
 		armBone->transform().translate(glm::vec3(-5.0f, 0.0f, 0.0f));
-		arm->setBone(armBone);
+		//arm->setBone(armBone);
 
 		m_components.push_back(base);
-		m_components.push_back(arm);
+		m_components.push_back(arm);*/
 
 		return true;
 	}

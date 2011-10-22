@@ -18,7 +18,6 @@ namespace Common
 		virtual void update(float dt);
 
 		inline Transform& transform() { return m_transform; }
-		virtual glm::mat4 transformMatrix() const;
 
 		Animator * m_animator;
 		Camera * m_camera;

@@ -15,7 +15,7 @@ namespace Common
 			  m_position(glm::vec3(0.0f)),
 			  m_rotation(glm::vec3(0.0f)),
 			  m_scale(glm::vec3(1.0f)),
-			  m_transform(glm::mat4(1.0f))
+			  m_parent(0)
 		{}
 
 		static Transform Translation(const float& x, const float& y, const float& z)
@@ -45,30 +45,12 @@ namespace Common
 			m_scale = scale;
 		}
 
-		inline const glm::mat4 world() const
-		{
-			// TODO: this is now unnecessarily recomputed each time it is called.
-			// Problem is that we don't know when position or rotation is updated
-			// because we give out references to the variables.
-			// Instead of updating the m_position reference externally maybe we
-			// could give a pointer to a function so that the function can mark
-			// the matrix dirty.
-			glm::mat4 m(1.0f);
+		const glm::mat4 world() const;
+		void extract(glm::mat4 m);
 
-			m = glm::translate(m, m_position);
-
-			if (m_useQuaternions) {
-				m *= glm::mat4_cast(glm::normalize(m_quaternion));
-			} else {
-				m = glm::rotate(m, m_rotation.x, glm::vec3(1, 0, 0));
-				m = glm::rotate(m, m_rotation.y, glm::vec3(0, 1, 0));
-				m = glm::rotate(m, m_rotation.z, glm::vec3(0, 0, 1));
-			}
-
-			m = glm::scale(m, m_scale);
-
-			return m;
-		}
+		inline const Transform * parent() const { return m_parent; }
+		inline void setParent(Transform * parent) { m_parent = parent; }
+		inline void setParent(Transform& parent) { m_parent = &parent; }
 
 		inline glm::vec3& position() { return m_position; }
 		inline glm::vec3& rotation() { return m_rotation; }
@@ -87,7 +69,7 @@ namespace Common
 
 		glm::quat m_quaternion;
 	
-		glm::mat4 m_transform;
+		Transform * m_parent;
 	};
 }
 

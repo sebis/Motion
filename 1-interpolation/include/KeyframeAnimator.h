@@ -24,7 +24,7 @@ namespace Interpolation
 		KeyframeAnimator(Common::GameObject * gameObject, Interpolator<T> * interpolator, T& result, 
 			bool reparameterize = false,
 			bool connect_end_points = false,
-			bool orient_to_tangent = true,
+			bool orient_to_tangent = false,
 			bool loop = true)
 			: Animator(gameObject, loop),
 			m_interpolator(interpolator),

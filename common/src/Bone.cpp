@@ -2,16 +2,8 @@
 
 namespace Common
 {
-	Bone::Bone(Bone * parent)
-		: m_parent(parent)
+	Bone::Bone(Transform& transform, Bone * parent)
+		: m_transform(transform), m_parent(parent)
 	{
-	}
-
-	glm::mat4 Bone::absoluteTransform() const
-	{
-		if (!m_parent)
-			return transform().world();
-
-		return m_parent->absoluteTransform() * transform().world();
 	}
 }

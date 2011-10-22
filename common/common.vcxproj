@@ -22,7 +22,9 @@
     <ClCompile Include="src\MeshRenderer.cpp" />
     <ClCompile Include="src\SDLApplication.cpp" />
     <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\Skeleton.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h" />
@@ -38,6 +40,7 @@
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\SDLApplication.h" />
     <ClInclude Include="include\Shader.h" />
+    <ClInclude Include="include\Skeleton.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Trace.h" />
     <ClInclude Include="include\Transform.h" />

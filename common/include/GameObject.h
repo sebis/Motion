@@ -17,11 +17,15 @@ namespace Common
 		virtual void draw();
 		virtual void update(float dt);
 
-		Transform m_transform;
+		inline Transform& transform() { return m_transform; }
+		virtual glm::mat4 transformMatrix() const;
+
 		Animator * m_animator;
 		Camera * m_camera;
 		Renderer * m_renderer;
 
+	private:
+		Transform m_transform;
 	};
 };
 

@@ -7,6 +7,11 @@ namespace Common
 	{
 	}
 
+	glm::mat4 GameObject::transformMatrix() const
+	{
+		return m_transform.world();
+	}
+
 	void GameObject::update(float dt)
 	{
 		if (m_animator)

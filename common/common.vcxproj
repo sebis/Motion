@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Bone.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\GameObject.cpp" />
     <ClCompile Include="src\GlutApplication.cpp" />
@@ -25,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h" />
+    <ClInclude Include="include\Bone.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\GameObject.h" />
     <ClInclude Include="include\GlutApplication.h" />

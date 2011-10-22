@@ -3,10 +3,18 @@
 
 namespace Common
 {
-	MeshObject::MeshObject(Mesh * mesh, Material * material)
+	MeshObject::MeshObject(Mesh * mesh, Material * material, Bone * bone)
+		: m_mesh(mesh), m_bone(bone)
 	{
-		m_mesh = mesh;
-		m_renderer = new MeshRenderer(this, m_mesh, material);
+		m_renderer = new MeshRenderer(this, mesh, material);
+	}
+
+	glm::mat4 MeshObject::transformMatrix() const
+	{
+		if (m_bone)
+			return m_bone->absoluteTransform();
+
+		return GameObject::transformMatrix();
 	}
 
 	MeshObject::~MeshObject()

@@ -93,13 +93,16 @@ namespace Interpolation
 				"Linear interpolation between control points (big dots).\n"
 				"Time between small dots: 500ms.";
 
-			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
+			Common::Material * material = new Common::Material(Shader::find("model"));
+			material->setTexture(new Texture("resources/space_frigate.bmp"));
+			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
+
 			obj->m_camera = &m_camera;
 
 			// create a linear interpolator for vec3 type
 			Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
 			// create a keyframe animator that animates position
-			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.position(), false);
+			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->transform().position(), false);
 
 			animator->setRenderer(new SplineRenderer(obj, interpolator, animator->keys()));
 
@@ -128,11 +131,14 @@ namespace Interpolation
 				"based on arc-length between control points.\n"
 				"Dot interval: 500ms.";
 
-			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
+			Common::Material * material = new Common::Material(Shader::find("model"));
+			material->setTexture(new Texture("resources/space_frigate.bmp"));
+			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
+
 			obj->m_camera = &m_camera;
 
 			Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
-			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.position(), true);
+			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->transform().position(), true);
 
 			animator->setRenderer(new SplineRenderer(obj, interpolator, animator->keys()));
 
@@ -160,11 +166,14 @@ namespace Interpolation
 				"Interpolating the position on a CatmullRom-spline\n"
 				"without arc-length parameterization.";
 
-			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
+			Common::Material * material = new Common::Material(Shader::find("model"));
+			material->setTexture(new Texture("resources/space_frigate.bmp"));
+			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
+
 			obj->m_camera = &m_camera;
 
 			Interpolator<glm::vec3> * interpolator = new CatmullRomInterpolator<glm::vec3>;
-			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.position(), false, true);
+			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->transform().position(), false, true);
 
 			animator->setRenderer(new SplineRenderer(obj, interpolator, animator->keys()));
 
@@ -193,11 +202,14 @@ namespace Interpolation
 				"with arc-length parameterization. Arc length is\n"
 				"approximated by summing small linear segments.";
 
-			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
+			Common::Material * material = new Common::Material(Shader::find("model"));
+			material->setTexture(new Texture("resources/space_frigate.bmp"));
+			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
+
 			obj->m_camera = &m_camera;
 
 			Interpolator<glm::vec3> * interpolator = new CatmullRomInterpolator<glm::vec3>;
-			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.position(), true, true);
+			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->transform().position(), true, true);
 
 			animator->setRenderer(new SplineRenderer(obj, interpolator, animator->keys()));
 
@@ -228,11 +240,14 @@ namespace Interpolation
 
 			Utils::Random r;
 
-			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/space_frigate.ply", "resources/space_frigate.bmp");
+			Common::Material * material = new Common::Material(Shader::find("model"));
+			material->setTexture(new Texture("resources/space_frigate.bmp"));
+			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
+
 			obj->m_camera = &m_camera;
 
 			Interpolator<glm::vec3> * interpolator = new KochanekBartelsInterpolator<glm::vec3>;
-			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.position(), true, true);
+			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->transform().position(), true, true);
 
 			animator->setRenderer(new SplineRenderer(obj, interpolator, animator->keys()));
 
@@ -267,12 +282,15 @@ namespace Interpolation
 			glm::vec3 translation(-3.0f, 0.0f, -7.5f);
 			glm::vec3 scale(5.0f);
 
-			Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/spacecraft.ply", "resources/spacecraft.bmp");
+			Common::Material * material = new Common::Material(Shader::find("model"));
+			material->setTexture(new Texture("resources/spacecraft.bmp"));
+			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/spacecraft.ply"), material);
+
 			obj->m_camera = &m_camera;
-			obj->m_transform.translate(translation);
+			obj->transform().translate(translation);
 
 			Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
-			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->m_transform.rotation(), false, false, false);
+			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->transform().rotation(), false, false, false);
 			animator->addKeyframe(0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
             animator->addKeyframe(3000.0f, glm::vec3(0.0f, 0.0f, 90.0f));
             animator->addKeyframe(6000.0f, glm::vec3(0.0f, 90.0f, 90.0f));
@@ -288,9 +306,9 @@ namespace Interpolation
 
 			Common::GameObject * gyroscope = new Common::GameObject;
 			gyroscope->m_camera = &m_camera;
-			gyroscope->m_renderer = new TransformRenderer(gyroscope, Shader::find("lambert"), &obj->m_transform);
-			gyroscope->m_transform.translate(translation);
-			gyroscope->m_transform.scale(glm::vec3(5.0f));
+			gyroscope->m_renderer = new TransformRenderer(gyroscope, Shader::find("lambert"), &obj->transform());
+			gyroscope->transform().translate(translation);
+			gyroscope->transform().scale(glm::vec3(5.0f));
 			
 			m_components.push_back(gyroscope);
 		}
@@ -303,13 +321,16 @@ namespace Interpolation
 				"  b) spline interpolation using a cubic Bezier curve on the sphere.";
 
 			{ // First object using SLERP
-				Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/spacecraft.ply", "resources/spacecraft.bmp");
+				Common::Material * material = new Common::Material(Shader::find("model"));
+				material->setTexture(new Texture("resources/spacecraft.bmp"));
+				Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/spacecraft.ply"), material);
+
 				obj->m_camera = &m_camera;
-				obj->m_transform.enableQuaternions();
-				obj->m_transform.translate(glm::vec3(4.0f, 0.0f, -1.0f));
+				obj->transform().enableQuaternions();
+				obj->transform().translate(glm::vec3(4.0f, 0.0f, -1.0f));
 
 				Interpolator<glm::quat> * interpolator = new SphericalLinearInterpolator<glm::quat>;
-				KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(obj, interpolator, obj->m_transform.quaternion(), false, true, false);
+				KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(obj, interpolator, obj->transform().quaternion(), false, true, false);
 
 				glm::quat q = glm::rotate(glm::quat(), 0.0f, glm::vec3(1, 0, 0));
 				animator->addKeyframe(0.0f, q);
@@ -330,13 +351,16 @@ namespace Interpolation
 			}
 
 			{ // Second object using Bezier-SLERP
-				Common::GameObject * obj = new MeshObject(Shader::find("model"), "resources/spacecraft.ply", "resources/spacecraft.bmp");
+				Common::Material * material = new Common::Material(Shader::find("model"));
+				material->setTexture(new Texture("resources/spacecraft.bmp"));
+				Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/spacecraft.ply"), material);
+
 				obj->m_camera = &m_camera;
-				obj->m_transform.enableQuaternions();
-				obj->m_transform.translate(glm::vec3(-3.0f, 0.0f, -7.5f));
+				obj->transform().enableQuaternions();
+				obj->transform().translate(glm::vec3(-3.0f, 0.0f, -7.5f));
 
 				Interpolator<glm::quat> * interpolator = new BezierSphericalLinearInterpolator<glm::quat>;
-				KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(obj, interpolator, obj->m_transform.quaternion(), false, false, false);
+				KeyframeAnimator<glm::quat> * animator = new KeyframeAnimator<glm::quat>(obj, interpolator, obj->transform().quaternion(), false, false, false);
 
 				glm::quat q = glm::rotate(glm::quat(), 0.0f, glm::vec3(1, 0, 0));
 				animator->addKeyframe(0.0f, q);

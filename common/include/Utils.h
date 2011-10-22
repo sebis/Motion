@@ -148,7 +148,8 @@ namespace Utils
 		char* p = *data;
 
 		// flip BMP format y-coordinate
-		for (int y = info_header.height - 1; y >= 0; y--) {
+		//for (int y = info_header.height - 1; y >= 0; y--) {
+		for (int y = 0; y < info_header.width; y++) {
 			for (int x = 0; x < info_header.width; x++) {
 				// read 3 bytes (24bpp) from the bitmap
 				char bgr[3];

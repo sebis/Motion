@@ -5,12 +5,15 @@
 #include "Trace.h"
 #include "Utils.h"
 
+#include "Interpolator.h"
+
 #include <GL/glew.h>
 #include "glm/gtc/matrix_transform.hpp"
 
 namespace IK
 {
 	using namespace Common;
+	using namespace Interpolation;
 
 	MainApplication::MainApplication(bool fixedTimeStep, float targetElapsedTime)
 		: Base(fixedTimeStep, targetElapsedTime),
@@ -58,13 +61,40 @@ namespace IK
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		Material * material = new Material(Shader::find("shader"));
-		material->setTexture(new Texture("resources/space_frigate.bmp"));
+		material->setTexture(new Texture("resources/checker.bmp"));
 
-		MeshObject * frigate = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
-		// TODO: shouldn't need to set camera
-		frigate->m_camera = &m_camera;
+		MeshObject * floor = new MeshObject(MeshFactory::Plane(), material);
+		// TODO: shouldn't need to set camera explicitly
+		floor->m_camera = &m_camera;
+
+		floor->transform().scale() = glm::vec3(50.0f);
 		
-		m_components.push_back(frigate);
+		m_components.push_back(floor);
+
+		Material * material2 = new Material(Shader::find("shader"));
+		material2->setTexture(new Texture("resources/space_frigate.bmp"));
+
+		MeshObject * base = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material2);
+		base->m_camera = &m_camera;
+
+		Bone * pelvis = new Bone();
+		pelvis->transform().translate(glm::vec3(-5.0f, 0.0f, 0.0f));
+		base->setBone(pelvis);
+
+		///// 
+
+		Material * red = new Material(Shader::find("shader"));
+		red->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+		MeshObject * arm = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), red);
+		arm->m_camera = &m_camera;
+
+		Bone * armBone = new Bone(pelvis);
+		armBone->transform().translate(glm::vec3(-5.0f, 0.0f, 0.0f));
+		arm->setBone(armBone);
+
+		m_components.push_back(base);
+		m_components.push_back(arm);
 
 		return true;
 	}

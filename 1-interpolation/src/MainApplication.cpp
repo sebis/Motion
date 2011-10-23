@@ -434,7 +434,7 @@ namespace Interpolation
 	void MainApplication::window_resized(int width, int height)
 	{
 		glViewport(0, 0, width, height);
-		m_camera.set_projection(glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f));
+		m_camera.set_projection(glm::perspective(45.0f, float(width)/float(height), 0.1f, 1000.0f));
 
 		m_width = width;
 		m_height = height;

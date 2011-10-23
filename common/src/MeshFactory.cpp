@@ -11,13 +11,13 @@ namespace Common
 {
 	namespace MeshFactory
 	{
-		Mesh * Plane(glm::vec4 color)
+		Mesh * Plane(glm::vec4 color, int gridSize)
 		{
 			Mesh::vertex vData[] = {
-				{ glm::vec3(-1.0f, 0, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0, 1), color },
+				{ glm::vec3(-1.0f, 0, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0, gridSize), color },
 				{ glm::vec3(-1.0f, 0, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0, 0), color },
-				{ glm::vec3(1.0f, 0, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1, 1), color },
-				{ glm::vec3(1.0f, 0, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1, 0), color },
+				{ glm::vec3(1.0f, 0, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(gridSize, gridSize), color },
+				{ glm::vec3(1.0f, 0, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(gridSize, 0), color },
 			};
 
 			glm::uint iData[] = {

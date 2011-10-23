@@ -55,6 +55,46 @@ namespace IK
 	{
 	}
 
+	namespace
+	{
+		void createGautAnimation(GameObject * target, float phase, float bodySpeed)
+		{
+			Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
+			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(target, interpolator, target->transform().position(), false, true, false, true);
+
+			// changable parameters
+			float strokeMin = -2.0f;
+			float strokeMax = 3.0f;
+			float heightMin = 0.5f;
+			float heightMax = 2.4f;
+			//float cycleLength = 3000.0f; // TODO: this from somewhere
+			float legSpeed = 5.0f/1000.0f; // TODO: this from somewhere
+
+			float stroke = strokeMax - strokeMin;
+			float supportDuration = stroke / bodySpeed;
+			float arcLength = std::sqrt(strokeMin*strokeMin + (heightMax - heightMin)*(heightMax - heightMin)) + std::sqrt((heightMax - heightMin)*(heightMax - heightMin) + strokeMax*strokeMax);
+			float transferDuration = arcLength / legSpeed;
+			float cycleLength = supportDuration + transferDuration;
+
+			Trace::info("stroke: %f\n", stroke);
+			Trace::info("cycleLength: %f\n", cycleLength);
+			Trace::info("supportDuration: %f\n", supportDuration);
+			Trace::info("transferDuration: %f\n", transferDuration);
+
+			animator->setIdle(cycleLength * phase);
+			// support phase
+			animator->addKeyframe(0.0f, glm::vec3(strokeMax, heightMin, 0.0f));  // foot forward (hits ground)
+			animator->addKeyframe(supportDuration * 0.5f, glm::vec3(strokeMin + stroke * 0.5f, heightMin, 0.0f));  // foot straight in center
+			animator->addKeyframe(supportDuration, glm::vec3(strokeMin, heightMin, 0.0f)); // foot is just about to lift
+			animator->addKeyframe(supportDuration + transferDuration * 0.5f, glm::vec3(0.0f, heightMax, 0.0f));
+
+			// dummy needs to repeat first
+			animator->addKeyframe(supportDuration + transferDuration, glm::vec3(strokeMax, heightMin, 0.0f));  // foot hits ground
+
+			target->m_animator = animator;
+		}
+	}
+
 	bool MainApplication::init(int argc, char * argv[])
 	{
 		if (!Base::init(argc, argv))
@@ -108,11 +148,13 @@ namespace IK
 		Skeleton * skeleton = new Skeleton;
 		skeleton->transform().translate(glm::vec3(0.0f, 0.0f, 0.0f));
 
-		skeleton->m_animator = new LocationAnimator(skeleton, glm::vec3(6/1000.0f, 0.0f, 0.0f));
+		float bodySpeed = 6/1000.0f; // 6 units per second
+		skeleton->m_animator = new LocationAnimator(skeleton, glm::vec3(bodySpeed, 0.0f, 0.0f));
 
 		m_components.push_back(skeleton);
 
 		/// Create some materials
+
 		Material * green = new Material(Shader::find("shader"));
 		green->setDiffuseColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		
@@ -122,202 +164,47 @@ namespace IK
 		Material * red = new Material(Shader::find("shader"));
 		red->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
-		{
+		MeshObject * rightHip = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), green);
+		rightHip->transform().translate(glm::vec3(0.0f, 9.5f, -1.0f));
+		rightHip->transform().setParent(skeleton->transform());
+
+		MeshObject * leftHip = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), green);
+		leftHip->transform().translate(glm::vec3(0.0f, 9.5f, 1.0f));
+		leftHip->transform().setParent(skeleton->transform());
 		
+		MeshObject * rightKnee = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), yellow);
+		rightKnee->transform().setParent(rightHip->transform());
+		rightKnee->transform().translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		
+		MeshObject * leftKnee = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), yellow);
+		leftKnee->transform().setParent(leftHip->transform());
+		leftKnee->transform().translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		
+		MeshObject * rightFoot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), red);
+		rightFoot->transform().setParent(skeleton->transform());
+		
+		MeshObject * leftFoot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), red);
+		leftFoot->transform().setParent(skeleton->transform());
 
-		MeshObject * pelvis = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), green);
-		pelvis->transform().translate(glm::vec3(0.0f, 10.0f, -1.0f));
-		pelvis->transform().setParent(skeleton->transform());
+		createGautAnimation(rightFoot, 0.0f, bodySpeed);
+		createGautAnimation(leftFoot, 0.5f, bodySpeed);
 
-		//pelvis->m_animator = new LocationAnimator(pelvis, glm::vec3(6/1000.0f, 0.0f, 0.0f));
+		Bone * rightHipBone = new Bone(rightHip->transform());
+		Bone * leftHipBone = new Bone(leftHip->transform());
+		Bone * rightKneeBone = new Bone(rightKnee->transform(), rightHipBone);
+		Bone * leftKneeBone = new Bone(leftKnee->transform(), leftHipBone);
+		Bone * rightFootBone = new Bone(rightFoot->transform(), rightKneeBone);
+		Bone * leftFootBone = new Bone(leftFoot->transform(), leftKneeBone);
 
-		m_components.push_back(pelvis);
+		skeleton->addEndEffector(rightFootBone);
+		skeleton->addEndEffector(leftFootBone);
 
-		Bone * pelvisBone = new Bone(pelvis->transform());
-
-		{
-			
-
-			MeshObject * knee = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), yellow);
-			knee->transform().setParent(pelvis->transform());
-			knee->transform().translate(glm::vec3(0.0f, -5.0f, 0.0f));
-
-			m_components.push_back(knee);
-
-			Bone * kneeBone = new Bone(knee->transform(), pelvisBone);
-
-			{
-				
-
-				MeshObject * foot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), red);
-				//GameObject * foot = new GameObject();
-				foot->transform().setParent(skeleton->transform());
-				//foot->transform().position() = glm::vec3(-2.0f, 0.0f, 7.5f);
-				m_components.push_back(foot);
-
-				Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
-				KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(foot, interpolator, foot->transform().position(), false, true, false, true);
-
-				//animator->setRenderer(new SplineRenderer(foot, interpolator, animator->keys()));
-
-				/*animator->addKeyframe(0.0f, glm::vec3(2.5f, -9.5f, 0.0f));  // foot hits ground
-				animator->addKeyframe(500.0f, glm::vec3(0.0f, -9.5f, 0.0f)); 
-				animator->addKeyframe(1000.0f, glm::vec3(-3.5f, -8.5f, 0.0f)); // foot off ground
-				animator->addKeyframe(1500.0f, glm::vec3(-2.0f, -7.6f, 0.0f));
-				animator->addKeyframe(2000.0f, glm::vec3(2.5f, -9.6f, 0.0f));  // foot hits ground*/
-
-
-				// changable parameters
-				float strokeMin = -2.0f;
-				float strokeMax = 3.0f;
-				float heightMin = 0.5f;
-				float heightMax = 2.4f;
-				//float cycleLength = 3000.0f; // TODO: this from somewhere
-				float bodySpeed = 6.0f/1000.0f; // TODO: this from somewhere
-				float legSpeed = 10.0f/1000.0f; // TODO: this from somewhere
-
-				float stroke = strokeMax - strokeMin;
-				float supportDuration = stroke / bodySpeed;
-				float arcLength = std::sqrt(strokeMin*strokeMin + (heightMax - heightMin)*(heightMax - heightMin)) + std::sqrt((heightMax - heightMin)*(heightMax - heightMin) + strokeMax*strokeMax);
-				float transferDuration = arcLength / legSpeed;
-				float cycleLength = supportDuration + transferDuration;
-
-
-				Trace::info("stroke: %f\n", stroke);
-				Trace::info("cycleLength: %f\n", cycleLength);
-				Trace::info("supportDuration: %f\n", supportDuration);
-				Trace::info("transferDuration: %f\n", transferDuration);
-
-				float phase = cycleLength * 0.5f;
-				animator->setIdle(phase);
-				// support phase
-				animator->addKeyframe(0.0f, glm::vec3(strokeMax, heightMin, 0.0f));  // foot forward (hits ground)
-				animator->addKeyframe(supportDuration * 0.5f, glm::vec3(strokeMin + stroke * 0.5f, heightMin, 0.0f));  // foot straight in center
-				animator->addKeyframe(supportDuration, glm::vec3(strokeMin, heightMin, 0.0f)); // foot is just about to lift
-				animator->addKeyframe(supportDuration + transferDuration * 0.5f, glm::vec3(0.0f, heightMax, 0.0f));
-
-				// dummy needs to repeat first
-				animator->addKeyframe(supportDuration + transferDuration, glm::vec3(strokeMax, heightMin, 0.0f));  // foot hits ground
-
-				/* SAVE
-				animator->addKeyframe(0.0f, glm::vec3(4.0f, 0.5f, 0.0f));  // foot hits ground
-				animator->addKeyframe(500.0f, glm::vec3(0.0f, 0.5f, 0.0f)); 
-				animator->addKeyframe(1000.0f, glm::vec3(-3.0f, 1.5f, 0.0f)); // foot off ground
-				animator->addKeyframe(1500.0f, glm::vec3(-2.0f, 2.4f, 0.0f));
-				animator->addKeyframe(2000.0f, glm::vec3(4.0f, 0.5f, 0.0f));  // foot hits ground*/
-
-				foot->m_animator = animator;
-
-				Bone * footBone = new Bone(foot->transform(), kneeBone);
-
-				skeleton->addEndEffector(footBone);
-			}
-		}
-		}
-
-		{
-		Material * green = new Material(Shader::find("shader"));
-		green->setDiffuseColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-
-		MeshObject * pelvis = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), green);
-		pelvis->transform().translate(glm::vec3(0.0f, 10.0f, 1.0f));
-		pelvis->transform().setParent(skeleton->transform());
-
-		m_components.push_back(pelvis);
-
-		Bone * pelvisBone = new Bone(pelvis->transform());
-		pelvisBone->name = "PelvisBone";
-
-		{
-			Material * yellow = new Material(Shader::find("shader"));
-			yellow->setDiffuseColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-
-			MeshObject * knee = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), yellow);
-			knee->transform().setParent(pelvis->transform());
-			knee->transform().translate(glm::vec3(0.0f, -5.0f, 0.0f));
-
-			m_components.push_back(knee);
-
-			Bone * kneeBone = new Bone(knee->transform(), pelvisBone);
-			kneeBone->name = "KneeBone";
-
-			{
-				Material * material = new Material(Shader::find("shader"));
-				material->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-
-				MeshObject * foot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), material);
-				//GameObject * foot = new GameObject();
-				foot->transform().setParent(skeleton->transform());
-				//foot->transform().position() = glm::vec3(-2.0f, 0.0f, 7.5f);
-				m_components.push_back(foot);
-
-				Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
-				KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(foot, interpolator, foot->transform().position(), false, true, false, true);
-
-				// changable parameters
-				float strokeMin = -2.0f;
-				float strokeMax = 3.0f;
-				float heightMin = 0.5f;
-				float heightMax = 2.4f;
-				//float cycleLength = 3000.0f; // TODO: this from somewhere
-				float bodySpeed = 6.0f/1000.0f; // TODO: this from somewhere
-				float legSpeed = 10.0f/1000.0f; // TODO: this from somewhere
-
-				float stroke = strokeMax - strokeMin;
-				float supportDuration = stroke / bodySpeed;
-				float arcLength = std::sqrt(strokeMin*strokeMin + (heightMax - heightMin)*(heightMax - heightMin)) + std::sqrt((heightMax - heightMin)*(heightMax - heightMin) + strokeMax*strokeMax);
-				float transferDuration = arcLength / legSpeed;
-				float cycleLength = supportDuration + transferDuration;
-
-				Trace::info("stroke: %f\n", stroke);
-				Trace::info("supportDuration: %f\n", supportDuration);
-				Trace::info("transferDuration: %f\n", transferDuration);
-
-				float phase = 0.0f;
-				animator->setIdle(phase);
-				// support phase
-				animator->addKeyframe(0.0f, glm::vec3(strokeMax, heightMin, 0.0f));  // foot forward (hits ground)
-				animator->addKeyframe(supportDuration * 0.5f, glm::vec3(strokeMin + stroke * 0.5f, heightMin, 0.0f));  // foot straight in center
-				animator->addKeyframe(supportDuration, glm::vec3(strokeMin, heightMin, 0.0f)); // foot is just about to lift
-				animator->addKeyframe(supportDuration + transferDuration * 0.5f, glm::vec3(0.0f, heightMax, 0.0f));
-
-				// dummy needs to repeat first
-				animator->addKeyframe(supportDuration + transferDuration, glm::vec3(strokeMax, heightMin, 0.0f));  // foot hits ground
-
-
-				 /*// in world space
-				animator->addKeyframe(0.0f, glm::vec3(-3.0f, 1.5f, 0.0f)); // foot off ground
-				animator->addKeyframe(500.0f, glm::vec3(-2.0f, 2.4f, 0.0f));
-				animator->addKeyframe(1000.0f, glm::vec3(3.0f, 0.5f, 0.0f));  // foot hits ground
-				animator->addKeyframe(1500.0f, glm::vec3(0.0f, 0.5f, 0.0f)); 
-				animator->addKeyframe(2000.0f, glm::vec3(-3.0f, 1.5f, 0.0f)); // foot off ground*/
-
-				foot->m_animator = animator;
-
-				Bone * footBone = new Bone(foot->transform(), kneeBone);
-				footBone->name = "FootBone";
-
-				skeleton->addEndEffector(footBone);
-			}
-		}
-		}
-
-
-
-		///// 
-
-		/*Material * red = new Material(Shader::find("shader"));
-		red->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-
-		MeshObject * arm = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), red);
-		arm->m_camera = &m_camera;
-
-		Bone * armBone = new Bone(pelvis);
-		armBone->transform().translate(glm::vec3(-5.0f, 0.0f, 0.0f));
-		//arm->setBone(armBone);
-
-		m_components.push_back(base);
-		m_components.push_back(arm);*/
+		m_components.push_back(rightHip);
+		m_components.push_back(leftHip);
+		m_components.push_back(rightKnee);
+		m_components.push_back(leftKnee);
+		m_components.push_back(rightFoot);
+		m_components.push_back(leftFoot);
 
 		return true;
 	}

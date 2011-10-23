@@ -2,6 +2,8 @@
 
 namespace Common
 {
+	Camera * GameObject::s_camera = 0;
+
 	GameObject::GameObject()
 		: m_animator(0), m_renderer(0)
 	{

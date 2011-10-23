@@ -28,8 +28,8 @@ namespace Interpolation
 
 		m_shader->bind();
 
-		m_shader->setUniform("view", m_gameObject->m_camera->view());
-		m_shader->setUniform("projection", m_gameObject->m_camera->projection());
+		m_shader->setUniform("view", Common::GameObject::s_camera->view());
+		m_shader->setUniform("projection", Common::GameObject::s_camera->projection());
 		
 		// create separate matrices so that they can be combined to create a "proper" gyroscope
 		glm::mat4 mx = glm::rotate(glm::mat4(1.0f), m_transform->rotation().x, glm::vec3(1, 0, 0));

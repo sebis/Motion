@@ -20,8 +20,8 @@ namespace Common
 		m_material->begin();
 
 		m_material->shader()->setUniform("world", m_gameObject->transform().world());
-		m_material->shader()->setUniform("view", m_gameObject->m_camera->view());
-		m_material->shader()->setUniform("projection", m_gameObject->m_camera->projection());
+		m_material->shader()->setUniform("view", GameObject::s_camera->view());
+		m_material->shader()->setUniform("projection", GameObject::s_camera->projection());
 
 		m_mesh->draw();
 

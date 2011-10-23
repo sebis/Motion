@@ -89,17 +89,21 @@ namespace IK
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		Material * material = new Material(Shader::find("shader"));
-		material->setTexture(new Texture("resources/checker.bmp"));
+		Common::GameObject::s_camera = &m_camera;
 
-		MeshObject * floor = new MeshObject(MeshFactory::Plane(glm::vec4(1.0f), 5), material);
+		/// Create floor
+
+		Material * floorMaterial = new Material(Shader::find("shader"));
+		floorMaterial->setTexture(new Texture("resources/checker.bmp"));
+
+		MeshObject * floor = new MeshObject(MeshFactory::Plane(glm::vec4(1.0f), 5), floorMaterial);
 		// TODO: shouldn't need to set camera explicitly
-		floor->m_camera = &m_camera;
-
 		floor->transform().scale() = glm::vec3(500.0f);
 		floor->transform().position() = glm::vec3(0.0f, -1.0f, 0.0f);
 		
 		m_components.push_back(floor);
+
+		/// Create a skeleton
 
 		Skeleton * skeleton = new Skeleton;
 		skeleton->transform().translate(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -108,12 +112,20 @@ namespace IK
 
 		m_components.push_back(skeleton);
 
-		{
+		/// Create some materials
 		Material * green = new Material(Shader::find("shader"));
 		green->setDiffuseColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+		
+		Material * yellow = new Material(Shader::find("shader"));
+		yellow->setDiffuseColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+		Material * red = new Material(Shader::find("shader"));
+		red->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+		{
+		
 
 		MeshObject * pelvis = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), green);
-		pelvis->m_camera = &m_camera;
 		pelvis->transform().translate(glm::vec3(0.0f, 10.0f, -1.0f));
 		pelvis->transform().setParent(skeleton->transform());
 
@@ -124,26 +136,21 @@ namespace IK
 		Bone * pelvisBone = new Bone(pelvis->transform());
 
 		{
-			Material * yellow = new Material(Shader::find("shader"));
-			yellow->setDiffuseColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+			
 
 			MeshObject * knee = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), yellow);
 			knee->transform().setParent(pelvis->transform());
 			knee->transform().translate(glm::vec3(0.0f, -5.0f, 0.0f));
-
-			knee->m_camera = &m_camera;
 
 			m_components.push_back(knee);
 
 			Bone * kneeBone = new Bone(knee->transform(), pelvisBone);
 
 			{
-				Material * material = new Material(Shader::find("shader"));
-				material->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+				
 
-				MeshObject * foot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), material);
+				MeshObject * foot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), red);
 				//GameObject * foot = new GameObject();
-				foot->m_camera = &m_camera;
 				foot->transform().setParent(skeleton->transform());
 				//foot->transform().position() = glm::vec3(-2.0f, 0.0f, 7.5f);
 				m_components.push_back(foot);
@@ -215,7 +222,6 @@ namespace IK
 		MeshObject * pelvis = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), green);
 		pelvis->transform().translate(glm::vec3(0.0f, 10.0f, 1.0f));
 		pelvis->transform().setParent(skeleton->transform());
-		pelvis->m_camera = &m_camera;
 
 		m_components.push_back(pelvis);
 
@@ -227,7 +233,6 @@ namespace IK
 			yellow->setDiffuseColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
 			MeshObject * knee = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), yellow);
-			knee->m_camera = &m_camera;
 			knee->transform().setParent(pelvis->transform());
 			knee->transform().translate(glm::vec3(0.0f, -5.0f, 0.0f));
 
@@ -242,7 +247,6 @@ namespace IK
 
 				MeshObject * foot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), material);
 				//GameObject * foot = new GameObject();
-				foot->m_camera = &m_camera;
 				foot->transform().setParent(skeleton->transform());
 				//foot->transform().position() = glm::vec3(-2.0f, 0.0f, 7.5f);
 				m_components.push_back(foot);

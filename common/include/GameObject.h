@@ -20,8 +20,10 @@ namespace Common
 		inline Transform& transform() { return m_transform; }
 
 		Animator * m_animator;
-		Camera * m_camera;
 		Renderer * m_renderer;
+
+		// TODO: smarted way to set camera
+		static Camera * s_camera;
 
 	private:
 		Transform m_transform;

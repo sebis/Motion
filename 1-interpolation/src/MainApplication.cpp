@@ -60,6 +60,8 @@ namespace Interpolation
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+		Common::GameObject::s_camera = &m_camera;
+
 		// TODO: Shouldn't need to "initialize" uniforms like this
 		Shader * shader = Shader::find("lambert");
 		shader->bind();
@@ -97,8 +99,6 @@ namespace Interpolation
 			material->setTexture(new Texture("resources/space_frigate.bmp"));
 			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
 
-			obj->m_camera = &m_camera;
-
 			// create a linear interpolator for vec3 type
 			Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
 			// create a keyframe animator that animates position
@@ -135,8 +135,6 @@ namespace Interpolation
 			material->setTexture(new Texture("resources/space_frigate.bmp"));
 			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
 
-			obj->m_camera = &m_camera;
-
 			Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
 			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->transform().position(), true);
 
@@ -169,8 +167,6 @@ namespace Interpolation
 			Common::Material * material = new Common::Material(Shader::find("model"));
 			material->setTexture(new Texture("resources/space_frigate.bmp"));
 			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
-
-			obj->m_camera = &m_camera;
 
 			Interpolator<glm::vec3> * interpolator = new CatmullRomInterpolator<glm::vec3>;
 			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->transform().position(), false, true);
@@ -205,8 +201,6 @@ namespace Interpolation
 			Common::Material * material = new Common::Material(Shader::find("model"));
 			material->setTexture(new Texture("resources/space_frigate.bmp"));
 			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
-
-			obj->m_camera = &m_camera;
 
 			Interpolator<glm::vec3> * interpolator = new CatmullRomInterpolator<glm::vec3>;
 			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->transform().position(), true, true);
@@ -243,8 +237,6 @@ namespace Interpolation
 			Common::Material * material = new Common::Material(Shader::find("model"));
 			material->setTexture(new Texture("resources/space_frigate.bmp"));
 			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/space_frigate.ply"), material);
-
-			obj->m_camera = &m_camera;
 
 			Interpolator<glm::vec3> * interpolator = new KochanekBartelsInterpolator<glm::vec3>;
 			KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(obj, interpolator, obj->transform().position(), true, true);
@@ -286,7 +278,6 @@ namespace Interpolation
 			material->setTexture(new Texture("resources/spacecraft.bmp"));
 			Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/spacecraft.ply"), material);
 
-			obj->m_camera = &m_camera;
 			obj->transform().translate(translation);
 
 			Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
@@ -305,7 +296,6 @@ namespace Interpolation
 			m_components.push_back(obj);
 
 			Common::GameObject * gyroscope = new Common::GameObject;
-			gyroscope->m_camera = &m_camera;
 			gyroscope->m_renderer = new TransformRenderer(gyroscope, Shader::find("lambert"), &obj->transform());
 			gyroscope->transform().translate(translation);
 			gyroscope->transform().scale(glm::vec3(5.0f));
@@ -325,7 +315,6 @@ namespace Interpolation
 				material->setTexture(new Texture("resources/spacecraft.bmp"));
 				Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/spacecraft.ply"), material);
 
-				obj->m_camera = &m_camera;
 				obj->transform().enableQuaternions();
 				obj->transform().translate(glm::vec3(4.0f, 0.0f, -1.0f));
 
@@ -355,7 +344,6 @@ namespace Interpolation
 				material->setTexture(new Texture("resources/spacecraft.bmp"));
 				Common::GameObject * obj = new MeshObject(MeshFactory::FromFile("resources/spacecraft.ply"), material);
 
-				obj->m_camera = &m_camera;
 				obj->transform().enableQuaternions();
 				obj->transform().translate(glm::vec3(-3.0f, 0.0f, -7.5f));
 

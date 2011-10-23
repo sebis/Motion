@@ -125,8 +125,8 @@ namespace Interpolation
 
 		m_lineShader->bind();
 		m_lineShader->setUniform("world", glm::mat4(1.0f));
-		m_lineShader->setUniform("view", m_gameObject->m_camera->view());
-		m_lineShader->setUniform("projection", m_gameObject->m_camera->projection());
+		m_lineShader->setUniform("view", Common::GameObject::s_camera->view());
+		m_lineShader->setUniform("projection", Common::GameObject::s_camera->projection());
 		glDrawArrays(GL_LINE_STRIP, 0, m_vertexCount);
 		m_lineShader->unbind();
 
@@ -137,8 +137,8 @@ namespace Interpolation
 
 		m_pointShader->bind();
 		m_pointShader->setUniform("world", glm::mat4(1.0f));
-		m_pointShader->setUniform("view", m_gameObject->m_camera->view());
-		m_pointShader->setUniform("projection", m_gameObject->m_camera->projection());
+		m_pointShader->setUniform("view", Common::GameObject::s_camera->view());
+		m_pointShader->setUniform("projection", Common::GameObject::s_camera->projection());
 		glDrawArrays(GL_POINTS, 0, m_pointCount);
 		m_pointShader->unbind();
 

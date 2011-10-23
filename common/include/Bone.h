@@ -1,6 +1,7 @@
 #ifndef COMMON_BONE
 #define COMMON_BONE
 
+#include "MeshObject.h"
 #include "Transform.h"
 
 namespace Common

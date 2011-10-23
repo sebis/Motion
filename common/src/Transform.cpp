@@ -26,7 +26,7 @@ namespace Common
 			m = glm::rotate(m, m_rotation.y, glm::vec3(0, 1, 0));
 			m = glm::rotate(m, m_rotation.z, glm::vec3(0, 0, 1));
 		}
-
+		
 		m = glm::scale(m, m_scale);
 
 		return m;

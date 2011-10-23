@@ -33,6 +33,7 @@ namespace Interpolation
 			m_time(0),
 			m_useArcLength(false),
 			m_initialized(false),
+			m_idle(0.0f),
 			m_subsegments(1000),
 			m_reparameterize(reparameterize),
 			m_closed(connect_end_points),
@@ -59,6 +60,11 @@ namespace Interpolation
 			}
 
 			return m_keyframes[index];
+		}
+
+		inline void setIdle(float idle)
+		{
+			m_idle = idle;
 		}
 
 		inline int count() const
@@ -190,6 +196,8 @@ namespace Interpolation
 		// value to indicate that the curve should be reparameterized
 		bool m_reparameterize;
 
+		float m_idle;
+
 		bool m_initialized;
 		std::map<float, float> m_params;
 
@@ -224,6 +232,13 @@ namespace Interpolation
 			
 			if (m_renderer)
 				m_renderer->init();
+		}
+
+		if (m_idle > 0.0f) {
+			m_idle -= dt;
+			if (m_idle < 0.0f)
+				m_time = std::abs(m_idle);
+			return;
 		}
 
 		// wrap around if loop is enabled

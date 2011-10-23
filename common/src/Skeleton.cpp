@@ -4,6 +4,8 @@ namespace Common
 {
 	void Skeleton::update(float dt)
 	{
+		GameObject::update(dt);
+
 		computeIK();
 	}
 
@@ -14,14 +16,17 @@ namespace Common
 			Bone * goal = m_endEffectors[i];
 			Bone * joint = goal->parent();
 			Bone * origin = joint->parent();
-		
-			float x = goal->transform().position().x;
-			float y = -goal->transform().position().y;
 
+			// transform goal and origin locations to world space
+			glm::vec3 offset = glm::vec3(goal->transform().world()[3]) - glm::vec3(origin->transform().world()[3]);
+			float x = offset.x;
+			float y = -offset.y;
+
+			// TODO: get bone lengths
 			float L1 = 5.0f;//glm::distance(origin->transform().position(), joint->transform().position());
 			float L2 = 5.0f;//glm::distance(joint->transform().position(), goal->transform().position());
 
-			Trace::info("L: %f %f\n", L1, L2);
+			//Trace::info("L: %f %f\n", x, y);
 
 			float o2 = std::acos((x*x + y*y - L1*L1 - L2*L2)/(2*L1*L2));
 			float n1 = (-x*(L2*std::sin(o2)) + y*(L1 + L2*std::cos(o2)));
@@ -29,8 +34,10 @@ namespace Common
 			float o1 = std::atan(n1/n2);
 
 			// TODO: 90 degress offset? why?
-			origin->transform().rotation() = glm::vec3(0.0f, 0.0f, 90.0f + (-o1 / 3.14159265 * 180.0));
-			joint->transform().rotation() = glm::vec3(0.0f, 0.0f, -o2 / 3.14159265 * 180.0);
+			if (std::abs(o1) >= 0.0001f)
+				origin->transform().rotation() = glm::vec3(0.0f, 0.0f, 90.0f + (-o1 / 3.14159265 * 180.0));
+			if (std::abs(o2) >= 0.0001f)
+				joint->transform().rotation() = glm::vec3(0.0f, 0.0f, -o2 / 3.14159265 * 180.0);
 		}
 	}
 }

@@ -4,6 +4,8 @@
 #include "MeshObject.h"
 #include "Transform.h"
 
+#include <string>
+
 namespace Common
 {
 	class Bone
@@ -16,6 +18,9 @@ namespace Common
 		inline const Transform& transform() const { return m_transform; }
 
 		inline Bone * parent() const { return m_parent; }
+
+		std::string name;
+
 	private:
 		Transform& m_transform;
 

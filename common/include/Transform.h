@@ -46,7 +46,7 @@ namespace Common
 		}
 
 		const glm::mat4 world() const;
-		void extract(glm::mat4 m);
+		static Transform extract(const glm::mat4& m);
 
 		inline const Transform * parent() const { return m_parent; }
 		inline void setParent(Transform * parent) { m_parent = parent; }
@@ -59,6 +59,11 @@ namespace Common
 		inline glm::quat& quaternion() { return m_quaternion; }
 
 		inline void enableQuaternions() { m_useQuaternions = true; }
+
+		inline Transform operator*(const Transform& other) const
+		{
+			return Transform::extract(world() * other.world());
+		}
 
 	private:
 		bool m_useQuaternions;

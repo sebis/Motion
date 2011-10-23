@@ -32,8 +32,10 @@ namespace Common
 		return m;
 	}
 
-	void Transform::extract(glm::mat4 m)
+	Transform Transform::extract(const glm::mat4& m)
 	{
+		Transform t;
+
 		// Try to use as much precision as possible
 		glm::highp_mat3 sub = glm::highp_mat3(glm::mat3(m));
 
@@ -60,8 +62,10 @@ namespace Common
 		glm::vec3 position(m[3]);
 
 		// set computed values
-		m_scale = scale;
-		m_rotation = rotation;
-		m_position = position;
+		t.m_scale = scale;
+		t.m_rotation = rotation;
+		t.m_position = position;
+
+		return t;
 	}
 }

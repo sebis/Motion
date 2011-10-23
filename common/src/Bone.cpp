@@ -2,8 +2,8 @@
 
 namespace Common
 {
-	Bone::Bone(Transform& transform, Bone * parent)
-		: m_transform(transform), m_parent(parent)
+	Bone::Bone(const std::string& name, Transform& transform, Bone * parent)
+		: m_name(name), m_transform(transform), m_parent(parent)
 	{
 	}
 }

@@ -67,8 +67,7 @@ namespace IK
 			float strokeMax = 3.0f;
 			float heightMin = 0.5f;
 			float heightMax = 2.4f;
-			//float cycleLength = 3000.0f; // TODO: this from somewhere
-			float legSpeed = 5.0f/1000.0f; // TODO: this from somewhere
+			float legSpeed = 6.0f/1000.0f; // TODO: this from somewhere
 
 			float stroke = strokeMax - strokeMin;
 			float supportDuration = stroke / bodySpeed;
@@ -149,9 +148,9 @@ namespace IK
 		skeleton->transform().translate(glm::vec3(0.0f, 0.0f, 0.0f));
 
 		float bodySpeed = 6/1000.0f; // 6 units per second
-		skeleton->m_animator = new LocationAnimator(skeleton, glm::vec3(bodySpeed, 0.0f, 0.0f));
+		//skeleton->m_animator = new LocationAnimator(skeleton, glm::vec3(bodySpeed, 0.0f, 0.0f));
 
-		m_components.push_back(skeleton);
+		
 
 		/// Create some materials
 
@@ -165,11 +164,11 @@ namespace IK
 		red->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
 		MeshObject * rightHip = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), green);
-		rightHip->transform().translate(glm::vec3(0.0f, 9.5f, -1.0f));
+		rightHip->transform().translate(glm::vec3(0.0f, 9.5f, 1.0f));
 		rightHip->transform().setParent(skeleton->transform());
 
 		MeshObject * leftHip = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), green);
-		leftHip->transform().translate(glm::vec3(0.0f, 9.5f, 1.0f));
+		leftHip->transform().translate(glm::vec3(0.0f, 9.5f, -1.0f));
 		leftHip->transform().setParent(skeleton->transform());
 		
 		MeshObject * rightKnee = new MeshObject(MeshFactory::FromFile("resources/leg_part.ply"), yellow);
@@ -189,12 +188,37 @@ namespace IK
 		createGautAnimation(rightFoot, 0.0f, bodySpeed);
 		createGautAnimation(leftFoot, 0.5f, bodySpeed);
 
-		Bone * rightHipBone = new Bone(rightHip->transform());
-		Bone * leftHipBone = new Bone(leftHip->transform());
-		Bone * rightKneeBone = new Bone(rightKnee->transform(), rightHipBone);
-		Bone * leftKneeBone = new Bone(leftKnee->transform(), leftHipBone);
-		Bone * rightFootBone = new Bone(rightFoot->transform(), rightKneeBone);
-		Bone * leftFootBone = new Bone(leftFoot->transform(), leftKneeBone);
+		Bone * rightHipBone = new Bone("RightHip", rightHip->transform());
+		Bone * leftHipBone = new Bone("LeftHip", leftHip->transform());
+		Bone * rightKneeBone = new Bone("RightKnee", rightKnee->transform(), rightHipBone);
+		Bone * leftKneeBone = new Bone("LeftKnee", leftKnee->transform(), leftHipBone);
+		Bone * rightFootBone = new Bone("RightFoot", rightFoot->transform(), rightKneeBone);
+		Bone * leftFootBone = new Bone("LeftFoot", leftFoot->transform(), leftKneeBone);
+
+		rightHipBone->setAxis(glm::vec3(0.0f, 0.0f, 1.0f));
+		leftHipBone->setAxis(glm::vec3(0.0f, 0.0f, 1.0f));
+		rightKneeBone->setAxis(glm::vec3(0.0f, 0.0f, 1.0f));
+		leftKneeBone->setAxis(glm::vec3(0.0f, 0.0f, 1.0f));
+
+		rightHipBone->m_localTransform.translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		rightKneeBone->m_localTransform.translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		leftHipBone->m_localTransform.translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		leftKneeBone->m_localTransform.translate(glm::vec3(0.0f, -5.0f, 0.0f));
+
+		// TEMP START
+		/*rightHipBone->setAxis(glm::vec3(0.0f, 0.0f, 1.0f));
+		rightHipBone->m_localTransform.translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		rightKneeBone->setAxis(glm::vec3(0.0f, 0.0f, 1.0f));
+		rightKneeBone->m_localTransform.translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		Interpolator<glm::vec3> * interpolator = new LinearInterpolator<glm::vec3>;
+		KeyframeAnimator<glm::vec3> * animator = new KeyframeAnimator<glm::vec3>(rightFoot, interpolator, rightFoot->transform().position(), false, false, false, true);
+		animator->addKeyframe(0.0f, glm::vec3(1.0f, 2.0f, 0.0f));
+		animator->addKeyframe(3000.0f, glm::vec3(10.0f, 2.0f, 0.0f));
+		animator->addKeyframe(6000.0f, glm::vec3(1.0f, 2.0f, 0.0f));
+		animator->addKeyframe(9000.0f, glm::vec3(-10.0f, 2.0f, 0.0f));
+		animator->addKeyframe(12000.0f, glm::vec3(1.0f, 2.0f, 0.0f));
+		rightFoot->m_animator = animator;*/
+		// TEMP END
 
 		skeleton->addEndEffector(rightFootBone);
 		skeleton->addEndEffector(leftFootBone);
@@ -205,6 +229,8 @@ namespace IK
 		m_components.push_back(leftKnee);
 		m_components.push_back(rightFoot);
 		m_components.push_back(leftFoot);
+
+		m_components.push_back(skeleton);
 
 		return true;
 	}

@@ -44,6 +44,7 @@ namespace IK
 
 		Common::Skeleton * createBiped(const Gait& gait);
 		Common::Skeleton * createQuadrupedal(const Gait& gait);
+		Common::Skeleton * createCentipede(const Gait& gait, int segments);
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;
 		typedef ComponentCollection::iterator ComponentIterator;

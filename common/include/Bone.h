@@ -5,12 +5,44 @@
 #include "Transform.h"
 
 #include <string>
+#include <vector>
 
 namespace Common
 {
+	class RotationAxis
+	{
+	public:
+		inline void setAxis(const glm::vec3& axis)
+		{
+			m_axis = axis;
+		}
+
+		inline void setConstraints(float min, float max)
+		{
+			m_min = min;
+			m_max = max;
+		}
+
+		inline bool valid(float value)
+		{
+			return m_min <= value && value <= m_max;
+		}
+
+		inline bool free()
+		{
+			return glm::abs(m_max - m_min) > 0;
+		}
+
+		glm::vec3 m_axis;
+		float m_min;
+		float m_max;
+		
+	};
+
 	class Bone
 	{
 	public:
+
 		Bone(const std::string& name, Transform& transform, Bone * parent = 0);
 		virtual ~Bone() {}
 
@@ -20,14 +52,15 @@ namespace Common
 		inline Bone * parent() const { return m_parent; }
 		inline const std::string& const name() { return m_name; }
 
-		inline const glm::vec3& const axis() { return m_axis; }
-		inline void setAxis(const glm::vec3& axis) { m_axis = axis; }
+		inline RotationAxis * axes() { return m_axes; }
+		inline RotationAxis * axis(int i) { return &m_axes[i]; }
 
+		// TODO: hide these
 		Transform m_localTransform;
-
+		
 	private:
 		Transform& m_transform;
-		glm::vec3 m_axis;
+		RotationAxis m_axes[3];
 
 		std::string m_name;
 		Bone * m_parent;

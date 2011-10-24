@@ -12,11 +12,14 @@ typedef Common::GlutApplication Base;
 #include "Camera.h"
 #include "GameObject.h"
 #include "Shader.h"
+#include "Skeleton.h"
 
 #include <vector>
 
 namespace IK
 {
+	class Gait;
+
 	class MainApplication : public Base
 	{
 	private:
@@ -38,6 +41,9 @@ namespace IK
 
 	private:
 		Common::Camera m_camera;
+
+		Common::Skeleton * createBiped(const Gait& gait);
+		Common::Skeleton * createQuadrupedal(const Gait& gait);
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;
 		typedef ComponentCollection::iterator ComponentIterator;

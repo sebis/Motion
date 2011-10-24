@@ -1,6 +1,5 @@
 #include "GlutApplication.h"
 #include "Trace.h"
-#include "WindowParams.h"
 
 #include <GL/freeglut.h>
 #include <iostream>

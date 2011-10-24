@@ -46,7 +46,7 @@ namespace IK
 		glm::vec3 * m_cameraTarget;
 
 		Common::Skeleton * createBiped(const Gait& gait);
-		Common::Skeleton * createQuadrupedal(const Gait& gait);
+		Common::Skeleton * createQuadrupedal(const Gait& gait, float gaitPhase[4]);
 		Common::Skeleton * createCentipede(const Gait& gait, int segments);
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;

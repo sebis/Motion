@@ -45,7 +45,6 @@
     <ClInclude Include="include\Trace.h" />
     <ClInclude Include="include\Transform.h" />
     <ClInclude Include="include\Utils.h" />
-    <ClInclude Include="include\WindowParams.h" />
     <ClInclude Include="include\Animator.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

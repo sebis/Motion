@@ -71,9 +71,6 @@
     <ClInclude Include="include\SDLApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\WindowParams.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>

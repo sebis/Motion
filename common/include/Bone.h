@@ -49,18 +49,18 @@ namespace Common
 		inline Transform& transform() { return m_transform; }
 		inline const Transform& transform() const { return m_transform; }
 
+		inline Transform& localTransform() { return m_localTransform; }
 		inline Bone * parent() const { return m_parent; }
 		inline const std::string& const name() { return m_name; }
 
 		inline RotationAxis * axes() { return m_axes; }
 		inline RotationAxis * axis(int i) { return &m_axes[i]; }
-
-		// TODO: hide these
-		Transform m_localTransform;
 		
 	private:
 		Transform& m_transform;
 		RotationAxis m_axes[3];
+
+		Transform m_localTransform;
 
 		std::string m_name;
 		Bone * m_parent;

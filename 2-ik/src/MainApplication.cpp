@@ -342,11 +342,11 @@ namespace IK
 			vertebra->transform().setParent(centipede->transform());
 
 			MeshObject * rightHip = new MeshObject(g_leg, green);
-			rightHip->transform().translate(glm::vec3(0.0f, 9.5f, 1.0f));
+			rightHip->transform().translate(glm::vec3(0.0f, 4.0f, 0.5f));
 			rightHip->transform().setParent(vertebra->transform());
 
 			MeshObject * leftHip = new MeshObject(g_leg, green);
-			leftHip->transform().translate(glm::vec3(0.0f, 9.5f, -1.0f));
+			leftHip->transform().translate(glm::vec3(0.0f, 4.0f, -0.5f));
 			leftHip->transform().setParent(vertebra->transform());
 		
 			MeshObject * rightKnee = new MeshObject(g_leg, yellow);
@@ -364,8 +364,8 @@ namespace IK
 			leftFoot->transform().setParent(vertebra->transform());
 
 			// Use a repeating wave gait phase
-			createGaitAnimation(rightFoot, rightGaitPhase[i % 3], gait, 3.0f);
-			createGaitAnimation(leftFoot, leftGaitPhase[i % 3], gait, -3.0f);
+			createGaitAnimation(rightFoot, rightGaitPhase[i % 3], gait, 6.0f);
+			createGaitAnimation(leftFoot, leftGaitPhase[i % 3], gait, -6.0f);
 
 			Bone * rightHipBone = new Bone("RightHip", rightHip->transform());
 			Bone * leftHipBone = new Bone("LeftHip", leftHip->transform());
@@ -374,12 +374,12 @@ namespace IK
 			Bone * rightFootBone = new Bone("RightFoot", rightFoot->transform(), rightKneeBone);
 			Bone * leftFootBone = new Bone("LeftFoot", leftFoot->transform(), leftKneeBone);
 
-			rightHipBone->axis(0)->setConstraints(-90.0f, 90.0f);
+			rightHipBone->axis(0)->setConstraints(-180.0f, 90.0f);
 			//rightHipBone->axis(1)->setConstraints(-90.0f, 90.0f);
 			rightHipBone->axis(2)->setConstraints(-90.0f, 90.0f);
 			rightKneeBone->axis(0)->setConstraints(0.0f, 180.0f);
 
-			leftHipBone->axis(0)->setConstraints(-90.0f, 90.0f);
+			leftHipBone->axis(0)->setConstraints(-90.0f, 180.0f);
 			//leftHipBone->axis(1)->setConstraints(-90.0f, 90.0f);
 			leftHipBone->axis(2)->setConstraints(-90.0f, 90.0f);
 			leftKneeBone->axis(0)->setConstraints(-180.0f, 0.0f);

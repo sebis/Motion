@@ -51,7 +51,7 @@ namespace Common
 
 		inline Transform& localTransform() { return m_localTransform; }
 		inline Bone * parent() const { return m_parent; }
-		inline const std::string& const name() { return m_name; }
+		inline const std::string& name() const { return m_name; }
 
 		inline RotationAxis * axes() { return m_axes; }
 		inline RotationAxis * axis(int i) { return &m_axes[i]; }

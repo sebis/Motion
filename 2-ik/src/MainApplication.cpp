@@ -49,8 +49,8 @@ namespace IK
 
 	MainApplication::MainApplication(bool fixedTimeStep, float targetElapsedTime)
 		: Base(fixedTimeStep, targetElapsedTime),
-		//m_camera(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f))
-		m_camera(glm::vec3(10.0f), glm::vec3(0.0f))
+		m_camera(glm::vec3(10.0f), glm::vec3(0.0f)),
+		m_currentTarget(0)
 	{
 	}
 
@@ -464,6 +464,12 @@ namespace IK
 
 		m_components.push_back(centipede);
 
+		m_cameraTargets.push_back(&human->transform().position());
+		m_cameraTargets.push_back(&horse->transform().position());
+		m_cameraTargets.push_back(&centipede->transform().position());
+
+		m_cameraTarget = m_cameraTargets[m_currentTarget];
+
 		return true;
 	}
 
@@ -477,6 +483,10 @@ namespace IK
 			m_camera.raiseFlag(Common::Camera::LEFT);
 		else if (key == Common::KEY_MOVE_RIGHT)
 			m_camera.raiseFlag(Common::Camera::RIGHT);
+		else if (key == Common::KEY_CONTINUE)
+			m_cameraTarget = m_cameraTargets[++m_currentTarget % m_cameraTargets.size()];
+		else if (key == Common::KEY_RESET_2)
+			m_camera.reset(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f));
 	}
 
 	void MainApplication::keyUp(Common::Key key)
@@ -495,14 +505,13 @@ namespace IK
 		case Common::KEY_MOVE_RIGHT:
 			m_camera.dropFlag(Common::Camera::RIGHT);
 			break;
-		case Common::KEY_RESET_2:
-			m_camera.reset(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f));
-			break;
 		}
 	}
 
 	void MainApplication::mouse(Common::Key key, int x, int y)
 	{
+		m_cameraTarget = 0;
+
 		if (key == Common::KEY_MOUSE_LEFT)
 			m_camera.turn(glm::vec2(x, y));
 	}
@@ -518,7 +527,10 @@ namespace IK
 
 	void MainApplication::update(float dt)
 	{
-		m_camera.update(dt);
+		if (m_cameraTarget)
+			m_camera.reset(*m_cameraTarget + glm::vec3(20.0f), *m_cameraTarget);
+		else
+			m_camera.update(dt);
 
 		for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)
 		{

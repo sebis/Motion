@@ -41,6 +41,9 @@ namespace IK
 
 	private:
 		Common::Camera m_camera;
+		std::vector<glm::vec3 *> m_cameraTargets;
+		int m_currentTarget;
+		glm::vec3 * m_cameraTarget;
 
 		Common::Skeleton * createBiped(const Gait& gait);
 		Common::Skeleton * createQuadrupedal(const Gait& gait);

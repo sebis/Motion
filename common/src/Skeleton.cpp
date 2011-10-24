@@ -61,6 +61,10 @@ namespace Common
 
 				float distance = glm::distance(targetPosition, tipPosition);
 
+				if (joint->name() == "RightKneeX" || joint->name() == "RightHipX")
+				{
+					float dummy = 0.0f;
+				}
 				//Trace::info("target: %f %f %f\n", targetPosition.x, targetPosition.y, targetPosition.z);
 				//Trace::info("joint: %f %f %f\n", jointPosition.x, jointPosition.y, jointPosition.z);
 				//Trace::info("tip: %f %f %f\n", tipPosition.x, tipPosition.y, tipPosition.z);
@@ -70,10 +74,11 @@ namespace Common
 				for (int k = 2; k >= 0; k--)
 				{
 					RotationAxis * rotAxis = joint->axis(k);
+
+					glm::vec3 axis = rotAxis->m_axis;
+
 					if (!rotAxis->free())
 						continue;
-
-					glm::vec3 axis = rotAxis->m_axis * glm::mat3(joint->transform().world());
 
 					glm::vec3 ToTip = tipPosition - jointPosition;
 					glm::vec3 ToTarget = targetPosition - tipPosition;

@@ -366,6 +366,92 @@ namespace IK
 
 		m_components.push_back(horse);
 
+		/// START TEST
+
+		/// Create a skeleton
+
+		Skeleton * centipede = new Skeleton;
+
+		/// Create some materials
+
+		Material * green = new Material(Shader::find("shader"));
+		green->setDiffuseColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+		
+		Material * yellow = new Material(Shader::find("shader"));
+		yellow->setDiffuseColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+		Material * red = new Material(Shader::find("shader"));
+		red->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+		/// Create leg part meshes
+
+		MeshObject * rightHip = new MeshObject(g_leg, green);
+		rightHip->transform().translate(glm::vec3(0.0f, 9.5f, 1.0f));
+		//rightHip->transform().rotate(glm::vec3(0.0f, -90.0f, 0.0f));
+		rightHip->transform().setParent(centipede->transform());
+
+		MeshObject * leftHip = new MeshObject(g_leg, green);
+		leftHip->transform().translate(glm::vec3(0.0f, 9.5f, -1.0f));
+		//leftHip->transform().rotate(glm::vec3(0.0f, 90.0f, 0.0f));
+		leftHip->transform().setParent(centipede->transform());
+		
+		MeshObject * rightKnee = new MeshObject(g_leg, yellow);
+		rightKnee->transform().setParent(rightHip->transform());
+		rightKnee->transform().translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		
+		MeshObject * leftKnee = new MeshObject(g_leg, yellow);
+		leftKnee->transform().setParent(leftHip->transform());
+		leftKnee->transform().translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		
+		//MeshObject * rightFoot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), red);
+		MeshObject * rightFoot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), red);
+		rightFoot->transform().translate(glm::vec3(0.0f, 3.0f, 2.5f));
+		rightFoot->transform().setParent(centipede->transform());
+		
+		//MeshObject * leftFoot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), red);
+		MeshObject * leftFoot = new MeshObject(MeshFactory::Cube(false, glm::vec4(1.0f)), red);
+		leftFoot->transform().translate(glm::vec3(0.0f, 3.0f, -2.5f));
+		leftFoot->transform().setParent(centipede->transform());
+
+		createGaitAnimation(rightFoot, 0.0f, walking);
+		createGaitAnimation(leftFoot, 0.5f, walking);
+
+		Bone * rightHipBone = new Bone("RightHipX", rightHip->transform());
+		Bone * leftHipBone = new Bone("LeftHip", leftHip->transform());
+		Bone * rightKneeBone = new Bone("RightKneeX", rightKnee->transform(), rightHipBone);
+		Bone * leftKneeBone = new Bone("LeftKnee", leftKnee->transform(), leftHipBone);
+		Bone * rightFootBone = new Bone("RightFoot", rightFoot->transform(), rightKneeBone);
+		Bone * leftFootBone = new Bone("LeftFoot", leftFoot->transform(), leftKneeBone);
+
+		rightHipBone->axis(0)->setConstraints(-90.0f, 90.0f);
+		rightHipBone->axis(1)->setConstraints(-90.0f, 90.0f);
+		rightHipBone->axis(2)->setConstraints(-90.0f, 90.0f);
+		rightKneeBone->axis(0)->setConstraints(0.0f, 180.0f);
+
+		leftHipBone->axis(0)->setConstraints(-90.0f, 90.0f);
+		leftHipBone->axis(1)->setConstraints(-90.0f, 90.0f);
+		leftHipBone->axis(2)->setConstraints(-90.0f, 90.0f);
+		leftKneeBone->axis(0)->setConstraints(-180.0f, 0.0f);
+
+		rightHipBone->m_localTransform.translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		rightKneeBone->m_localTransform.translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		leftHipBone->m_localTransform.translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		leftKneeBone->m_localTransform.translate(glm::vec3(0.0f, -5.0f, 0.0f));
+
+		centipede->addEndEffector(rightFootBone);
+		centipede->addEndEffector(leftFootBone);
+
+		m_components.push_back(rightHip);
+		m_components.push_back(leftHip);
+		m_components.push_back(rightKnee);
+		m_components.push_back(leftKnee);
+		m_components.push_back(rightFoot);
+		m_components.push_back(leftFoot);
+
+		m_components.push_back(centipede);
+
+		/// END TEST
+
 		return true;
 	}
 

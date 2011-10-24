@@ -550,7 +550,7 @@ namespace IK
 	void MainApplication::update(float dt)
 	{
 		if (m_cameraTarget)
-			m_camera.reset(*m_cameraTarget + glm::vec3(20.0f), *m_cameraTarget);
+			m_camera.reset(*m_cameraTarget + glm::vec3(25.0f), *m_cameraTarget);
 		else
 			m_camera.update(dt);
 

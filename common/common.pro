@@ -255,7 +255,8 @@ HEADERS += include/Animator.h \
            include/glm/core/intrinsic_geometric.inl \
            include/glm/gtx/simd_vec4.inl \
            include/glm/core/intrinsic_matrix.inl \
-           include/glm/gtx/simd_mat4.inl
+           include/glm/gtx/simd_mat4.inl \
+    include/RigidBody.h
 SOURCES += src/Bone.cpp \
            src/Camera.cpp \
            src/GameObject.cpp \
@@ -270,8 +271,11 @@ SOURCES += src/Bone.cpp \
            src/Skeleton.cpp \
            src/Texture.cpp \
            src/Transform.cpp \
-           include/glm/core/dummy.cpp
+           include/glm/core/dummy.cpp \
+    src/RigidBody.cpp
 CONFIG += staticlib
 LIBS += -Llib -lGL -lGLU -lGLEW -lglut
 OBJECTS_DIR = obj
 DESTDIR = lib
+
+

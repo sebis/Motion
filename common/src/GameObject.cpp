@@ -5,7 +5,7 @@ namespace Common
 	Camera * GameObject::s_camera = 0;
 
 	GameObject::GameObject()
-		: m_animator(0), m_renderer(0)
+		: m_animator(0), m_renderer(0), m_rigidbody(0)
 	{
 	}
 
@@ -13,6 +13,8 @@ namespace Common
 	{
 		if (m_animator)
 			m_animator->update(dt);
+		if (m_rigidbody)
+			m_rigidbody->update(dt);
 	}
 
 	void GameObject::draw()
@@ -25,6 +27,7 @@ namespace Common
 
 	GameObject::~GameObject()
 	{
+		delete m_rigidbody;
 		delete m_renderer;
 		delete m_animator;
 	}

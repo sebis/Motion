@@ -3,4 +3,5 @@ TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS = common \
           1-interpolation \
-          2-ik
+          2-ik \
+          3-rigidbody

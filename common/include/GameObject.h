@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Transform.h"
 #include "Renderer.h"
+#include "RigidBody.h"
 
 namespace Common
 {
@@ -21,6 +22,7 @@ namespace Common
 
 		Animator * m_animator;
 		Renderer * m_renderer;
+		RigidBody * m_rigidbody;
 
 		// TODO: smarted way to set camera
 		static Camera * s_camera;

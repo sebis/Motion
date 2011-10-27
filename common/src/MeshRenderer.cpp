@@ -19,7 +19,12 @@ namespace Common
 
 		m_material->begin();
 
-		m_material->shader()->setUniform("world", m_gameObject->transform().world());
+		// TODO: better way to get transform from rigidbody
+		if (m_gameObject->m_rigidbody) {
+			m_material->shader()->setUniform("world", m_gameObject->m_rigidbody->transform().world());
+		} else {
+			m_material->shader()->setUniform("world", m_gameObject->transform().world());
+		}
 		m_material->shader()->setUniform("view", GameObject::s_camera->view());
 		m_material->shader()->setUniform("projection", GameObject::s_camera->projection());
 

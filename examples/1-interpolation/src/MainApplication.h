@@ -39,12 +39,12 @@ namespace Interpolation
 	private:
 		void setScene(int scene);
 
+		Common::Camera m_camera;
+
 		int m_currentScene;
 		int m_numScenes;
 
 		std::string m_description;
-
-		Common::Camera m_camera;
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;
 		typedef ComponentCollection::iterator ComponentIterator;

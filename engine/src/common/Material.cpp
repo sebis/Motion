@@ -4,11 +4,11 @@ namespace Common
 {
 	Material::Material(Shader * shader)
 		: m_shader(shader),
+		  m_texture(0),
 		  m_ambientColor(glm::vec4(0.0f)),
 		  m_diffuseColor(glm::vec4(0.5f)),
 		  m_specularColor(glm::vec4(1.0f)),
-		  m_shininess(30.0f),
-		  m_texture(0)
+		  m_shininess(30.0f)
 	{
 	}
 	

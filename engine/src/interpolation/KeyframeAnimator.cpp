@@ -26,13 +26,9 @@ namespace Interpolation
 			   works with euler angles so that they can be interpolated. Thus we extract and save
 			   the rotation as euler angles instead. */
 			{
-				float r00 = r[0][0], r01 = r[1][0], r02 = r[2][0],
-					  r10 = r[0][1], r11 = r[1][1], r12 = r[2][1],
-					  r20 = r[0][2], r21 = r[1][2], r22 = r[2][2];
-
-				float y = asin(r02);
-				float x = atan2(-r12,r22);
-				float z = atan2(-r01,r00);
+				float y = asin(r[2][0]);
+				float x = atan2(-r[2][1],r[2][2]);
+				float z = atan2(-r[1][0],r[0][0]);
 
 				m_gameObject->transform().rotation() = glm::vec3(x, y, z) * float(180.0/3.14159265);
 			}

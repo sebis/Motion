@@ -14,8 +14,8 @@ namespace Common
 		void bind() const;
 		void unbind() const;
 
-		inline const int width() const { return m_width; }
-		inline const int height() const { return m_height; }
+		inline int width() const { return m_width; }
+		inline int height() const { return m_height; }
 
 	private:
 		int m_width;

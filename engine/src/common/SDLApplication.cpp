@@ -5,13 +5,13 @@
 namespace Common
 {
 	SDLApplication::SDLApplication(bool fixedTimeStep, float targetElapsedTime)
-		: m_totalTime(0),
-		m_fixedTimeStep(fixedTimeStep),
-		m_targetElapsedTime(targetElapsedTime)
+		: m_fixedTimeStep(fixedTimeStep),
+		  m_targetElapsedTime(targetElapsedTime),
+		  m_totalTime(0)
 	{
 	}
 
-	bool SDLApplication::init(int argc, char * argv[])
+	bool SDLApplication::init(int /*argc*/, char ** /*argv*/)
 	{
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
 			Trace::error("Could not initialize SDL: %s\n", SDL_GetError());
@@ -134,11 +134,11 @@ namespace Common
 		return 0;
 	}
 
-	void SDLApplication::window_resized(int width, int height)
+	void SDLApplication::window_resized(int /*width*/, int /*height*/)
 	{
 	}
 
-	void SDLApplication::update(float dt)
+	void SDLApplication::update(float /*dt*/)
 	{
 	}
 

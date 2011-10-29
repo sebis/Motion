@@ -14,9 +14,9 @@ namespace Common
 		virtual bool init(int argc, char * argv[]) = 0;
 		virtual int run() = 0;
 
-		virtual void keyDown(Key key) {}
-		virtual void keyUp(Key key) {}
-		virtual void mouse(Key key, int x, int y) {}
+		virtual void keyDown(Key /*key*/) {}
+		virtual void keyUp(Key /*key*/) {}
+		virtual void mouse(Key /*key*/, int /*x*/, int /*y*/) {}
 
 		virtual void window_resized(int width, int height) = 0;
 

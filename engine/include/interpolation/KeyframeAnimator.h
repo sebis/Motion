@@ -15,8 +15,6 @@
 
 namespace Interpolation
 {
-	class Common::GameObject;
-
 	enum
 	{
 		REPARAM	= (1 << 0),
@@ -36,12 +34,12 @@ namespace Interpolation
 			m_interpolator(interpolator),
 			m_renderer(0),
 			m_result(result),
-			m_time(0),
 			m_useArcLength(false),
 			m_initialized(false),
+			m_flags(flags),
 			m_idle(0.0f),
-			m_subsegments(1000),
-			m_flags(flags)
+			m_time(0.0f),
+			m_subsegments(1000)
 		{}
 
 		virtual ~KeyframeAnimator() {};
@@ -76,7 +74,7 @@ namespace Interpolation
 			return m_keyframes.size();
 		}
 
-		inline const float max() const
+		inline float max() const
 		{
 			return std::max_element(m_keyframes.begin(), m_keyframes.end())->time;
 		}
@@ -185,25 +183,24 @@ namespace Interpolation
 			m_useArcLength = true;
 		}
 
-
-		SplineRenderer * m_renderer;
-		// The interpolator used for interpolating values between key frames
-		Interpolator<T> * m_interpolator;
 		std::vector<Keyframe<T> > m_keyframes;
 
-		// flag to notify if the current parameterization should use original or arc-length
-		bool m_useArcLength;
+		// The interpolator used for interpolating values between key frames
+		Interpolator<T> * m_interpolator;
 
-		unsigned m_flags;
-
-		float m_idle;
-
-		bool m_initialized;
-		std::map<float, float> m_params;
+		SplineRenderer * m_renderer;
 
 		// result of the animation and interpolation should be updated here
 		T& m_result;
 
+		std::map<float, float> m_params;
+
+		// flag to notify if the current parameterization should use original or arc-length
+		bool m_useArcLength;
+		bool m_initialized;
+		unsigned m_flags;
+
+		float m_idle;
 		float m_time;
 
 		// number of subsegments to use when calculating the arc-length approximation between key frames
@@ -216,7 +213,7 @@ namespace Interpolation
 
 	// define template function for all other types
 	template<typename T>
-	void KeyframeAnimator<T>::orient(T tangent)
+	void KeyframeAnimator<T>::orient(T /*tangent*/)
 	{
 	}
 

@@ -17,9 +17,9 @@ namespace Interpolation
 		virtual void draw();
 
 	private:
-		const Common::Transform* m_transform;
-
 		Shader * m_shader;
+
+		const Common::Transform* m_transform;
 
 		Mesh * m_yaw;
 		Mesh * m_roll;

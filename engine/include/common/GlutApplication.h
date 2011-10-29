@@ -17,11 +17,11 @@ namespace Common
 		virtual bool init(int argc, char * argv[]);
 		int run();
 
-		virtual void keyDown(Key key) {}
-		virtual void keyUp(Key key) {}
-		virtual void mouse(Key key, int x, int y) {}
+		virtual void keyDown(Key /*key*/) {}
+		virtual void keyUp(Key /*key*/) {}
+		virtual void mouse(Key /*key*/, int /*x*/, int /*y*/) {}
 
-		virtual void window_resized(int width, int height) {}
+		virtual void window_resized(int /*width*/, int /*height*/) {}
 
 		virtual void display_text(const char * text, int x, int y);
 

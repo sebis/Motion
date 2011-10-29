@@ -21,7 +21,7 @@ Mesh::Mesh(Mesh::vertex vData[], size_t vSize, glm::uint iData[], size_t iSize)
 	// create vertex attribute pointers into our buffer data with correct strides and offsets
 	glVertexAttribPointer(Shader::POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
 	glEnableVertexAttribArray(Shader::POSITION);
-	glVertexAttribPointer(Shader::NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, normal));
+	glVertexAttribPointer(Shader::NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, normal)); 
 	glEnableVertexAttribArray(Shader::NORMAL);
 	glVertexAttribPointer(Shader::COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, color));
 	glEnableVertexAttribArray(Shader::COLOR);

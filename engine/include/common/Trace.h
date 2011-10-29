@@ -12,7 +12,7 @@ namespace Trace
 #define debug 0 && info
 #endif
 
-	inline void error(char * format, ...)
+	inline void error(const char * format, ...)
 	{
 		char buffer[4096];
 		va_list args;
@@ -24,7 +24,7 @@ namespace Trace
 		fprintf(stderr, "[ERROR] %s", buffer);
 	}
 
-	inline void warning(char * format, ...)
+	inline void warning(const char * format, ...)
 	{
 		char buffer[4096];
 		va_list args;
@@ -36,7 +36,7 @@ namespace Trace
 		fprintf(stdout, "[WARNING] %s", buffer);
 	}
 
-	inline void info(char * format, ...)
+	inline void info(const char * format, ...)
 	{
 		char buffer[4096];
 		va_list args;

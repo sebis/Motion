@@ -111,6 +111,8 @@ namespace RigidBodyDemo
 		case Common::KEY_MOVE_RIGHT:
 			m_camera.dropFlag(Common::Camera::RIGHT);
 			break;
+		default:
+			break;
 		}
 	}
 

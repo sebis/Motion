@@ -9,9 +9,9 @@ namespace Common
 	GlutApplication * GlutApplication::m_instance = 0;
 
 	GlutApplication::GlutApplication(bool fixedTimeStep, float targetElapsedTime)
-		: m_totalTime(0),
-		m_fixedTimeStep(fixedTimeStep),
-		m_targetElapsedTime(targetElapsedTime)
+		: m_fixedTimeStep(fixedTimeStep),
+		  m_targetElapsedTime(targetElapsedTime),
+		  m_totalTime(0)
 	{
 	}
 
@@ -56,7 +56,7 @@ namespace Common
 		return 0;
 	}
 
-	void GlutApplication::update(float dt)
+	void GlutApplication::update(float /*dt*/)
 	{
 	}
 
@@ -87,12 +87,12 @@ namespace Common
 		}
 	}
 
-	void GlutApplication::mouseWrapper(int button, int state, int x, int y)
+	void GlutApplication::mouseWrapper(int /*button*/, int /*state*/, int /*x*/, int /*y*/)
 	{
 		glutWarpPointer(int(m_instance->m_width/2), int(m_instance->m_height/2));
 	}
 
-	void GlutApplication::keyboardWrapper(unsigned char key, int x, int y)
+	void GlutApplication::keyboardWrapper(unsigned char key, int /*x*/, int /*y*/)
 	{
 		if (key == 'q' || key == 'Q' || key == 27)
 			glutLeaveMainLoop();
@@ -112,7 +112,7 @@ namespace Common
 			m_instance->keyDown(KEY_CONTINUE);
 	}
 
-	void GlutApplication::keyboardUpWrapper(unsigned char key, int x, int y)
+	void GlutApplication::keyboardUpWrapper(unsigned char key, int /*x*/, int /*y*/)
 	{
 		if (key == 'q' || key == 'Q' || key == 27)
 			glutLeaveMainLoop();
@@ -132,7 +132,7 @@ namespace Common
 			m_instance->keyUp(KEY_CONTINUE);
 	}
 
-	void GlutApplication::specialWrapper(int key, int x, int y)
+	void GlutApplication::specialWrapper(int key, int /*x*/, int /*y*/)
 	{
 		if (key == GLUT_KEY_LEFT)
 			m_instance->keyDown(KEY_MOVE_LEFT);
@@ -144,7 +144,7 @@ namespace Common
 			m_instance->keyDown(KEY_MOVE_BACKWARD);
 	}
 
-	void GlutApplication::specialUpWrapper(int key, int x, int y)
+	void GlutApplication::specialUpWrapper(int key, int /*x*/, int /*y*/)
 	{
 		if (key == GLUT_KEY_LEFT)
 			m_instance->keyUp(KEY_MOVE_LEFT);
@@ -161,7 +161,7 @@ namespace Common
 		m_instance->window_resized(width, height);
 	}
 
-	void GlutApplication::updateWrapper(int value)
+	void GlutApplication::updateWrapper(int /*value*/)
 	{
 		if (m_instance->m_fixedTimeStep)
 			glutTimerFunc(int(1000 * m_instance->m_targetElapsedTime), updateWrapper, 0);

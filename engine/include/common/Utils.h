@@ -144,9 +144,6 @@ namespace Utils
 		// allocate memory for the pixels
 		*data = new char[info_header.width * info_header.height * 3];
 
-		// set pointer to the start of the array
-		char* p = *data;
-
 		// flip BMP format y-coordinate
 		for (int y = info_header.height - 1; y >= 0; y--) {
 		//for (int y = 0; y < info_header.width; y++) {

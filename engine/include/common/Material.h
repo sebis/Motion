@@ -31,8 +31,8 @@ namespace Common
 		inline void setShininess(const glm::float_t& shininess) { m_shininess = shininess; }
 
 	private:
-		Texture * m_texture;
 		Shader * m_shader;
+		Texture * m_texture;
 
 		glm::vec4 m_ambientColor;
 		glm::vec4 m_diffuseColor;

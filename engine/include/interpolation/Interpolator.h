@@ -82,7 +82,7 @@ namespace Interpolation
 	class SphericalLinearInterpolator : public Interpolator<T>
 	{
 	public:
-		virtual void interpolate(T& out, typename Interpolator<T>::Keys keys, int k, float _t, T* tangent = 0)
+		virtual void interpolate(T& out, typename Interpolator<T>::Keys keys, int k, float _t, T* /*tangent*/ = 0)
 		{
 			const T& q1 = glm::normalize(keys[k].value);
 			const T& q2 = glm::normalize(keys[k+1].value);
@@ -90,7 +90,7 @@ namespace Interpolation
 			out = Slerp(q1, q2, _t);
 		}
 
-		virtual float arcLength(typename Interpolator<T>::Keys keys, int k1, int k2, float _t = 1.0f)
+		virtual float arcLength(typename Interpolator<T>::Keys /*keys*/, int /*k1*/, int /*k2*/, float /*_t*/ = 1.0f)
 		{
 			// TODO: implement slerp arclength
 			return 0.0f;
@@ -109,7 +109,7 @@ namespace Interpolation
 	class BezierSphericalLinearInterpolator : public SphericalLinearInterpolator<T>
 	{
 	public:
-		void interpolate(T& out, typename Interpolator<T>::Keys keys, int k, float _t, T* tangent = 0)
+		void interpolate(T& out, typename Interpolator<T>::Keys keys, int k, float _t, T* /*tangent*/ = 0)
 		{
 			const T& q0 = glm::normalize(keys[k-1].value);
 			const T& q1 = glm::normalize(keys[k].value);
@@ -118,7 +118,7 @@ namespace Interpolation
 
 			// Shoemaker '84
 			const T& a1 = Bisect(Double(q0, q1), q2);
-			const T& b1 = Double(a1, q1);
+			//const T& b1 = Double(a1, q1);
 			const T& a2 = Bisect(Double(q1, q2), q3);
 			const T& b2 = Double(a2, q2);
 
@@ -138,7 +138,7 @@ namespace Interpolation
 			out = Slerp(p02, p12, _t);
 		}
 
-		float arcLength(typename Interpolator<T>::Keys keys, int k1, int k2, float _t = 1.0f)
+		float arcLength(typename Interpolator<T>::Keys /*keys*/, int /*k1*/, int /*k2*/, float /*_t*/ = 1.0f)
 		{
 			// TODO: implement bezier slerp arclength
 			return 0.0f;
@@ -189,7 +189,7 @@ namespace Interpolation
 			}
 		}
 
-		virtual float arcLength(typename Interpolator<T>::Keys keys, int k1, int k2, float _t = 1.0f)
+		virtual float arcLength(typename Interpolator<T>::Keys keys, int k1, int /*k2*/, float _t = 1.0f)
 		{
 			// TODO: calculate integral approximation
 			const int segments = 100;

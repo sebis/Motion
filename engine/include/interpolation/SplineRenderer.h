@@ -37,12 +37,14 @@ namespace Interpolation
 		inline bool initialized() { return m_initialized; }
 		
 	private:
+		Interpolator<glm::vec3> * m_interpolator;
+
 		bool m_initialized;
 
 		Shader * m_lineShader;
 		Shader * m_pointShader;
 
-		Interpolator<glm::vec3> * m_interpolator;
+		Vertices m_vertices;
 
 		std::vector<vertex> vData;
 		std::vector<vertex> vPointData;
@@ -56,10 +58,8 @@ namespace Interpolation
 		const unsigned m_segments;
 		float m_majorSize;
 		float m_minorSize;
+
 		glm::vec4 m_color;
-
-		Vertices m_vertices;
-
 	};
 };
 

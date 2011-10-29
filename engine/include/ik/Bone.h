@@ -57,12 +57,13 @@ namespace Common
 		inline RotationAxis * axis(int i) { return &m_axes[i]; }
 		
 	private:
+		std::string m_name;
+
 		Transform& m_transform;
 		RotationAxis m_axes[3];
 
 		Transform m_localTransform;
 
-		std::string m_name;
 		Bone * m_parent;
 	};
 }

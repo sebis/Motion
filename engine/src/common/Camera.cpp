@@ -10,8 +10,8 @@ namespace Common
 	const float Camera::TURN_SPEED = 0.15f;
 
 	Camera::Camera(glm::vec3 position, glm::vec3 lookAt)
-		: m_moving(0),
-		  m_up(0, 1, 0)
+		: m_up(0, 1, 0),
+		  m_moving(0)
 	{
 		reset(position, lookAt);
 	}

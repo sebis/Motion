@@ -1,0 +1,8 @@
+#!/bin/bash
+
+qmake -project -t lib -r \
+"INCLUDEPATH += include" \
+"CONFIG += staticlib" \
+"OBJECTS_DIR = obj" \
+"DESTDIR = lib"
+

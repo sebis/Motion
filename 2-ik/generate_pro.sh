@@ -1,1 +1,0 @@
-qmake -project -t app -r -after "LIBS += -lGL -lGLU -lGLEW -lglut -L../common/lib -L../1-interpolation/lib -l1-interpolation -lcommon" "OBJECTS_DIR = obj" "INCLUDEPATH += ../common/include ../1-interpolation/include"

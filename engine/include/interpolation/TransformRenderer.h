@@ -11,19 +11,19 @@ namespace Interpolation
 	class TransformRenderer : public Common::Renderer
 	{
 	public:
-		TransformRenderer(Common::GameObject * gameObject, Shader * shader, const Common::Transform* transform);
+		TransformRenderer(Common::GameObject * gameObject, Common::Shader * shader, const Common::Transform* transform);
 		virtual ~TransformRenderer();
 
 		virtual void draw();
 
 	private:
-		Shader * m_shader;
+		Common::Shader * m_shader;
 
 		const Common::Transform* m_transform;
 
-		Mesh * m_yaw;
-		Mesh * m_roll;
-		Mesh * m_pitch;
+		Common::Mesh * m_yaw;
+		Common::Mesh * m_roll;
+		Common::Mesh * m_pitch;
 	};
 }
 

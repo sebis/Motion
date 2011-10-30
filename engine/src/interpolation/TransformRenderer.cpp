@@ -5,7 +5,7 @@
 
 namespace Interpolation
 {
-	TransformRenderer::TransformRenderer(Common::GameObject * gameObject, Shader * shader, const Common::Transform* transform)
+	TransformRenderer::TransformRenderer(Common::GameObject * gameObject, Common::Shader * shader, const Common::Transform* transform)
 		: Renderer(gameObject), m_shader(shader), m_transform(transform)
 	{
 		// TODO: don't load separately

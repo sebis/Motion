@@ -41,8 +41,8 @@ namespace Interpolation
 
 		bool m_initialized;
 
-		Shader * m_lineShader;
-		Shader * m_pointShader;
+		Common::Shader * m_lineShader;
+		Common::Shader * m_pointShader;
 
 		Vertices m_vertices;
 

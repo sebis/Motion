@@ -2,7 +2,6 @@
 
 #include "glm/gtc/type_precision.hpp"
 
-#define USE_MATH_DEFINES
 #include <cmath>
 
 namespace Common

@@ -13,8 +13,6 @@ namespace Common
 	{
 		if (m_animator)
 			m_animator->update(dt);
-		if (m_rigidbody)
-			m_rigidbody->update(dt);
 	}
 
 	void GameObject::draw()

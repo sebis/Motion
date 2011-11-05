@@ -11,6 +11,7 @@ typedef Common::GlutApplication Base;
 
 #include "Camera.h"
 #include "GameObject.h"
+#include "Physics.h"
 
 #include <vector>
 
@@ -36,7 +37,12 @@ namespace RigidBodyDemo
 		void draw();
 
 	private:
+		void setupSimulation();
+
 		Common::Camera m_camera;
+		Common::Physics m_physics;
+
+		bool m_started;
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;
 		typedef ComponentCollection::iterator ComponentIterator;

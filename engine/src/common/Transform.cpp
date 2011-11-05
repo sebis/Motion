@@ -21,7 +21,9 @@ namespace Common
 
 		m = glm::translate(m, m_position);
 
-		if (m_useQuaternions) {
+		if (m_rotationType == MATRIX) {
+			m *= glm::mat4(m_rotationMatrix);
+		} else if (m_rotationType == QUATERNION) {
 			m *= glm::mat4_cast(glm::normalize(m_quaternion));
 		} else {
 			m = glm::rotate(m, m_rotation.x, glm::vec3(1, 0, 0));
@@ -34,18 +36,34 @@ namespace Common
 		return m;
 	}
 
-	Transform Transform::extract(const glm::mat4& m)
+	Transform Transform::extract(const glm::mat4& m, RotationType rotationType)
 	{
 		Transform t;
 
 		// Try to use as much precision as possible
 		glm::highp_mat3 sub = glm::highp_mat3(glm::mat3(m));
 
+		// extract position vector
+		t.m_position = glm::vec3(m[3]);
+
 		// calculate scale vector from column vector lengths
 		glm::highp_vec3 scale(glm::length(sub[0]), glm::length(sub[1]), glm::length(sub[2]));
 
+		// extract scale vector
+		t.m_scale = scale;
+
 		// extract pure rotation matrix by dividing base vectors with scale
 		glm::highp_mat3 r(sub[0] / scale.x, sub[1] / scale.y, sub[2] / scale.z);
+
+		if (rotationType == MATRIX) {
+			t.m_rotationMatrix = r;
+			return t;
+		}
+
+		if (rotationType == QUATERNION) {
+			t.m_quaternion = glm::quat_cast(glm::mat3(r));
+			return t;
+		}
 
 		// calculate rotation by (assume original order XYZ)
 		glm::highp_float x = glm::atan(-r[2][1],r[2][2]);
@@ -55,13 +73,8 @@ namespace Common
 		// convert rotation to degrees
 		glm::vec3 rotation(glm::highp_vec3(x, y, z) * glm::highp_float(180.0/M_PI));
 
-		// extract position vector
-		glm::vec3 position(m[3]);
-
 		// set computed values
-		t.m_scale = scale;
 		t.m_rotation = rotation;
-		t.m_position = position;
 
 		return t;
 	}

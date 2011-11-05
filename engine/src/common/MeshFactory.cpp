@@ -1,6 +1,7 @@
 #include "Mesh.h"
 #include "Trace.h"
 
+#include <cmath>
 #include <iterator>
 #include <fstream>
 #include <sstream>
@@ -11,6 +12,102 @@ namespace Common
 {
 	namespace MeshFactory
 	{
+		Mesh * Sphere(glm::vec4 color, int segments)
+		{
+			std::vector<Mesh::vertex> vertices;
+
+			// create bottom vertex
+			Mesh::vertex bottom;
+			bottom.color = color;
+			bottom.normal = glm::vec3(0.0f, -1.0f, 0.0f);
+			bottom.position = glm::vec3(0.0f, -1.0f, 0.0f);
+			bottom.texcoord = glm::vec2(0.5f, 1.0f);
+			vertices.push_back(bottom);
+
+            int currentVertex = 0;
+
+            for (int i = 0; i < segments - 1; i++)
+            {
+                // latitude
+                float theta = ((i + 1) * M_PI / segments) - M_PI * 0.5;
+                float v = i / (float)(segments - 1);
+
+				float dy = glm::sin(theta);
+				float dxz = glm::cos(theta);
+
+                for (int j = 0; j < segments; j++)
+                {
+                    // longitude
+                    float phi = j * (2*M_PI) / segments;
+
+					float dx = dxz * glm::cos(phi);
+					float dz = dxz * glm::sin(phi);
+
+					glm::vec3 normal(dx, dy, dz);
+
+                    float u = j / (float)segments;
+
+					Mesh::vertex vertex;
+					vertex.color = color;
+					vertex.normal = normal;
+					vertex.position = normal;
+					vertex.texcoord = glm::vec2(1 - u, 1 - v);
+					vertices.push_back(vertex);
+
+                    currentVertex++;
+                }
+            }
+
+			Mesh::vertex top;
+			top.color = color;
+			top.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+			top.position = glm::vec3(0.0f, 1.0f, 0.0f);
+			top.texcoord = glm::vec2(0.5f, 0.0f);
+			vertices.push_back(top);
+
+			std::vector<Mesh::vertex> vData;
+			std::vector<glm::uint> iData;
+
+			for (int i = 0; i < segments; i++)
+            {
+				vData.push_back(vertices[0]);
+				vData.push_back(vertices[1 + i]);
+				vData.push_back(vertices[1 + (i + 1) % segments]);
+            }
+
+            for (int i = 0; i < segments - 2; i++)
+            {
+                for (int j = 0; j < segments; j++)
+                {
+                    int nextI = i + 1;
+                    int nextJ = (j + 1) % segments;
+
+					vData.push_back(vertices[1 + i * segments + j]);
+					vData.push_back(vertices[1 + nextI * segments + j]);
+					vData.push_back(vertices[1 + i * segments + nextJ]);
+					if (nextJ == 0) vData.back().texcoord.x = 1.0f - vData.back().texcoord.x;
+                    
+					vData.push_back(vertices[1 + i * segments + nextJ]);
+					if (nextJ == 0) vData.back().texcoord.x = 1.0f - vData.back().texcoord.x;
+					vData.push_back(vertices[1 + nextI * segments + j]);
+					vData.push_back(vertices[1 + nextI * segments + nextJ]);
+					if (nextJ == 0) vData.back().texcoord.x = 1.0f - vData.back().texcoord.x;
+                }
+            }
+
+            for (int i = 0; i < segments; i++)
+            {
+				vData.push_back(vertices[vertices.size() - 1]);
+				vData.push_back(vertices[vertices.size() - 2 - i]);
+				vData.push_back(vertices[vertices.size() - 2 - (i + 1) % segments]);
+            }
+
+			for (int i = 0; i < vData.size(); i++)
+				iData.push_back(i);
+
+			return new Mesh(&vData[0], vData.size(), &iData[0], iData.size());
+		}
+
 		Mesh * Plane(glm::vec4 color, int gridSize)
 		{
 			Mesh::vertex vData[] = {

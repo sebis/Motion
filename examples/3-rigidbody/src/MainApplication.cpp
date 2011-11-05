@@ -1,4 +1,6 @@
 #include "Animator.h"
+#include "Collider.h"
+#include "CollisionDetector.h"
 #include "GameObject.h"
 #include "MainApplication.h"
 #include "Material.h"
@@ -55,6 +57,15 @@ namespace RigidBodyDemo
 
 		Common::GameObject::s_camera = &m_camera;
 
+		setupSimulation();
+
+		return true;
+	}
+
+	void MainApplication::setupSimulation()
+	{
+		m_started = false;
+
 		/// Create floor
 
 		Material * floorMaterial = new Material(Shader::find("shader"));
@@ -64,21 +75,62 @@ namespace RigidBodyDemo
 
 		MeshObject * floor = new MeshObject(MeshFactory::Plane(glm::vec4(1.0f), 50), floorMaterial);
 		floor->transform().scale() = glm::vec3(500.0f);
-		
+
+		PlaneCollider * floorCollider = new PlaneCollider(floor, 0);
+		floorCollider->m_normal = glm::vec3(0.0f, 1.0f, 0.0f);
+		floorCollider->m_d = 0.0f;
+		CollisionDetector::instance()->addCollider(floorCollider);
+
 		m_components.push_back(floor);
+
+		// Create some walls
+
+		PlaneCollider * wall1 = new PlaneCollider(0);
+		wall1->m_normal = glm::vec3(-1.0f, 0.0f, 0.0f);
+		wall1->m_d = -10.0f;
+		CollisionDetector::instance()->addCollider(wall1);
+
+		PlaneCollider * wall2 = new PlaneCollider(0);
+		wall2->m_normal = glm::vec3(1.0f, 0.0f, 0.0f);
+		wall2->m_d = -10.0f;
+		CollisionDetector::instance()->addCollider(wall2);
 
 		/// Create cube
 
 		Material * cubeMaterial = new Material(Shader::find("shader"));
-		cubeMaterial->setDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+		cubeMaterial->setTexture(new Texture("resources/2.bmp"));
+		cubeMaterial->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		MeshObject * cube = new MeshObject(MeshFactory::Cube(), cubeMaterial);
+		MeshObject * cube = new MeshObject(MeshFactory::Sphere(), cubeMaterial);
+		cube->transform().translate(glm::vec3(1.0f, 15.0f, 0.0f));
 		cube->m_rigidbody = new RigidBody(cube);
-		cube->transform().translate(glm::vec3(0.0f, 10.0f, 0.0f));
+
+		SphereCollider * cubeCollider = new SphereCollider(cube, cube->m_rigidbody);
+		cubeCollider->m_radius = 1.0f;
+		CollisionDetector::instance()->addCollider(cubeCollider);
 
 		m_components.push_back(cube);
 
-		return true;
+		m_physics.addObject(cube->m_rigidbody);
+
+		/// Create another cube
+
+		Material * cubeMaterial2 = new Material(Shader::find("shader"));
+		cubeMaterial2->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		cubeMaterial2->setTexture(new Texture("resources/15.bmp"));
+
+		MeshObject * cube2 = new MeshObject(MeshFactory::Sphere(), cubeMaterial2);
+		// TODO: transform shouldn't need to be set before rigidbody
+		cube2->transform().translate(glm::vec3(0.0f, 10.0f, 0.0f));
+		cube2->m_rigidbody = new RigidBody(cube2);
+
+		SphereCollider * cubeCollider2 = new SphereCollider(cube2, cube2->m_rigidbody);
+		cubeCollider2->m_radius = 1.0f;
+		CollisionDetector::instance()->addCollider(cubeCollider2);
+
+		m_components.push_back(cube2);
+
+		m_physics.addObject(cube2->m_rigidbody);
 	}
 
 	void MainApplication::keyDown(Common::Key key)
@@ -93,6 +145,10 @@ namespace RigidBodyDemo
 			m_camera.raiseFlag(Common::Camera::RIGHT);
 		else if (key == Common::KEY_RESET_2)
 			m_camera.reset(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f));
+		else if (key == Common::KEY_CONTINUE)
+			m_started = true;
+		else if (key == Common::KEY_RESET_1)
+			m_components[1]->m_rigidbody->applyForce(glm::vec3(-10000.0f, 10000.0f, -10000.0f));
 	}
 
 	void MainApplication::keyUp(Common::Key key)
@@ -135,10 +191,15 @@ namespace RigidBodyDemo
 	{
 		m_camera.update(dt);
 
+		if (!m_started)
+			return;
+
 		for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)
 		{
 			(*it)->update(dt);
 		}
+
+		m_physics.step(dt);
 
 		// check for GL errors
 		GLenum err = glGetError();

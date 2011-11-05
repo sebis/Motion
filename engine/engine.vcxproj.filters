@@ -90,6 +90,12 @@
     <ClInclude Include="include\rigidbody\RigidBody.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\rigidbody\Physics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rigidbody\CollisionDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\Camera.cpp">
@@ -144,6 +150,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\rigidbody\RigidBody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rigidbody\Physics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rigidbody\CollisionDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rigidbody\Collider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

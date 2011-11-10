@@ -102,7 +102,7 @@ namespace RigidBodyDemo
 		cubeMaterial->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 		MeshObject * cube = new MeshObject(MeshFactory::Sphere(), cubeMaterial);
-		cube->transform().translate(glm::vec3(1.0f, 15.0f, 0.0f));
+		cube->transform().translate(glm::vec3(5.0f, 15.0f, 0.0f));
 		cube->m_rigidbody = new RigidBody(cube);
 
 		SphereCollider * cubeCollider = new SphereCollider(cube, cube->m_rigidbody);
@@ -148,7 +148,7 @@ namespace RigidBodyDemo
 		else if (key == Common::KEY_CONTINUE)
 			m_started = true;
 		else if (key == Common::KEY_RESET_1)
-			m_components[1]->m_rigidbody->applyForce(glm::vec3(-10000.0f, 10000.0f, -10000.0f));
+			m_components[1]->m_rigidbody->applyTorque(glm::vec3(0.0f, 0.0f, 1000.0f));
 	}
 
 	void MainApplication::keyUp(Common::Key key)

@@ -18,8 +18,8 @@ namespace Common
 		m_position = gameObject->transform().position();
 		// TODO: calculate these from the object we want to simulate
 		m_mass = 10.0f;
-		m_damping = 1.0f;
-		m_angularDamping = 1.0f;
+		m_damping = 0.9f;
+		m_angularDamping = 0.9f;
 
 		// Inertia tensor: This could be set manually, or if not specified
 		// should be calculated by all collider objects and their mass centers

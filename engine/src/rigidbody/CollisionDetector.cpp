@@ -1,6 +1,8 @@
 #include "CollisionDetector.h"
 #include "Trace.h"
 
+#include <sstream>
+
 namespace Common
 {
 	CollisionDetector * CollisionDetector::s_instance = 0;
@@ -21,12 +23,16 @@ namespace Common
 		glm::vec3 ab = pa - pb;
 		float length = glm::length(ab);
 
-		if (length <= 0.0f || length >= a->m_radius + b->m_radius)
+		if (length <= 0.0f || length > a->m_radius + b->m_radius)
 			return false;
 
 		data->normal = glm::normalize(ab);
 		data->point = pa + 0.5f * ab;
 		data->penetration = a->m_radius + b->m_radius - length;
+
+		std::stringstream ss;
+		ss << a->name << " vs " << b->name;
+		data->result = ss.str();
 
 		return true;
 	}
@@ -43,6 +49,10 @@ namespace Common
 		data->normal = plane->m_normal;
 		data->point = position - plane->m_normal * (distance + sphere->m_radius);
 		data->penetration = -distance;
+
+		std::stringstream ss;
+		ss << sphere->name << " vs " << plane->name;
+		data->result = ss.str();
 
 		return true;
 	}

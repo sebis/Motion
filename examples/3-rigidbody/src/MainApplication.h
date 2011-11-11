@@ -37,6 +37,7 @@ namespace RigidBodyDemo
 		void draw();
 
 	private:
+		void setupTest();
 		void setupSimulation();
 
 		Common::Camera m_camera;

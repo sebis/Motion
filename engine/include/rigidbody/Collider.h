@@ -5,6 +5,8 @@
 
 #include "glm/glm.hpp"
 
+#include <string>
+
 namespace Common
 {
 	class GameObject;
@@ -14,6 +16,8 @@ namespace Common
 	public:
 		Collider(GameObject * gameObject, RigidBody * rigidBody = 0) : m_gameObject(gameObject), m_rigidBody(rigidBody) {}
 		virtual ~Collider() {}
+
+		std::string name;
 
 		inline RigidBody * rigidBody() const { return m_rigidBody; }
 

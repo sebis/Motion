@@ -19,6 +19,9 @@ namespace Common
 		void removeObject(RigidBody * rigidBody);
 
 		void step(float dt);
+		void visualize();
+
+		void explode(const glm::vec3 & center);
 
 	private:
 		void resolveVelocity(const CollisionData & data, float dt);

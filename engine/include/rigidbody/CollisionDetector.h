@@ -5,6 +5,7 @@
 #include "RigidBody.h"
 
 #include <vector>
+#include <string>
 
 namespace Common
 {
@@ -13,6 +14,7 @@ namespace Common
 		glm::vec3 point;
 		glm::vec3 normal;
 		float penetration;
+		std::string result;
 
 		RigidBody * bodies[2];
 	};

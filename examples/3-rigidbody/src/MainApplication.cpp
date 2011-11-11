@@ -14,8 +14,10 @@
 #include "KeyframeAnimator.h"
 #include "Interpolator.h"
 
-#include <GL/glew.h>
 #include "glm/gtc/matrix_transform.hpp"
+
+#include <sstream>
+#include <GL/glew.h>
 
 namespace RigidBodyDemo
 {
@@ -62,7 +64,7 @@ namespace RigidBodyDemo
 		return true;
 	}
 
-	void MainApplication::setupSimulation()
+	void MainApplication::setupTest()
 	{
 		m_started = false;
 
@@ -133,6 +135,79 @@ namespace RigidBodyDemo
 		m_physics.addObject(cube2->m_rigidbody);
 	}
 
+	void MainApplication::setupSimulation()
+	{
+		m_started = false;
+
+		/// Create floor
+
+		Material * floorMaterial = new Material(Shader::find("shader"));
+		floorMaterial->setTexture(new Texture("resources/dirt.bmp"));
+		floorMaterial->setDiffuseColor(glm::vec4(0.8f));
+		floorMaterial->setSpecularColor(glm::vec4(0.2f));
+
+		MeshObject * floor = new MeshObject(MeshFactory::Plane(glm::vec4(1.0f), 50), floorMaterial);
+		floor->transform().scale() = glm::vec3(500.0f);
+
+		PlaneCollider * floorCollider = new PlaneCollider(floor, 0);
+		floorCollider->m_normal = glm::vec3(0.0f, 1.0f, 0.0f);
+		floorCollider->m_d = 0.0f;
+		floorCollider->name = "floor";
+		CollisionDetector::instance()->addCollider(floorCollider);
+
+		m_components.push_back(floor);
+
+		// Create some walls
+
+		PlaneCollider * wall1 = new PlaneCollider(0);
+		wall1->m_normal = glm::vec3(-1.0f, 0.0f, 0.0f);
+		wall1->m_d = -20.0f;
+		wall1->name = "wall1";
+		CollisionDetector::instance()->addCollider(wall1);
+
+		PlaneCollider * wall2 = new PlaneCollider(0);
+		wall2->m_normal = glm::vec3(1.0f, 0.0f, 0.0f);
+		wall2->m_d = -20.0f;
+		wall2->name = "wall2";
+		CollisionDetector::instance()->addCollider(wall2);
+
+		PlaneCollider * wall3 = new PlaneCollider(0);
+		wall3->m_normal = glm::vec3(0.0f, 0.0f, -1.0f);
+		wall3->m_d = -20.0f;
+		wall3->name = "wall3";
+		CollisionDetector::instance()->addCollider(wall3);
+
+		PlaneCollider * wall4 = new PlaneCollider(0);
+		wall4->m_normal = glm::vec3(0.0f, 0.0f, 1.0f);
+		wall4->m_d = -20.0f;
+		wall4->name = "wall4";
+		CollisionDetector::instance()->addCollider(wall4);
+
+		/// Create cube
+
+		for (int i = 0; i < 9; i++)
+		{
+			Material * cubeMaterial = new Material(Shader::find("shader"));
+			cubeMaterial->setTexture(new Texture("resources/15.bmp"));
+			cubeMaterial->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+			MeshObject * cube = new MeshObject(MeshFactory::Sphere(), cubeMaterial);
+			cube->transform().translate(glm::vec3(i * 1.0f - 19.0f, 5.0f + 2 * float(i), i * 0.5f - 10.0f));
+			cube->m_rigidbody = new RigidBody(cube);
+
+			SphereCollider * cubeCollider = new SphereCollider(cube, cube->m_rigidbody);
+			cubeCollider->m_radius = 1.0f;
+			std::stringstream ss;
+			ss << "sphere" << i;
+			cubeCollider->name = ss.str();
+			CollisionDetector::instance()->addCollider(cubeCollider);
+
+			m_components.push_back(cube);
+
+			m_physics.addObject(cube->m_rigidbody);
+		}
+	}
+
 	void MainApplication::keyDown(Common::Key key)
 	{
 		if (key == Common::KEY_MOVE_FORWARD)
@@ -143,12 +218,14 @@ namespace RigidBodyDemo
 			m_camera.raiseFlag(Common::Camera::LEFT);
 		else if (key == Common::KEY_MOVE_RIGHT)
 			m_camera.raiseFlag(Common::Camera::RIGHT);
-		else if (key == Common::KEY_RESET_2)
-			m_camera.reset(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f));
+		/*else if (key == Common::KEY_RESET_2)
+			m_camera.reset(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f));*/
 		else if (key == Common::KEY_CONTINUE)
 			m_started = true;
 		else if (key == Common::KEY_RESET_1)
 			m_components[1]->m_rigidbody->applyTorque(glm::vec3(0.0f, 0.0f, 1000.0f));
+		else if (key == Common::KEY_RESET_2)
+			m_physics.explode(glm::vec3(0.0f));
 	}
 
 	void MainApplication::keyUp(Common::Key key)

@@ -3,6 +3,8 @@
 
 #include "Trace.h"
 
+#include "glm/glm.hpp"
+
 #include <string>
 #include <fstream>
 #include <cstdlib>
@@ -64,6 +66,11 @@ namespace Utils
 		std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 
 		return str;
+	}
+
+	inline void print_vector(const char * msg, const glm::vec3 & vec)
+	{
+		Trace::info("%s: (%f, %f, %f)\n", msg, vec.x, vec.y, vec.z);
 	}
 
 	// TODO: do not inline these

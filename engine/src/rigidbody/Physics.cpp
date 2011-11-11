@@ -1,6 +1,9 @@
 #include "CollisionDetector.h"
 #include "Physics.h"
 #include "Trace.h"
+#include "Utils.h"
+
+#include <GL\glew.h>
 
 namespace Common
 {
@@ -51,7 +54,7 @@ namespace Common
 			const CollisionData & data = collisions[i];
 
 			resolveVelocity(data, elapsed);
-			//resolveInterpenetration(data);
+			resolveInterpenetration(data);
 		}
 
 		//calculateEnergy();
@@ -59,6 +62,10 @@ namespace Common
 
 	void Physics::resolveVelocity(const CollisionData & data, float elapsed)
 	{
+		float restitution = 0.8f;
+		const float s_mu = 0.10f;
+		const float d_mu = 0.05f;
+
 		RigidBody * body1 = data.bodies[0];
 		RigidBody * body2 = data.bodies[1];
 
@@ -71,37 +78,21 @@ namespace Common
 		glm::vec3 relativeVelocity = body1->velocity() + 
 			glm::cross(body1->m_angularVelocity, data.point - body1->m_position);
 
-		Trace::info("data-point: %f %f %f %f\n", data.point.x, data.point.y, data.point.z, data.penetration);
-		Trace::info("length: %f\n", glm::length(data.point - body1->m_position));
-
 		if (body2) {
 			relativeVelocity -= body2->velocity() +
 				glm::cross(body2->m_angularVelocity, data.point - body2->m_position);
 		}
+
+		/*float velocityFromAcc = glm::dot(body1->m_acceleration * elapsed, data.normal);
+		if (body2) velocityFromAcc -= glm::dot(body2->m_acceleration * elapsed, data.normal);
+
+		relativeVelocity += velocityFromAcc;*/
 
 		float separation = glm::dot(relativeVelocity, data.normal);
 
 		// check if the bodies are already moving apart
 		if (separation > 0)
 			return;
-
-		const float restitution = 1.0f;
-
-		// Should avoid jumping with microcollisions
-		/*glm::vec3 accCausedVelocity(0.0f);
-		if (body1) accCausedVelocity = body1->m_acceleration;
-		if (body2) accCausedVelocity -= body2->m_acceleration;
-
-		float accCausedSepVelocity = glm::dot(accCausedVelocity, data.normal) * elapsed;
-
-		if (accCausedSepVelocity < 0)
-		{
-			newSepVelocity += restitution * accCausedSepVelocity;
-			newSepVelocity = glm::max(newSepVelocity, 0.0f);
-		}*/
-
-		//float deltaVelocity = newSepVelocity - separation;
-		//float deltaVelocity = -(1 + restitution) * separation;
 
 		float invMass = 1.0f / body1->m_mass;
 		if (body2) invMass += 1.0f / body2->m_mass;
@@ -125,32 +116,11 @@ namespace Common
 			invMass += glm::dot(glm::cross(haka2, r2), data.normal);
 		}
 
-		/*glm::vec3 deltaVelWorld = glm::cross(data.point - body1->m_position, data.normal);
-		glm::mat3 inertiaTensor = body1->m_rotation * body1->m_inertiaTensor * glm::transpose(body1->m_rotation);
-		deltaVelWorld = glm::inverse(inertiaTensor) * deltaVelWorld;
-		deltaVelWorld = glm::cross(deltaVelWorld, data.point - body1->m_position);
-
-		float deltaVelocity = glm::dot(deltaVelWorld, data.normal);
-		deltaVelocity += 1 / body1->m_mass;
-
-		if (body2) {
-			glm::vec3 deltaVelWorld = glm::cross(data.point - body2->m_position, data.normal);
-			glm::mat3 inertiaTensor = body2->m_rotation * body2->m_inertiaTensor * glm::transpose(body2->m_rotation);
-			deltaVelWorld = glm::inverse(inertiaTensor) * deltaVelWorld;
-			deltaVelWorld = glm::cross(deltaVelWorld, data.point - body2->m_position);
-
-			deltaVelocity += glm::dot(deltaVelWorld, data.normal);
-			deltaVelocity += 1 / body1->m_mass;
-		}
-
-		float impulse = desiredDeltaVelocity / deltaVelocity;*/
-		
-		//float impulse = deltaVelocity / invMass;
-
-		float impulse = -separation*(1.0f + 1) / invMass;
+		float impulse = -separation * (1 + restitution) / invMass;
+		//float impulse = (-separation - restitution * (separation - velocityFromAcc)) / invMass;
 
 		// project relativeVelocity onto plane defined by data.normal and data.point
-		glm::vec3 tangent(0.0f);
+		/*glm::vec3 tangent(0.0f);
 		if (separation < 0) {
 			glm::vec3 temp = glm::cross(data.normal, relativeVelocity);
 			temp = glm::cross(temp, data.normal);
@@ -158,56 +128,52 @@ namespace Common
 			if (length > 0.0001f) {
 				tangent = glm::normalize(temp);
 			}
-		}
-
-		/*glm::vec3 tangent(0.0f);
-		if (glm::dot(relativeVelocity, data.normal) != 0)
-		{
-			tangent = glm::normalize(relativeVelocity - glm::dot(relativeVelocity, data.normal) * data.normal);
 		}*/
 
-		const float friction = 0.1f;
-
-		//glm::vec3 impulsePerIMass = data.normal * impulse;
-		//Trace::info("normal: %f %f %f\n", data.normal.x, data.normal.y, data.normal.z);
-		//Trace::info("tangent: %f %f %f\n", tangent.x, tangent.y, tangent.z);
-
-		glm::vec3 frictionImpulse(0.0f);
-		if (glm::abs(glm::dot(relativeVelocity, tangent)) > 0.0f) {
-			glm::vec3 frictionImpulse = friction * impulse * tangent;
-			//Trace::info("%f vs %f\n", glm::length(impulse * data.normal), glm::length(frictionImpulse));
+		glm::vec3 tangent(0.0f);
+		if (separation != 0)
+		{
+			glm::vec3 VonN = relativeVelocity - glm::dot(relativeVelocity, data.normal) * data.normal;
+			if (glm::length(VonN) > 0)
+				tangent = glm::normalize(VonN);
 		}
 
-		//tangent = impulse * data.normal - impulse;
+		float js = s_mu * impulse;
+		float jd = d_mu * impulse;
 
-		if (body1) body1->applyImpulse(impulse * data.normal - friction * impulse * tangent, data.point);
-		if (body2) body2->applyImpulse(-impulse * data.normal - friction * impulse * tangent, data.point);
+		/*float tSeparation = glm::dot(relativeVelocity, tangent);
 
-		/*float invMass = 0.0f;
-		if (body1) invMass += 1.0f/body1->m_mass;
-		if (body2) invMass += 1.0f/body2->m_mass;
+		if (tSeparation == 0 && body1->m_mass * tSeparation <= js)
+			body1->applyImpulse(impulse * data.normal - body1->m_mass * tSeparation * tangent, data.point);
+		else
+			body1->applyImpulse(impulse * data.normal - jd * tangent, data.point);
 
-		float impulse = (-(1+1.0f) * glm::dot(relativeVelocity, data.normal)) / (glm::dot(data.normal, data.normal) * invMass);
+		if (body2)
+		{
+			if (tSeparation == 0 && body2->m_mass * tSeparation <= js)
+				body2->applyImpulse(impulse * data.normal - body2->m_mass * tSeparation * tangent, data.point);
+			else
+				body2->applyImpulse(-impulse * data.normal - jd * tangent, data.point);
+		}*/
 
-		//float impulse = (-(1+1.0f) * glm::dot(relativeVelocity, data.normal)) / invMass;
+		body1->applyImpulse(impulse * data.normal - jd * tangent, data.point);
+		if (body2) body2->applyImpulse(-impulse * data.normal - jd * tangent, data.point);
 
-		glm::vec3 tangent = glm::cross(data.normal, glm::cross(data.normal, glm::normalize(relativeVelocity)));
-
-		float friction = 0.5f;
-		glm::vec3 resistance = friction * impulse * tangent;
-		Trace::info("resistance: %f %f %f\n", tangent.x, tangent.y, tangent.z);
-
-		if (body1) body1->applyImpulse((impulse * data.normal + friction * impulse * tangent) / body1->m_mass, data.point);
-		if (body2) body2->applyImpulse(-(impulse * data.normal + friction * impulse * tangent) / body2->m_mass, data.point);*/
+		/*body1->applyImpulse(impulse * data.normal, data.point);
+		if (body2) body2->applyImpulse(-impulse * data.normal, data.point);*/
 	}
 
 	void Physics::resolveInterpenetration(const CollisionData & data)
 	{
-		if (data.penetration <= 0)
-				return;
-
 		RigidBody * body1 = data.bodies[0];
 		RigidBody * body2 = data.bodies[1];
+
+		Trace::info("Resolving interpenetration for %s\n", data.result.c_str());
+
+		if (glm::abs(data.penetration) > 0.1f)
+		{
+			int dummy = 0;
+		}
 
 		float totalInverseMass = 0.0f;
 		if (body1) totalInverseMass = 1.0f / body1->m_mass;
@@ -218,8 +184,26 @@ namespace Common
 
 		glm::vec3 movePerIMass = data.normal * (data.penetration / totalInverseMass);
 		//Trace::info("movePerIMass: %f %f %f\n", movePerIMass.x, movePerIMass.y, movePerIMass.z);
-		if (body1) body1->m_position += movePerIMass * (1.0f / body1->m_mass);
-		if (body2) body2->m_position += movePerIMass * (1.0f / body2->m_mass);
+		if (body1) {
+			body1->m_position += movePerIMass * (1.0f / body1->m_mass);
+			Utils::print_vector("move body1", movePerIMass * (1.0f / body1->m_mass));
+		}
+		else if (body2) {
+			body2->m_position -= movePerIMass * (1.0f / body2->m_mass);
+			Utils::print_vector("move body2", movePerIMass * (1.0f / body2->m_mass));
+		}
+	}
+
+	void Physics::explode(const glm::vec3 & center)
+	{
+		for (ObjectIterator it = m_objects.begin(); it != m_objects.end(); ++it)
+		{
+			RigidBody * obj = *it;
+
+			glm::vec3 cp = obj->position() - center;
+
+			obj->applyImpulse(cp * (100.0f / glm::length(cp)), obj->position());
+		}
 	}
 
 	void Physics::calculateEnergy()
@@ -253,5 +237,12 @@ namespace Common
 		}
 
 		Trace::info("System energy: %.2f + %.2f + %.2f = %.2f\n", U_total, Ek_total, Erot_total, total);
+	}
+
+	void Physics::visualize()
+	{
+		for (ObjectIterator it = m_objects.begin(); it != m_objects.end(); ++it)
+		{
+		}
 	}
 }

@@ -27,13 +27,14 @@ namespace Common
 			m_torqueAccumulator += torque;
 		}
 
-		void applyImpulse(const glm::vec3 & impulse, const glm::vec3 & point);
+		void applyImpulse(const glm::vec3 & impulse, const glm::vec3 & point, const glm::vec3 & normal);
 
 		inline Transform transform() const
 		{
 			Transform t(Transform::MATRIX);
 
 			t.position() = m_position;
+			t.scale() = m_scale;
 			t.rotationMatrix() = m_rotation;
 
 			return t;
@@ -51,6 +52,7 @@ namespace Common
 
 		glm::vec3 m_position;
 		glm::mat3 m_rotation;
+		glm::vec3 m_scale;
 
 		glm::float_t m_damping;
 		glm::float_t m_angularDamping;

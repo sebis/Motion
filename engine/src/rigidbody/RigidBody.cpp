@@ -10,21 +10,23 @@ namespace Common
 		m_angularVelocity(glm::vec3(0.0f)),
 		m_acceleration(glm::vec3(0.0f)),
 		m_angularAcceleration(glm::vec3(0.0f)),
-		m_rotation(glm::mat3(1.0f))
+		m_rotation(glm::mat3(1.0f)),
+		m_scale(glm::vec3(1.0f))
 		//m_linearMomentum(glm::vec3(0.0f)),
 		//m_angularMomentum(glm::vec3(0.0f))
 
 	{
 		m_position = gameObject->transform().position();
+		m_scale = gameObject->transform().scale();
 		// TODO: calculate these from the object we want to simulate
-		m_mass = 10.0f;
+		m_mass = 0.170097139f;
 		m_damping = 0.9f;
-		m_angularDamping = 0.9f;
+		m_angularDamping = 0.75f;
 
 		// Inertia tensor: This could be set manually, or if not specified
 		// should be calculated by all collider objects and their mass centers
 
-		float radius = 1.0f;
+		float radius = 0.05715f;
 		// sphere cnetered at origin
 		m_inertiaTensor = glm::mat3(2.0f/5.0f * m_mass * radius * radius);
 	}
@@ -77,7 +79,7 @@ namespace Common
 		//m_rotation += glm::mat3(glm::cross(angularVelocity, m_rotation[0]), glm::cross(angularVelocity, m_rotation[1]), glm::cross(angularVelocity, m_rotation[2])) * dt;
 	}
 
-	void RigidBody::applyImpulse(const glm::vec3 & impulse, const glm::vec3 & point)
+	void RigidBody::applyImpulse(const glm::vec3 & impulse, const glm::vec3 & point, const glm::vec3 & normal)
 	{
 		m_velocity += impulse * (1 / m_mass);
 

@@ -63,17 +63,22 @@ namespace Common
 	void Physics::resolveVelocity(const CollisionData & data, float elapsed)
 	{
 		float restitution = 0.8f;
-		const float s_mu = 0.10f;
+		const float s_mu = 0.5f;
 		const float d_mu = 0.05f;
 
 		RigidBody * body1 = data.bodies[0];
 		RigidBody * body2 = data.bodies[1];
 
-		if (!body1) {
+		/*if (!body1) {
 			body1 = body2;
 			body2 = 0;
 		}
-		assert(body1);
+		assert(body1);*/
+
+		if (data.normal.y != 1.0f)
+		{
+			int dummy = 0;
+		}
 
 		glm::vec3 relativeVelocity = body1->velocity() + 
 			glm::cross(body1->m_angularVelocity, data.point - body1->m_position);
@@ -131,33 +136,60 @@ namespace Common
 		}*/
 
 		glm::vec3 tangent(0.0f);
+		float tangent_speed = 0.0f;
 		if (separation != 0)
 		{
 			glm::vec3 VonN = relativeVelocity - glm::dot(relativeVelocity, data.normal) * data.normal;
-			if (glm::length(VonN) > 0)
+			tangent_speed = glm::length(VonN);
+			if (tangent_speed > 0)
 				tangent = glm::normalize(VonN);
 		}
 
-		float js = s_mu * impulse;
-		float jd = d_mu * impulse;
+		//separation = glm::dot(relativeVelocity, tangent);
+		invMass = 1.0f / body1->m_mass;
+		if (body2) invMass = 1.0f / body2->m_mass;
+
+		haka1 = glm::inverse(inertiaTensor) * glm::cross(r1, tangent);
+		invMass += glm::dot(glm::cross(haka1, r1), tangent);
+
+		if (body2) {
+			glm::vec3 r2 = data.point - body2->m_position;
+
+			glm::mat3 inertiaTensor = body2->m_rotation * body2->m_inertiaTensor * glm::transpose(body2->m_rotation);
+			glm::vec3 haka2 = glm::inverse(inertiaTensor) * glm::cross(r2, tangent);
+
+			invMass += glm::dot(glm::cross(haka2, r2), tangent);
+		}
+
+		Utils::print_vector("tangent", tangent);
+		float impulse_to_reverse = tangent_speed / invMass;
+		float impulse_from_normal_impulse = impulse * s_mu;
+
+		float friction_impulse = (impulse_to_reverse < impulse_from_normal_impulse) ? impulse_to_reverse : (impulse * d_mu);
+        tangent *= friction_impulse;
+
+		Trace::info("jd: %f\n", glm::length(tangent));
 
 		/*float tSeparation = glm::dot(relativeVelocity, tangent);
 
 		if (tSeparation == 0 && body1->m_mass * tSeparation <= js)
-			body1->applyImpulse(impulse * data.normal - body1->m_mass * tSeparation * tangent, data.point);
+			body1->applyImpulse(impulse * data.normal - body1->m_mass * tSeparation * tangent, data.point, data.normal);
 		else
-			body1->applyImpulse(impulse * data.normal - jd * tangent, data.point);
+			body1->applyImpulse(impulse * data.normal - jd * tangent, data.point, data.normal);
 
 		if (body2)
 		{
 			if (tSeparation == 0 && body2->m_mass * tSeparation <= js)
-				body2->applyImpulse(impulse * data.normal - body2->m_mass * tSeparation * tangent, data.point);
+				body2->applyImpulse(-impulse * data.normal - body2->m_mass * tSeparation * tangent, data.point, data.normal);
 			else
-				body2->applyImpulse(-impulse * data.normal - jd * tangent, data.point);
+				body2->applyImpulse(-impulse * data.normal - jd * tangent, data.point, data.normal);
 		}*/
 
-		body1->applyImpulse(impulse * data.normal - jd * tangent, data.point);
-		if (body2) body2->applyImpulse(-impulse * data.normal - jd * tangent, data.point);
+		body1->applyImpulse(impulse * data.normal - tangent, data.point, data.normal);
+		//body1->applyImpulse(-tangent, data.point, tangent);
+
+		if (body2) body2->applyImpulse(-impulse * data.normal - tangent, data.point, data.normal);
+		//if (body2) body2->applyImpulse(-tangent, data.point, tangent);
 
 		/*body1->applyImpulse(impulse * data.normal, data.point);
 		if (body2) body2->applyImpulse(-impulse * data.normal, data.point);*/
@@ -168,7 +200,7 @@ namespace Common
 		RigidBody * body1 = data.bodies[0];
 		RigidBody * body2 = data.bodies[1];
 
-		Trace::info("Resolving interpenetration for %s\n", data.result.c_str());
+		//Trace::info("Resolving interpenetration for %s\n", data.result.c_str());
 
 		if (glm::abs(data.penetration) > 0.1f)
 		{
@@ -184,14 +216,8 @@ namespace Common
 
 		glm::vec3 movePerIMass = data.normal * (data.penetration / totalInverseMass);
 		//Trace::info("movePerIMass: %f %f %f\n", movePerIMass.x, movePerIMass.y, movePerIMass.z);
-		if (body1) {
-			body1->m_position += movePerIMass * (1.0f / body1->m_mass);
-			Utils::print_vector("move body1", movePerIMass * (1.0f / body1->m_mass));
-		}
-		else if (body2) {
-			body2->m_position -= movePerIMass * (1.0f / body2->m_mass);
-			Utils::print_vector("move body2", movePerIMass * (1.0f / body2->m_mass));
-		}
+		if (body1) body1->m_position += movePerIMass * (1.0f / body1->m_mass);
+		else if (body2) body2->m_position -= movePerIMass * (1.0f / body2->m_mass);
 	}
 
 	void Physics::explode(const glm::vec3 & center)
@@ -202,7 +228,7 @@ namespace Common
 
 			glm::vec3 cp = obj->position() - center;
 
-			obj->applyImpulse(cp * (100.0f / glm::length(cp)), obj->position());
+			obj->applyForce(cp * (100.0f / glm::length(cp)));
 		}
 	}
 

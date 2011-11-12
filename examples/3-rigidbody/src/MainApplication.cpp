@@ -161,42 +161,43 @@ namespace RigidBodyDemo
 
 		PlaneCollider * wall1 = new PlaneCollider(0);
 		wall1->m_normal = glm::vec3(-1.0f, 0.0f, 0.0f);
-		wall1->m_d = -20.0f;
+		wall1->m_d = -1.0f;
 		wall1->name = "wall1";
 		CollisionDetector::instance()->addCollider(wall1);
 
 		PlaneCollider * wall2 = new PlaneCollider(0);
 		wall2->m_normal = glm::vec3(1.0f, 0.0f, 0.0f);
-		wall2->m_d = -20.0f;
+		wall2->m_d = -1.0f;
 		wall2->name = "wall2";
 		CollisionDetector::instance()->addCollider(wall2);
 
 		PlaneCollider * wall3 = new PlaneCollider(0);
 		wall3->m_normal = glm::vec3(0.0f, 0.0f, -1.0f);
-		wall3->m_d = -20.0f;
+		wall3->m_d = -1.0f;
 		wall3->name = "wall3";
 		CollisionDetector::instance()->addCollider(wall3);
 
 		PlaneCollider * wall4 = new PlaneCollider(0);
 		wall4->m_normal = glm::vec3(0.0f, 0.0f, 1.0f);
-		wall4->m_d = -20.0f;
+		wall4->m_d = -1.0f;
 		wall4->name = "wall4";
 		CollisionDetector::instance()->addCollider(wall4);
 
 		/// Create cube
 
-		for (int i = 0; i < 9; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			Material * cubeMaterial = new Material(Shader::find("shader"));
 			cubeMaterial->setTexture(new Texture("resources/15.bmp"));
 			cubeMaterial->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 			MeshObject * cube = new MeshObject(MeshFactory::Sphere(), cubeMaterial);
-			cube->transform().translate(glm::vec3(i * 1.0f - 19.0f, 5.0f + 2 * float(i), i * 0.5f - 10.0f));
+			cube->transform().translate(glm::vec3(i * 0.05f, 0.2f + 2 * float(i / 20.0f), i * 0.025f));
+			cube->transform().scale() = glm::vec3(0.05715f);
 			cube->m_rigidbody = new RigidBody(cube);
 
 			SphereCollider * cubeCollider = new SphereCollider(cube, cube->m_rigidbody);
-			cubeCollider->m_radius = 1.0f;
+			cubeCollider->m_radius = 0.05715f;
 			std::stringstream ss;
 			ss << "sphere" << i;
 			cubeCollider->name = ss.str();
@@ -223,7 +224,7 @@ namespace RigidBodyDemo
 		else if (key == Common::KEY_CONTINUE)
 			m_started = true;
 		else if (key == Common::KEY_RESET_1)
-			m_components[1]->m_rigidbody->applyTorque(glm::vec3(0.0f, 0.0f, 1000.0f));
+			m_components[1]->m_rigidbody->applyTorque(glm::vec3(0.0f, 0.0f, -1000.0f));
 		else if (key == Common::KEY_RESET_2)
 			m_physics.explode(glm::vec3(0.0f));
 	}

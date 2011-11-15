@@ -41,7 +41,7 @@ namespace RigidBodyDemo
 		void setupSimulation();
 
 		Common::Camera m_camera;
-		Common::Physics m_physics;
+		Common::Physics * m_physics;
 
 		bool m_started;
 

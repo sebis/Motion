@@ -81,6 +81,7 @@
     <ClInclude Include="include\common\GameObject.h" />
     <ClInclude Include="include\common\GlutApplication.h" />
     <ClInclude Include="include\common\Keymap.h" />
+    <ClInclude Include="include\common\LineRenderer.h" />
     <ClInclude Include="include\common\Material.h" />
     <ClInclude Include="include\common\Mesh.h" />
     <ClInclude Include="include\common\MeshObject.h" />
@@ -107,6 +108,7 @@
     <ClCompile Include="src\common\Camera.cpp" />
     <ClCompile Include="src\common\GameObject.cpp" />
     <ClCompile Include="src\common\GlutApplication.cpp" />
+    <ClCompile Include="src\common\LineRenderer.cpp" />
     <ClCompile Include="src\common\Material.cpp" />
     <ClCompile Include="src\common\Mesh.cpp" />
     <ClCompile Include="src\common\MeshFactory.cpp" />

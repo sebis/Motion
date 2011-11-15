@@ -1,6 +1,7 @@
 #ifndef COMMON_PHYSICS
 #define COMMON_PHYSICS
 
+#include "LineRenderer.h"
 #include "RigidBody.h"
 
 #include <vector>
@@ -33,6 +34,8 @@ namespace Common
 		typedef Objects::iterator ObjectIterator;
 
 		Objects m_objects;
+
+		LineRenderer * m_lineRenderer;
 	};
 }
 

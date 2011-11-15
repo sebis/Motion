@@ -16,6 +16,7 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
+#include <cmath>
 #include <sstream>
 #include <GL/glew.h>
 
@@ -32,6 +33,7 @@ namespace RigidBodyDemo
 
 	MainApplication::~MainApplication()
 	{
+		delete m_physics;
 	}
 
 	bool MainApplication::init(int argc, char * argv[])
@@ -54,10 +56,14 @@ namespace RigidBodyDemo
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 
+		glLineWidth(1.7f);
+
 		glEnable(GL_POLYGON_SMOOTH);
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
 		Common::GameObject::s_camera = &m_camera;
+
+		m_physics = new Physics();
 
 		setupSimulation();
 
@@ -113,7 +119,7 @@ namespace RigidBodyDemo
 
 		m_components.push_back(cube);
 
-		m_physics.addObject(cube->m_rigidbody);
+		m_physics->addObject(cube->m_rigidbody);
 
 		/// Create another cube
 
@@ -132,7 +138,7 @@ namespace RigidBodyDemo
 
 		m_components.push_back(cube2);
 
-		m_physics.addObject(cube2->m_rigidbody);
+		m_physics->addObject(cube2->m_rigidbody);
 	}
 
 	void MainApplication::setupSimulation()
@@ -142,7 +148,7 @@ namespace RigidBodyDemo
 		/// Create floor
 
 		Material * floorMaterial = new Material(Shader::find("shader"));
-		floorMaterial->setTexture(new Texture("resources/dirt.bmp"));
+		floorMaterial->setTexture(new Texture("resources/floor.bmp"));
 		floorMaterial->setDiffuseColor(glm::vec4(0.8f));
 		floorMaterial->setSpecularColor(glm::vec4(0.2f));
 
@@ -185,27 +191,34 @@ namespace RigidBodyDemo
 
 		/// Create cube
 
-		for (int i = 0; i < 5; i++)
+		int count = 15;
+		float radius = 0.025f;
+		float omega = (2*M_PI) / count;
+
+		for (int i = 0; i < count; i++)
 		{
 			Material * cubeMaterial = new Material(Shader::find("shader"));
-			cubeMaterial->setTexture(new Texture("resources/15.bmp"));
+			std::stringstream ss;
+			ss << "resources/ball-" << i << ".bmp";
+			cubeMaterial->setTexture(new Texture(ss.str().c_str()));
 			cubeMaterial->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 			MeshObject * cube = new MeshObject(MeshFactory::Sphere(), cubeMaterial);
-			cube->transform().translate(glm::vec3(i * 0.05f, 0.2f + 2 * float(i / 20.0f), i * 0.025f));
+			//cube->transform().translate(glm::vec3(i * 0.05f, 0.2f + 2 * float(i / 20.0f), i * 0.025f));
+			cube->transform().translate(glm::vec3(radius * std::cos(i*omega), i * 0.25f, radius * std::sin(i*omega)));
 			cube->transform().scale() = glm::vec3(0.05715f);
 			cube->m_rigidbody = new RigidBody(cube);
 
 			SphereCollider * cubeCollider = new SphereCollider(cube, cube->m_rigidbody);
 			cubeCollider->m_radius = 0.05715f;
-			std::stringstream ss;
+			ss.clear();
 			ss << "sphere" << i;
 			cubeCollider->name = ss.str();
 			CollisionDetector::instance()->addCollider(cubeCollider);
 
 			m_components.push_back(cube);
 
-			m_physics.addObject(cube->m_rigidbody);
+			m_physics->addObject(cube->m_rigidbody);
 		}
 	}
 
@@ -226,7 +239,7 @@ namespace RigidBodyDemo
 		else if (key == Common::KEY_RESET_1)
 			m_components[1]->m_rigidbody->applyTorque(glm::vec3(0.0f, 0.0f, -1000.0f));
 		else if (key == Common::KEY_RESET_2)
-			m_physics.explode(glm::vec3(0.0f));
+			m_physics->explode(glm::vec3(0.0f));
 	}
 
 	void MainApplication::keyUp(Common::Key key)
@@ -277,7 +290,7 @@ namespace RigidBodyDemo
 			(*it)->update(dt);
 		}
 
-		m_physics.step(dt);
+		m_physics->step(dt);
 
 		// check for GL errors
 		GLenum err = glGetError();
@@ -293,5 +306,7 @@ namespace RigidBodyDemo
 		{
 			(*it)->draw();
 		}
+
+		//m_physics->visualize();
 	}
 }

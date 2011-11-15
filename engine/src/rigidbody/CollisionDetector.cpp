@@ -3,6 +3,16 @@
 
 #include <sstream>
 
+namespace
+{
+	const float COF_BALL_BALL = 0.95f;
+	const float COF_BALL_RAIL = 0.7f;
+	const float COF_BALL_TABLE = COF_BALL_RAIL;
+	
+	const float FRICTION_BALL_BALL = 0.05f;
+	const float FRICTION_BALL_CLOTH = 0.5f;
+}
+
 namespace Common
 {
 	CollisionDetector * CollisionDetector::s_instance = 0;
@@ -81,6 +91,7 @@ namespace Common
 							//Trace::info("COLLIDE!!");
 							data.bodies[0] = sphere->rigidBody();
 							data.bodies[1] = plane->rigidBody();
+							data.restitution = COF_BALL_TABLE;
 							collisions.push_back(data);
 						}
 						continue;
@@ -98,6 +109,7 @@ namespace Common
 							//Trace::info("COLLIDE!!");
 							data.bodies[0] = sphere->rigidBody();
 							data.bodies[1] = plane->rigidBody();
+							data.restitution = COF_BALL_TABLE;
 							collisions.push_back(data);
 						}
 						continue;
@@ -109,6 +121,7 @@ namespace Common
 							//Trace::info("COLLIDE!!");
 							data.bodies[0] = sphere->rigidBody();
 							data.bodies[1] = sphere2->rigidBody();
+							data.restitution = COF_BALL_BALL;
 							collisions.push_back(data);
 						}
 						continue;

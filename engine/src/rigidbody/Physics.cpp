@@ -9,6 +9,7 @@ namespace Common
 {
 	Physics::Physics()
 	{
+		m_lineRenderer = new LineRenderer(0);
 	}
 
 	Physics::~Physics()
@@ -62,9 +63,8 @@ namespace Common
 
 	void Physics::resolveVelocity(const CollisionData & data, float elapsed)
 	{
-		float restitution = 0.8f;
 		const float s_mu = 0.5f;
-		const float d_mu = 0.05f;
+		const float d_mu = 0.4f;
 
 		RigidBody * body1 = data.bodies[0];
 		RigidBody * body2 = data.bodies[1];
@@ -121,7 +121,7 @@ namespace Common
 			invMass += glm::dot(glm::cross(haka2, r2), data.normal);
 		}
 
-		float impulse = -separation * (1 + restitution) / invMass;
+		float impulse = -separation * (1 + data.restitution) / invMass;
 		//float impulse = (-separation - restitution * (separation - velocityFromAcc)) / invMass;
 
 		// project relativeVelocity onto plane defined by data.normal and data.point
@@ -188,7 +188,7 @@ namespace Common
 		body1->applyImpulse(impulse * data.normal - tangent, data.point, data.normal);
 		//body1->applyImpulse(-tangent, data.point, tangent);
 
-		if (body2) body2->applyImpulse(-impulse * data.normal - tangent, data.point, data.normal);
+		if (body2) body2->applyImpulse(-(impulse * data.normal - tangent), data.point, data.normal);
 		//if (body2) body2->applyImpulse(-tangent, data.point, tangent);
 
 		/*body1->applyImpulse(impulse * data.normal, data.point);
@@ -228,7 +228,7 @@ namespace Common
 
 			glm::vec3 cp = obj->position() - center;
 
-			obj->applyForce(cp * (100.0f / glm::length(cp)));
+			obj->applyForce(cp * (30.0f / glm::length(cp)));
 		}
 	}
 
@@ -267,8 +267,23 @@ namespace Common
 
 	void Physics::visualize()
 	{
+		m_lineRenderer->clear();
+
 		for (ObjectIterator it = m_objects.begin(); it != m_objects.end(); ++it)
 		{
+			RigidBody * body = *it;
+
+			LineRenderer::vertex a;
+			a.position = body->m_position;
+			a.color = glm::vec4(1.0f);
+
+			LineRenderer::vertex b;
+			b.position = body->m_position + body->m_velocity;
+			b.color = glm::vec4(1.0f);
+
+			m_lineRenderer->addLine(a, b);
 		}
+
+		m_lineRenderer->draw();
 	}
 }

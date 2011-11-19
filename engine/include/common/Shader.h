@@ -19,8 +19,6 @@ namespace Common
 		unsigned id_table[10];
 		unsigned num_ids;
 
-		unsigned vs_id;
-		unsigned fs_id;
 		unsigned p_id;
 
 		bool load(std::string filename, GLenum shaderType);
@@ -70,6 +68,9 @@ namespace Common
 			if (!shader->load(path + technique + ".frag", GL_FRAGMENT_SHADER)) {
 				Trace::error("Could not find %s.frag\n", (path + technique).c_str());
 				return 0;
+			}
+			if (shader->load(path + technique + ".geom", GL_GEOMETRY_SHADER)) {
+				Trace::info("Geometry shader %s.geom loaded\n", technique.c_str());
 			}
 
 			GLenum err = glGetError();

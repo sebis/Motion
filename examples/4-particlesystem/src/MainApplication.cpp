@@ -18,6 +18,7 @@ namespace ParticlePhysicsDemo
 
 	MainApplication::~MainApplication()
 	{
+		delete m_particleSystem;
 	}
 
 	bool MainApplication::init(int argc, char * argv[])
@@ -40,20 +41,20 @@ namespace ParticlePhysicsDemo
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 
-		glLineWidth(1.7f);
-
 		glEnable(GL_POLYGON_SMOOTH);
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
 		Common::GameObject::s_camera = &m_camera;
+
+		m_particleSystem = new ParticleSystem();
 
 		Material * grass = new Material(Shader::find("shader"));
 		//grass->setTexture(new Texture("resources/grass.bmp"));
 		grass->setDiffuseColor(glm::vec4(0.8f));
 		grass->setSpecularColor(glm::vec4(0.2f));
 
-		MeshObject * terrain = new MeshObject(MeshFactory::Plane(glm::vec4(1.0f), 50), grass);
-		terrain->transform().scale() = glm::vec3(50.0f);
+		MeshObject * terrain = new MeshObject(MeshFactory::Plane(glm::vec4(1.0f), 1), grass);
+		//terrain->transform().scale() = glm::vec3(50.0f);
 
 		m_components.push_back(terrain);
 
@@ -121,10 +122,9 @@ namespace ParticlePhysicsDemo
 			(*it)->update(dt);
 		}
 
-		// check for GL errors
-		GLenum err = glGetError();
-		if (err != GL_NO_ERROR)
-			Trace::error("OpenGL error: %d\n", err);
+		m_particleSystem->update(dt);
+		m_particleSystem->addParticle(glm::vec3(0.0f), glm::vec3(0.0f));
+
 	}
 
 	void MainApplication::draw()
@@ -135,5 +135,11 @@ namespace ParticlePhysicsDemo
 		{
 			(*it)->draw();
 		}
+
+		m_particleSystem->draw();
+
+		GLenum err = glGetError();
+		if (err != GL_NO_ERROR)
+			Trace::error("OpenGL error: %d\n", err);
 	}
 }

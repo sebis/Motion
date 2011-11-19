@@ -58,10 +58,12 @@ namespace Common
 
 	bool Shader::load(std::string filename, GLenum shaderType)
 	{
+		std::string source = Utils::readfile(filename);
+		if (source.empty())
+			return false;
+
 		id_table[num_ids] = glCreateShader(shaderType);
 		int id = id_table[num_ids++];
-
-		std::string source = Utils::readfile(filename);
 
 		const GLchar* sstring = source.c_str();
 		const GLint slength = source.length();

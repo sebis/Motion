@@ -52,7 +52,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>include;include\common;include\interpolation;include\ik;include\rigidbody</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;include\common;include\interpolation;include\ik;include\particlesystem;include\rigidbody</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -65,7 +65,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>include;include\common;include\interpolation;include\ik;include\rigidbody</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;include\common;include\interpolation;include\ik;include\particlesystem;include\rigidbody</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -100,6 +100,8 @@
     <ClInclude Include="include\interpolation\KeyframeAnimator.h" />
     <ClInclude Include="include\interpolation\SplineRenderer.h" />
     <ClInclude Include="include\interpolation\TransformRenderer.h" />
+    <ClInclude Include="include\particlesystem\ParticleRenderer.h" />
+    <ClInclude Include="include\particlesystem\ParticleSystem.h" />
     <ClInclude Include="include\rigidbody\CollisionDetector.h" />
     <ClInclude Include="include\rigidbody\Physics.h" />
     <ClInclude Include="include\rigidbody\RigidBody.h" />
@@ -123,6 +125,8 @@
     <ClCompile Include="src\interpolation\KeyframeAnimator.cpp" />
     <ClCompile Include="src\interpolation\SplineRenderer.cpp" />
     <ClCompile Include="src\interpolation\TransformRenderer.cpp" />
+    <ClCompile Include="src\particlesystem\ParticleRenderer.cpp" />
+    <ClCompile Include="src\particlesystem\ParticleSystem.cpp" />
     <ClCompile Include="src\rigidbody\Collider.cpp" />
     <ClCompile Include="src\rigidbody\CollisionDetector.cpp" />
     <ClCompile Include="src\rigidbody\Physics.cpp" />

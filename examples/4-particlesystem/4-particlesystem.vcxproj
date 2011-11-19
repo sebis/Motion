@@ -17,6 +17,11 @@
   <ItemGroup>
     <ClInclude Include="src\MainApplication.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\point.frag" />
+    <None Include="resources\point.geom" />
+    <None Include="resources\point.vert" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{77EC7D66-EE5E-4CAB-89A4-11F70DDA5E88}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -61,7 +66,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\engine\include\particlephysics;$(SolutionDir)\engine\include;$(SolutionDir)\engine\include\common;$(SolutionDir)\engine\include\interpolation;$(SolutionDir)\engine\include\ik;$(SolutionDir)\engine\include\rigidbody</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\engine\include\particlesystem;$(SolutionDir)\engine\include;$(SolutionDir)\engine\include\common;$(SolutionDir)\engine\include\interpolation;$(SolutionDir)\engine\include\ik;$(SolutionDir)\engine\include\rigidbody</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -78,6 +83,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\engine\include\particlesystem;$(SolutionDir)\engine\include;$(SolutionDir)\engine\include\common;$(SolutionDir)\engine\include\interpolation;$(SolutionDir)\engine\include\ik;$(SolutionDir)\engine\include\rigidbody</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -63,8 +63,10 @@ namespace Utils
 	inline std::string readfile(const std::string filename)
 	{
 		std::ifstream ifs(filename.c_str());
-		if (!ifs.is_open())
+		if (!ifs.is_open()) {
 			Trace::warning("Could not open: %s\n", filename.c_str());
+			return "";
+		}
 		std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 
 		return str;
@@ -87,6 +89,11 @@ namespace Utils
 		Random(unsigned int seed)
 		{
 			srand(seed);
+		}
+
+		inline double rand01()
+		{
+			return double(rand()) / double(RAND_MAX);
 		}
 
 		inline double rand11()
@@ -138,11 +145,13 @@ namespace Utils
 			return false;
 		}
 
-		// only support 24 bits per pixel
-		if (info_header.bitspp != 24) {
-			Trace::error("Could not load texture (only support 24 bpp!)");
+		// only support 24 or 32 bits per pixel
+		if (info_header.bitspp != 24 && info_header.bitspp != 32) {
+			Trace::error("Could not load texture (only support 24 or 32 bpp!)");
 			return false;
 		}
+
+		const unsigned bytespp = info_header.bitspp / 8;
 
 		// move to the start of the pixel array
 		ifs.seekg(header.offset);
@@ -151,20 +160,22 @@ namespace Utils
 		*height = info_header.height;
 
 		// allocate memory for the pixels
-		*data = new char[info_header.width * info_header.height * 3];
+		*data = new char[info_header.width * info_header.height * bytespp];
 
 		// flip BMP format y-coordinate
 		for (int y = info_header.height - 1; y >= 0; y--) {
 		//for (int y = 0; y < info_header.width; y++) {
 			for (int x = 0; x < info_header.width; x++) {
 				// read 3 bytes (24bpp) from the bitmap
-				char bgr[3];
-				ifs.read(bgr, 3);
+				char * bgr = new char[bytespp];
+				ifs.read(bgr, bytespp);
 
 				// flip BGR to RGB
-				(*data)[y*info_header.width*3 + x*3 + 0] = bgr[2];
-				(*data)[y*info_header.width*3 + x*3 + 1] = bgr[1];
-				(*data)[y*info_header.width*3 + x*3 + 2] = bgr[0];
+				for (unsigned b = 0; b < bytespp; b++)
+					(*data)[y*info_header.width*bytespp + x*bytespp + b] = bgr[bytespp - b - 1];
+				//(*data)[y*info_header.width*3 + x*3 + 1] = bgr[1];
+				//(*data)[y*info_header.width*3 + x*3 + 2] = bgr[0];
+				delete [] bgr;
 			}
 			// after each pixel row, check if we should expect a pad to fill rows to be dividable by 4
 			int pad = info_header.width % 4;

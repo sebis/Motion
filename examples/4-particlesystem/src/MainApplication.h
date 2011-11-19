@@ -11,7 +11,7 @@ typedef Common::GlutApplication Base;
 
 #include "Camera.h"
 #include "GameObject.h"
-#include "Physics.h"
+#include "ParticleSystem.h"
 
 #include <vector>
 
@@ -39,7 +39,7 @@ namespace ParticlePhysicsDemo
 	private:
 		Common::Camera m_camera;
 
-		//bool m_started;
+		Common::ParticleSystem * m_particleSystem;
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;
 		typedef ComponentCollection::iterator ComponentIterator;

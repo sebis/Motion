@@ -33,6 +33,9 @@ namespace Common
 
 	void ParticleRenderer::draw()
 	{
+		glEnable(GL_BLEND);
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		glBindVertexArray(m_vaoID);
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
@@ -51,5 +54,7 @@ namespace Common
 		m_texture->unbind();
 
 		glBindVertexArray(0);
+
+		glDisable(GL_BLEND);
 	}
 }

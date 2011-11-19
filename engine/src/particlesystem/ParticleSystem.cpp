@@ -10,7 +10,7 @@ namespace Common
 {
 	ParticleSystem::ParticleSystem()
 	{
-		m_renderer = new ParticleRenderer(Shader::find("point"), new Texture("resources/fire_paint.bmp"), m_particles);
+		m_renderer = new ParticleRenderer(Shader::find("point"), new Texture("resources/fire.bmp"), m_particles);
 
 		m_settings = new ParticleSettings();
 

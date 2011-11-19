@@ -48,15 +48,20 @@ namespace Utils
 			int32_t vres;
 			uint32_t ncolors;
 			uint32_t nimpcolors;
+			uint32_t redmask;
+			uint32_t greenmask;
+			uint32_t bluemask;
+			uint32_t alphamask;
+			unsigned char filler[68];
 		};
 
 		enum bmp_compress_type {
-			BIRGB,
-			BIRLE8,
-			BIRLE4,
-			BIBITFIELDS,
-			BIJPEG,
-			BIPNG
+			BI_RGB,
+			BI_RLE8,
+			BI_RLE4,
+			BI_BITFIELDS,
+			BI_JPEG,
+			BI_PNG
 		};
 	}
 
@@ -102,10 +107,10 @@ namespace Utils
 		}
 	};
 
-	inline bool read_texture(const char * filename, int* width, int* height, char** data)
+	inline bool read_texture(const char * filename, int* width, int* height, unsigned char** data)
 	{
 		// create binary input stream
-		std::ifstream ifs(filename, std::ios::in | std::ios::binary);
+		std::basic_ifstream<unsigned char> ifs(filename, std::ios::in | std::ios::binary);
 
 		// header structures
 		bmp_magic magic;
@@ -113,7 +118,7 @@ namespace Utils
 		bmp_info_header info_header;
 
 		// read signature
-		ifs.read((char*)&magic, sizeof(bmp_magic));
+		ifs.read((unsigned char*)&magic, sizeof(bmp_magic));
 
 		// check that the signature is 'BM'
 		if (magic.magic[0] != 0x42 || magic.magic[1] != 0x4D) {
@@ -122,19 +127,23 @@ namespace Utils
 		}
 
 		// read bitmap file header, nothing really interesting here..
-		ifs.read((char*)&header, sizeof(bmp_header));
+		ifs.read((unsigned char*)&header, sizeof(bmp_header));
+
+		// read header size
+		ifs.read((unsigned char*)&info_header, sizeof(uint32_t));
+		ifs.seekg((int)ifs.tellg() - sizeof(uint32_t));
 
 		// read DIB header (assume BITMAPINFOHEADER header for simplicity).
-		ifs.read((char*)&info_header, sizeof(bmp_info_header));
+		ifs.read((unsigned char*)&info_header, info_header.header_sz);
 
 		// only support BITMAPINFOHEADER
-		if (info_header.header_sz != 40) {
+		if (info_header.header_sz < 40) {
 			Trace::error("Could not load texture (unsupported header format!)");
 			return false;
 		}
 
 		// only support uncompressed images
-		if (info_header.compress_type != 0) {
+		if (info_header.compress_type != 0 && info_header.compress_type != 3) {
 			Trace::error("Could not load texture (compression is unsupported!)");
 			return false;
 		}
@@ -160,19 +169,22 @@ namespace Utils
 		*height = info_header.height;
 
 		// allocate memory for the pixels
-		*data = new char[info_header.width * info_header.height * bytespp];
+		*data = new unsigned char[info_header.width * info_header.height * bytespp];
 
 		// flip BMP format y-coordinate
 		for (int y = info_header.height - 1; y >= 0; y--) {
 		//for (int y = 0; y < info_header.width; y++) {
 			for (int x = 0; x < info_header.width; x++) {
 				// read 3 bytes (24bpp) from the bitmap
-				char * bgr = new char[bytespp];
+				unsigned char * bgr = new unsigned char[bytespp];
 				ifs.read(bgr, bytespp);
 
 				// flip BGR to RGB
-				for (unsigned b = 0; b < bytespp; b++)
-					(*data)[y*info_header.width*bytespp + x*bytespp + b] = bgr[bytespp - b - 1];
+				//for (unsigned b = 0; b < bytespp; b++)
+				(*data)[y*info_header.width*bytespp + x*bytespp + 0] = bgr[0];
+				(*data)[y*info_header.width*bytespp + x*bytespp + 1] = bgr[1];
+				(*data)[y*info_header.width*bytespp + x*bytespp + 2] = bgr[2];
+				(*data)[y*info_header.width*bytespp + x*bytespp + 3] = bgr[3];
 				//(*data)[y*info_header.width*3 + x*3 + 1] = bgr[1];
 				//(*data)[y*info_header.width*3 + x*3 + 2] = bgr[0];
 				delete [] bgr;

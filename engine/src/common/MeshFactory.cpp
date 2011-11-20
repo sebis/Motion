@@ -21,7 +21,7 @@ namespace Common
 			bottom.color = color;
 			bottom.normal = glm::vec3(0.0f, -1.0f, 0.0f);
 			bottom.position = glm::vec3(0.0f, -1.0f, 0.0f);
-			bottom.texcoord = glm::vec2(0.5f, 1.0f);
+			bottom.texcoord = glm::vec2(0.5f, 0.0f);
 			vertices.push_back(bottom);
 
             int currentVertex = 0;
@@ -51,7 +51,7 @@ namespace Common
 					vertex.color = color;
 					vertex.normal = normal;
 					vertex.position = normal;
-					vertex.texcoord = glm::vec2(1 - u, 1 - v);
+					vertex.texcoord = glm::vec2(1 - u, v);
 					vertices.push_back(vertex);
 
                     currentVertex++;
@@ -62,7 +62,7 @@ namespace Common
 			top.color = color;
 			top.normal = glm::vec3(0.0f, 1.0f, 0.0f);
 			top.position = glm::vec3(0.0f, 1.0f, 0.0f);
-			top.texcoord = glm::vec2(0.5f, 0.0f);
+			top.texcoord = glm::vec2(0.5f, 1.0f);
 			vertices.push_back(top);
 
 			std::vector<Mesh::vertex> vData;
@@ -239,7 +239,7 @@ namespace Common
 				Mesh::vertex v;
 				v.position = glm::vec3(x, y, z);
 				v.normal = glm::vec3(nx, ny, nz);
-				v.texcoord = glm::vec2(s, t);
+				v.texcoord = glm::vec2(s, 1-t);
 				v.color = color;
 				vData.push_back(v);
 			}

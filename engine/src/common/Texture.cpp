@@ -8,8 +8,18 @@ namespace Common
 	Texture::Texture(const char * filename)
 	{
 		unsigned char *data = 0;
+		Utils::TextureInfo info;
 
-		Utils::read_texture(filename, &m_width, &m_height, &data);
+		Utils::read_texture(filename, &data, &info);
+
+		m_width = info.width;
+		m_height = info.height;
+
+		GLenum format = 0;
+		if (info.pf == Utils::BGR)
+			format = GL_BGR;
+		else if (info.pf == Utils::BGRA)
+			format = GL_BGRA;
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	
@@ -20,8 +30,8 @@ namespace Common
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_BGRA, GL_UNSIGNED_BYTE, data);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, data);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		delete [] data;

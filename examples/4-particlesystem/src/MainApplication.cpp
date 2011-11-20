@@ -6,6 +6,8 @@
 
 #include <GL/glew.h>
 
+#include <cmath>
+
 namespace ParticlePhysicsDemo
 {
 	using namespace Common;
@@ -123,7 +125,12 @@ namespace ParticlePhysicsDemo
 		}
 
 		m_particleSystem->update(dt);
-		m_particleSystem->addParticle(glm::vec3(0.0f), glm::vec3(0.0f));
+
+		static Utils::Random r;
+		float angle = r.rand01() * 2 * M_PI;
+
+		glm::vec3 position(2.0f * glm::cos(angle), 2.0f + 2.0f * glm::sin(angle), 0.0f);
+		m_particleSystem->addParticle(position, glm::vec3(0.0f));
 
 	}
 

@@ -41,7 +41,6 @@ namespace ParticlePhysicsDemo
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClearDepth(1.0f);
 		glEnable(GL_CULL_FACE);
-		//glEnable(GL_DEPTH_TEST);
 
 		glEnable(GL_POLYGON_SMOOTH);
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
@@ -173,14 +172,14 @@ namespace ParticlePhysicsDemo
 		for (int i = 0; i < 50; i++)
 		{
 			float angle = r.rand01() * 2 * M_PI;
-			glm::vec3 position(radius * glm::cos(angle), radius + radius * glm::sin(angle), 0.0f);
+			glm::vec3 position(radius * glm::cos(angle), 0.0f, radius * glm::sin(angle));
 			m_particleSystem->addParticle(position, glm::vec3(0.0f));
 		}
 
 		for (int i = 0; i < 3; i++)
 		{
 			float angle = r.rand01() * 2 * M_PI;
-			glm::vec3 position(radius * glm::cos(angle), radius + radius * glm::sin(angle), 0.0f);
+			glm::vec3 position(radius * glm::cos(angle), 0.0f, radius * glm::sin(angle));
 			m_smokeParticleSystem->addParticle(position, glm::vec3(0.0f));
 		}
 	}
@@ -194,6 +193,8 @@ namespace ParticlePhysicsDemo
 			(*it)->draw();
 		}
 
+		glDisable(GL_DEPTH_TEST);
+
 		glEnable(GL_BLEND);
 
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -203,6 +204,8 @@ namespace ParticlePhysicsDemo
 		m_particleSystem->draw();
 		
 		glDisable(GL_BLEND);
+
+		glEnable(GL_DEPTH_TEST);
 
 		GLenum err = glGetError();
 		if (err != GL_NO_ERROR)

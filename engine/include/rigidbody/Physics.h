@@ -24,11 +24,11 @@ namespace Common
 
 		void explode(const glm::vec3 & center);
 
+		float calculateEnergy();
+
 	private:
 		void resolveVelocity(const CollisionData & data, float dt);
 		void resolveInterpenetration(const CollisionData & data);
-
-		void calculateEnergy();
 
 		typedef std::vector<RigidBody *> Objects;
 		typedef Objects::iterator ObjectIterator;

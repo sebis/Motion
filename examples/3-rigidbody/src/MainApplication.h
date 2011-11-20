@@ -37,13 +37,14 @@ namespace RigidBodyDemo
 		void draw();
 
 	private:
-		void setupTest();
 		void setupSimulation();
+		void reset();
 
 		Common::Camera m_camera;
 		Common::Physics * m_physics;
 
 		bool m_started;
+		bool m_visualize;
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;
 		typedef ComponentCollection::iterator ComponentIterator;

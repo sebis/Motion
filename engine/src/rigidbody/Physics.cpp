@@ -14,6 +14,7 @@ namespace Common
 
 	Physics::~Physics()
 	{
+		delete m_lineRenderer;
 	}
 
 	void Physics::addObject(RigidBody * rigidBody)
@@ -36,7 +37,6 @@ namespace Common
 		for (ObjectIterator it = m_objects.begin(); it != m_objects.end(); ++it)
 		{
 			RigidBody * obj = *it;
-			//obj->update(dt);
 
 			// 1. Apply forces and torques (write to rigidbody data)
 			obj->applyForce(glm::vec3(0.0f, -9.81f, 0.0f) * obj->m_mass);
@@ -68,17 +68,6 @@ namespace Common
 
 		RigidBody * body1 = data.bodies[0];
 		RigidBody * body2 = data.bodies[1];
-
-		/*if (!body1) {
-			body1 = body2;
-			body2 = 0;
-		}
-		assert(body1);*/
-
-		if (data.normal.y != 1.0f)
-		{
-			int dummy = 0;
-		}
 
 		glm::vec3 relativeVelocity = body1->velocity() + 
 			glm::cross(body1->m_angularVelocity, data.point - body1->m_position);
@@ -161,14 +150,11 @@ namespace Common
 			invMass += glm::dot(glm::cross(haka2, r2), tangent);
 		}
 
-		Utils::print_vector("tangent", tangent);
 		float impulse_to_reverse = tangent_speed / invMass;
 		float impulse_from_normal_impulse = impulse * s_mu;
 
 		float friction_impulse = (impulse_to_reverse < impulse_from_normal_impulse) ? impulse_to_reverse : (impulse * d_mu);
         tangent *= friction_impulse;
-
-		Trace::info("jd: %f\n", glm::length(tangent));
 
 		/*float tSeparation = glm::dot(relativeVelocity, tangent);
 
@@ -200,13 +186,6 @@ namespace Common
 		RigidBody * body1 = data.bodies[0];
 		RigidBody * body2 = data.bodies[1];
 
-		//Trace::info("Resolving interpenetration for %s\n", data.result.c_str());
-
-		if (glm::abs(data.penetration) > 0.1f)
-		{
-			int dummy = 0;
-		}
-
 		float totalInverseMass = 0.0f;
 		if (body1) totalInverseMass = 1.0f / body1->m_mass;
 		if (body2) totalInverseMass += 1.0f / body2->m_mass;
@@ -215,7 +194,7 @@ namespace Common
 			return;
 
 		glm::vec3 movePerIMass = data.normal * (data.penetration / totalInverseMass);
-		//Trace::info("movePerIMass: %f %f %f\n", movePerIMass.x, movePerIMass.y, movePerIMass.z);
+
 		if (body1) body1->m_position += movePerIMass * (1.0f / body1->m_mass);
 		else if (body2) body2->m_position -= movePerIMass * (1.0f / body2->m_mass);
 	}
@@ -232,7 +211,7 @@ namespace Common
 		}
 	}
 
-	void Physics::calculateEnergy()
+	float Physics::calculateEnergy()
 	{
 		float U_total = 0;
 		float Ek_total = 0;
@@ -256,13 +235,16 @@ namespace Common
 			Erot_total += Erot;
 		}
 
-		static float total = 0;
+		static float total = U_total + Ek_total + Erot_total;
+
 		if (total < U_total + Ek_total + Erot_total) {
 			Trace::warning("INSTABILITY");
-			total = U_total + Ek_total + Erot_total;
 		}
 
-		Trace::info("System energy: %.2f + %.2f + %.2f = %.2f\n", U_total, Ek_total, Erot_total, total);
+		total = U_total + Ek_total + Erot_total;
+
+		//Trace::info("System energy: %.2f + %.2f + %.2f = %.2f\n", U_total, Ek_total, Erot_total, total);
+		return total;
 	}
 
 	void Physics::visualize()

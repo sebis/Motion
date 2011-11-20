@@ -30,6 +30,7 @@ namespace Common
 		static bool SphereAndPlane(SphereCollider * a, PlaneCollider * b, CollisionData * data);
 
 		inline void addCollider(Collider * collider) { m_colliders.push_back(collider); }
+		inline void clear() { m_colliders.clear(); }
 
 		void detectCollisions(std::vector<CollisionData> & collisions);
 

@@ -27,8 +27,6 @@ namespace Common
 		{
 			m_vertices.push_back(a);
 			m_vertices.push_back(b);
-
-			Utils::print_vector("drawing", a.position);
 		}
 
 		inline void clear()

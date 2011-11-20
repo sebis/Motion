@@ -18,6 +18,7 @@
 
 #include <cmath>
 #include <sstream>
+#include <iomanip>
 #include <GL/glew.h>
 
 namespace RigidBodyDemo
@@ -25,9 +26,9 @@ namespace RigidBodyDemo
 	using namespace Common;
 	using namespace Interpolation;
 
-	MainApplication::MainApplication(bool fixedTimeStep, float targetElapsedTime)
-		: Base(fixedTimeStep, targetElapsedTime),
-		m_camera(glm::vec3(10.0f), glm::vec3(0.0f)), m_visualize(false)
+	MainApplication::MainApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
+		: Base(title, fixedTimeStep, targetElapsedTime),
+		m_camera(glm::vec3(10.0f), glm::vec3(0.0f)), m_visualize(false), m_hideHelp(false)
 	{
 	}
 
@@ -51,7 +52,7 @@ namespace RigidBodyDemo
 		Trace::info("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 		Trace::info("GLEW Version: %s\n", glewGetString(GLEW_VERSION));
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
 		glClearDepth(1.0f);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
@@ -68,7 +69,7 @@ namespace RigidBodyDemo
 		m_physics = new Physics();
 
 		setupSimulation();
-
+		
 		return true;
 	}
 
@@ -90,11 +91,13 @@ namespace RigidBodyDemo
 
 		Material * floorMaterial = new Material(Shader::find("shader"));
 		floorMaterial->setTexture(new Texture("resources/floor.bmp"));
-		floorMaterial->setDiffuseColor(glm::vec4(0.8f));
+		floorMaterial->setAmbientColor(glm::vec4(0.3f));
+		floorMaterial->setShininess(120.0f);
+		floorMaterial->setDiffuseColor(glm::vec4(0.6f));
 		floorMaterial->setSpecularColor(glm::vec4(0.2f));
 
-		MeshObject * floor = new MeshObject(MeshFactory::Plane(glm::vec4(1.0f), 50), floorMaterial);
-		floor->transform().scale() = glm::vec3(500.0f);
+		MeshObject * floor = new MeshObject(MeshFactory::Plane(glm::vec4(1.0f), 5), floorMaterial);
+		floor->transform().scale() = glm::vec3(5.0f, 1.0f, 5.0f);
 
 		PlaneCollider * floorCollider = new PlaneCollider(floor, 0);
 		floorCollider->m_normal = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -104,29 +107,47 @@ namespace RigidBodyDemo
 
 		m_components.push_back(floor);
 
+		// Create pool table
+
+		Material * tableMaterial = new Material(Shader::find("shader"));
+		tableMaterial->setDiffuseColor(glm::vec4(0.8f));
+		tableMaterial->setAmbientColor(glm::vec4(0.2f));
+		tableMaterial->setSpecularColor(glm::vec4(0.3f));
+		tableMaterial->setTexture(new Texture("resources/table.bmp"));
+
+		MeshObject * table = new MeshObject(MeshFactory::FromFile("resources/pooltable.ply"), tableMaterial);
+		//table->transform().scale() = glm::vec3(0.01f);
+		m_components.push_back(table);
+
 		// Create some walls
+
+		PlaneCollider * tabletop = new PlaneCollider(0);
+		tabletop->m_normal = glm::vec3(0.0f, 1.0f, 0.0f);
+		tabletop->m_d = 1.2f;
+		tabletop->name = "tabletop";
+		CollisionDetector::instance()->addCollider(tabletop);
 
 		PlaneCollider * wall1 = new PlaneCollider(0);
 		wall1->m_normal = glm::vec3(-1.0f, 0.0f, 0.0f);
-		wall1->m_d = -1.0f;
+		wall1->m_d = -0.939f;
 		wall1->name = "wall1";
 		CollisionDetector::instance()->addCollider(wall1);
 
 		PlaneCollider * wall2 = new PlaneCollider(0);
 		wall2->m_normal = glm::vec3(1.0f, 0.0f, 0.0f);
-		wall2->m_d = -1.0f;
+		wall2->m_d = -0.920f;
 		wall2->name = "wall2";
 		CollisionDetector::instance()->addCollider(wall2);
 
 		PlaneCollider * wall3 = new PlaneCollider(0);
 		wall3->m_normal = glm::vec3(0.0f, 0.0f, -1.0f);
-		wall3->m_d = -1.0f;
+		wall3->m_d = -1.812f;
 		wall3->name = "wall3";
 		CollisionDetector::instance()->addCollider(wall3);
 
 		PlaneCollider * wall4 = new PlaneCollider(0);
 		wall4->m_normal = glm::vec3(0.0f, 0.0f, 1.0f);
-		wall4->m_d = -1.0f;
+		wall4->m_d = -1.839f;
 		wall4->name = "wall4";
 		CollisionDetector::instance()->addCollider(wall4);
 
@@ -146,7 +167,7 @@ namespace RigidBodyDemo
 
 			MeshObject * cube = new MeshObject(MeshFactory::Sphere(), cubeMaterial);
 			//cube->transform().translate(glm::vec3(i * 0.05f, 0.2f + 2 * float(i / 20.0f), i * 0.025f));
-			cube->transform().translate(glm::vec3(radius * std::cos(i*omega), i * 0.25f, radius * std::sin(i*omega)));
+			cube->transform().translate(glm::vec3(radius * std::cos(i*omega), 1.25f + i * 0.25f, radius * std::sin(i*omega)));
 			cube->transform().scale() = glm::vec3(0.05715f);
 			cube->m_rigidbody = new RigidBody(cube);
 
@@ -179,6 +200,8 @@ namespace RigidBodyDemo
 			else
 				m_started = true;
 		}
+		else if (key == Common::KEY_HELP)
+			m_hideHelp = !m_hideHelp;
 		else if (key == Common::KEY_RESET_1)
 			m_physics->explode(glm::vec3(0.0f));
 		else if (key == Common::KEY_RESET_2)
@@ -252,5 +275,29 @@ namespace RigidBodyDemo
 
 		if (m_visualize)
 			m_physics->visualize();
+
+		std::stringstream ss;
+		ss << std::setiosflags(std::ios::fixed) << std::setprecision(2);
+		ss << "Rigid body dynamics demo" << std::endl;
+		if (!m_hideHelp)
+		{
+			ss << "Simulation consists of sphere colliders and plane colliders." << std::endl;
+			ss << "Plane colliders are infinite, ie. balls cannot fly over the rails." << std::endl;
+			ss << std::endl;
+			ss << "<Space> - start/reset simulation" << std::endl;
+			ss << "<Enter> - Apply impulse" << std::endl;
+			ss << "<c> - Toggle visualisation" << std::endl;
+			ss << "<h> - Toggle this help" << std::endl;
+			ss << std::endl;
+			ss << "Coefficient of restitution (ball-ball): " << COF_BALL_BALL << std::endl;
+			ss << "Coefficient of restitution (ball-rail): " << COF_BALL_RAIL << std::endl;
+			ss << "Coefficient of restitution (ball-table): " << COF_BALL_TABLE << std::endl;
+			ss << "Friction (ball-ball): " << FRICTION_BALL_BALL << std::endl;
+			ss << "Friction (ball-cloth): " << FRICTION_BALL_CLOTH << std::endl;
+		}
+		ss << std::endl;
+		ss << "Total energy: " << m_physics->calculateEnergy(1.2f + 0.05715f) << " J" << std::endl;
+
+		display_text(ss.str().c_str(), 10, 15);
 	}
 }

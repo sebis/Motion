@@ -22,7 +22,7 @@ namespace RigidBodyDemo
 	private:
 
 	public:
-		MainApplication(bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
+		MainApplication(const char * title, bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
 		virtual ~MainApplication();
 
 		bool init(int argc, char * argv[]);
@@ -45,6 +45,7 @@ namespace RigidBodyDemo
 
 		bool m_started;
 		bool m_visualize;
+		bool m_hideHelp;
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;
 		typedef ComponentCollection::iterator ComponentIterator;

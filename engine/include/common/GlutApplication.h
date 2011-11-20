@@ -11,7 +11,7 @@ namespace Common
 		static GlutApplication * m_instance;
 
 	public:
-		GlutApplication(bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
+		GlutApplication(const char * title, bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
 		virtual ~GlutApplication() {};
 
 		virtual bool init(int argc, char * argv[]);
@@ -40,6 +40,7 @@ namespace Common
 		static void mouseWrapper(int button, int state, int x, int y);
 		static void reshapeWrapper(int width, int height);
 
+		const char * m_title;
 		bool m_fixedTimeStep;
 		float m_targetElapsedTime;
 		int m_totalTime;

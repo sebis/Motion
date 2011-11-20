@@ -12,8 +12,8 @@ namespace ParticlePhysicsDemo
 {
 	using namespace Common;
 
-	MainApplication::MainApplication(bool fixedTimeStep, float targetElapsedTime)
-		: Base(fixedTimeStep, targetElapsedTime),
+	MainApplication::MainApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
+		: Base(title, fixedTimeStep, targetElapsedTime),
 		m_camera(glm::vec3(10.0f), glm::vec3(0.0f))
 	{
 	}

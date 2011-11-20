@@ -25,7 +25,7 @@ namespace IK
 	private:
 
 	public:
-		MainApplication(bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
+		MainApplication(const char * title, bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
 		virtual ~MainApplication();
 
 		bool init(int argc, char * argv[]);

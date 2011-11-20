@@ -5,12 +5,7 @@
 
 namespace
 {
-	const float COF_BALL_BALL = 0.95f;
-	const float COF_BALL_RAIL = 0.7f;
-	const float COF_BALL_TABLE = COF_BALL_RAIL;
 	
-	const float FRICTION_BALL_BALL = 0.05f;
-	const float FRICTION_BALL_CLOTH = 0.5f;
 }
 
 namespace Common

@@ -8,8 +8,9 @@ namespace Common
 {
 	GlutApplication * GlutApplication::m_instance = 0;
 
-	GlutApplication::GlutApplication(bool fixedTimeStep, float targetElapsedTime)
-		: m_fixedTimeStep(fixedTimeStep),
+	GlutApplication::GlutApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
+		: m_title(title),
+		  m_fixedTimeStep(fixedTimeStep),
 		  m_targetElapsedTime(targetElapsedTime),
 		  m_totalTime(0)
 	{
@@ -26,7 +27,7 @@ namespace Common
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 		glutInitWindowSize(800, 600);
-		glutCreateWindow("GlutApplication");
+		glutCreateWindow(m_title);
 
 		reshapeWrapper(800, 600);
 
@@ -106,6 +107,8 @@ namespace Common
 			m_instance->keyDown(KEY_MOVE_BACKWARD);
 		else if (key == 'c' || key == 'C')
 			m_instance->keyDown(KEY_RESET_2);
+		else if (key == 'h' || key == 'H')
+			m_instance->keyDown(KEY_HELP);
 		else if (key == 13) // return
 			m_instance->keyDown(KEY_RESET_1);
 		else if (key == 32) // space
@@ -126,6 +129,8 @@ namespace Common
 			m_instance->keyUp(KEY_MOVE_BACKWARD);
 		else if (key == 'c' || key == 'C')
 			m_instance->keyUp(KEY_RESET_2);
+		else if (key == 'h' || key == 'H')
+			m_instance->keyUp(KEY_HELP);
 		else if (key == 13) // return
 			m_instance->keyUp(KEY_RESET_1);
 		else if (key == 32) // space

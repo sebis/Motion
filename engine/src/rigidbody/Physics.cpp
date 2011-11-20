@@ -211,7 +211,7 @@ namespace Common
 		}
 	}
 
-	float Physics::calculateEnergy()
+	float Physics::calculateEnergy(float potentialZero)
 	{
 		float U_total = 0;
 		float Ek_total = 0;
@@ -221,8 +221,7 @@ namespace Common
 		{
 			RigidBody * obj = *it;
 
-			// choose y-coordinate 0 as the zero-potential level
-			float U = obj->m_mass * 9.81f * obj->position().y;
+			float U = obj->m_mass * 9.81f * (obj->position().y - potentialZero);
 
 			float v = glm::length(obj->velocity());
 			float Ek = 0.5f * (obj->m_mass * v * v);
@@ -235,16 +234,7 @@ namespace Common
 			Erot_total += Erot;
 		}
 
-		static float total = U_total + Ek_total + Erot_total;
-
-		if (total < U_total + Ek_total + Erot_total) {
-			Trace::warning("INSTABILITY");
-		}
-
-		total = U_total + Ek_total + Erot_total;
-
-		//Trace::info("System energy: %.2f + %.2f + %.2f = %.2f\n", U_total, Ek_total, Erot_total, total);
-		return total;
+		return U_total + Ek_total + Erot_total;
 	}
 
 	void Physics::visualize()

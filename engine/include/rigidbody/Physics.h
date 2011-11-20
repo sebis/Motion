@@ -24,7 +24,7 @@ namespace Common
 
 		void explode(const glm::vec3 & center);
 
-		float calculateEnergy();
+		float calculateEnergy(float potentialZero = 0.0f);
 
 	private:
 		void resolveVelocity(const CollisionData & data, float dt);

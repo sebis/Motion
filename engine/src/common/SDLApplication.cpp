@@ -81,6 +81,8 @@ namespace Common
 						keyUp(KEY_RESET_1);
 					else if (event.key.keysym.sym == SDLK_c)
 						keyUp(KEY_RESET_2);
+					else if (event.key.keysym.sym == SDLK_h)
+						keyUp(KEY_HELP);
 					else if (event.key.keysym.sym == SDLK_SPACE)
 						keyUp(KEY_CONTINUE);
 					break;

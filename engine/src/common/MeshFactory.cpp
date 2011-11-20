@@ -29,8 +29,8 @@ namespace Common
             for (int i = 0; i < segments - 1; i++)
             {
                 // latitude
-                float theta = ((i + 1) * M_PI / segments) - M_PI * 0.5;
-                float v = i / (float)(segments - 1);
+                float theta = float(((i + 1) * M_PI / segments) - M_PI * 0.5);
+                float v = i / float(segments - 1);
 
 				float dy = glm::sin(theta);
 				float dxz = glm::cos(theta);
@@ -38,7 +38,7 @@ namespace Common
                 for (int j = 0; j < segments; j++)
                 {
                     // longitude
-                    float phi = j * (2*M_PI) / segments;
+                    float phi = float(j * (2*M_PI) / segments);
 
 					float dx = dxz * glm::cos(phi);
 					float dz = dxz * glm::sin(phi);
@@ -102,7 +102,7 @@ namespace Common
 				vData.push_back(vertices[vertices.size() - 2 - (i + 1) % segments]);
             }
 
-			for (int i = 0; i < vData.size(); i++)
+			for (unsigned i = 0; i < vData.size(); i++)
 				iData.push_back(i);
 
 			return new Mesh(&vData[0], vData.size(), &iData[0], iData.size());

@@ -171,14 +171,14 @@ namespace ParticlePhysicsDemo
 
 		for (int i = 0; i < 50; i++)
 		{
-			float angle = r.rand01() * 2 * M_PI;
+			float angle = float(r.rand01() * 2 * M_PI);
 			glm::vec3 position(radius * glm::cos(angle), 0.0f, radius * glm::sin(angle));
 			m_particleSystem->addParticle(position, glm::vec3(0.0f));
 		}
 
 		for (int i = 0; i < 3; i++)
 		{
-			float angle = r.rand01() * 2 * M_PI;
+			float angle = float(r.rand01() * 2 * M_PI);
 			glm::vec3 position(radius * glm::cos(angle), 0.0f, radius * glm::sin(angle));
 			m_smokeParticleSystem->addParticle(position, glm::vec3(0.0f));
 		}

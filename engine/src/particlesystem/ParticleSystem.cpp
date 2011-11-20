@@ -26,7 +26,7 @@ namespace Common
 	void ParticleSystem::update(float dt)
 	{
 		// convert to seconds
-		float elapsed = dt / 1000.0;
+		float elapsed = dt / 1000.0f;
 
 		unsigned currentParticle = firstActiveParticle;
 
@@ -100,8 +100,8 @@ namespace Common
 		p.startSize = glm::mix(m_settings.minStartSize, m_settings.maxStartSize, s_random.rand01());
 		p.endSize = glm::mix(m_settings.minEndSize, m_settings.maxEndSize, s_random.rand01());
 
-		p.colorRandom = s_random.rand01();
-		p.ageRandom = s_random.rand01();
+		p.colorRandom = (float)s_random.rand01();
+		p.ageRandom = (float)s_random.rand01();
 
 		m_particles[firstFreeParticle] = p;
 

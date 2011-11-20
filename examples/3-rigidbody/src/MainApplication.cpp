@@ -155,7 +155,7 @@ namespace RigidBodyDemo
 
 		int count = 15;
 		float radius = 0.025f;
-		float omega = (2*M_PI) / count;
+		float omega = float(2*M_PI) / count;
 
 		for (int i = 0; i < count; i++)
 		{

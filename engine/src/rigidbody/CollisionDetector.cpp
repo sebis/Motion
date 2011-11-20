@@ -66,6 +66,7 @@ namespace Common
 	{
 		collisions.clear();
 
+		// TODO: do this completely over
 		for (unsigned i = 0; i < m_colliders.size(); i++)
 		{
 			for (unsigned j = i+1; j < m_colliders.size(); j++)
@@ -83,10 +84,10 @@ namespace Common
 					if (sphere) {
 						CollisionData * pData = &data;
 						if (CollisionDetector::SphereAndPlane(sphere, plane, pData)) {
-							//Trace::info("COLLIDE!!");
 							data.bodies[0] = sphere->rigidBody();
 							data.bodies[1] = plane->rigidBody();
 							data.restitution = COF_BALL_TABLE;
+							data.friction = FRICTION_BALL_CLOTH;
 							collisions.push_back(data);
 						}
 						continue;
@@ -101,10 +102,10 @@ namespace Common
 					PlaneCollider * plane = dynamic_cast<PlaneCollider*>(m_colliders[j]);
 					if (plane) {
 						if (SphereAndPlane(sphere, plane, &data)) {
-							//Trace::info("COLLIDE!!");
 							data.bodies[0] = sphere->rigidBody();
 							data.bodies[1] = plane->rigidBody();
 							data.restitution = COF_BALL_TABLE;
+							data.friction = FRICTION_BALL_CLOTH;
 							collisions.push_back(data);
 						}
 						continue;
@@ -113,10 +114,10 @@ namespace Common
 					SphereCollider * sphere2 = dynamic_cast<SphereCollider*>(m_colliders[j]);
 					if (sphere2) {
 						if (SphereAndSphere(sphere, sphere2, &data)) {
-							//Trace::info("COLLIDE!!");
 							data.bodies[0] = sphere->rigidBody();
 							data.bodies[1] = sphere2->rigidBody();
 							data.restitution = COF_BALL_BALL;
+							data.friction = FRICTION_BALL_BALL;
 							collisions.push_back(data);
 						}
 						continue;
@@ -126,16 +127,6 @@ namespace Common
 				}
 
 				assert(false);
-
-				/*CollisionData data;
-				if (SphereAndPlane(*sphere, *plane, data)) {
-					Trace::info("COLLIDE!!");
-					sphere->rigidBody()->applyForce(data.normal * 10000.0f);
-
-					data.bodies[0] = plane->rigidBody();
-					data.bodies[1] = sphere->rigidBody();
-					collisions.push_back(data);
-				}*/
 			}
 		}
 	}

@@ -151,8 +151,8 @@ namespace Common
 
 		float impulse_to_reverse = tangent_speed / invMass;
 		float impulse_from_normal_impulse = impulse * s_mu;
-
 		float friction_impulse = (impulse_to_reverse < impulse_from_normal_impulse) ? impulse_to_reverse : (impulse * d_mu);
+
         tangent *= friction_impulse;
 
 		/*float tSeparation = glm::dot(relativeVelocity, tangent);

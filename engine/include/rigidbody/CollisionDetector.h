@@ -25,6 +25,7 @@ namespace Common
 		glm::vec3 normal;
 		float penetration;
 		float restitution;
+		float friction;
 		std::string result;
 
 		RigidBody * bodies[2];

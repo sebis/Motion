@@ -1,5 +1,5 @@
-#ifndef RIGIDBODY_H
-#define RIGIDBODY_H
+#ifndef COMMON_RIGIDBODY
+#define COMMON_RIGIDBODY
 
 #include "Transform.h"
 
@@ -44,6 +44,7 @@ namespace Common
 		inline const glm::vec3 & velocity() const { return m_velocity; }
 
 	private:
+		// TODO: do access some other way?
 		friend class Physics;
 
 		void integrate(float dt);
@@ -69,4 +70,4 @@ namespace Common
 		glm::vec3 m_torqueAccumulator;
 	};
 }
-#endif // RIGIDBODY_H
+#endif /* COMMON_RIGIDBODY */

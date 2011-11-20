@@ -48,7 +48,44 @@ namespace ParticlePhysicsDemo
 
 		Common::GameObject::s_camera = &m_camera;
 
-		m_particleSystem = new ParticleSystem();
+		ParticleSettings fire;
+		fire.texture = "resources/fire.bmp";
+
+		fire.maxParticles = 5000;
+		fire.gravity = glm::vec3(0.0f, 1.5f, 0.0f);
+
+		fire.duration = 2.0f;
+
+		fire.minVelocity = glm::vec3(-1.0f, 0.0f, -1.0f);
+		fire.maxVelocity = glm::vec3(1.0f, 1.0f, 1.0f);
+
+		fire.minStartSize = 0.5f;
+		fire.maxStartSize = 1.0f;
+
+		fire.minEndSize = 1.0f;
+		fire.maxEndSize = 4.0f;
+
+		fire.minColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.05f);
+		fire.maxColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.15f);
+
+		m_particleSystem = new ParticleSystem(fire);
+
+		ParticleSettings smoke;
+		smoke.texture = "resources/smoke.bmp";
+
+		smoke.maxParticles = 2000;
+		smoke.gravity = glm::vec3(-2.0f, -0.5f, 0.0f);
+		smoke.duration = 10.0f;
+		smoke.minVelocity = glm::vec3(-1.0f, 1.0f, -1.0f);
+		smoke.maxVelocity = glm::vec3(1.0f, 2.0f, 1.0f);
+		smoke.minStartSize = 0.4f;
+		smoke.maxStartSize = 0.7f;
+		smoke.minEndSize = 3.5f;
+		smoke.maxEndSize = 14.0f;
+		smoke.minColor = glm::vec4(1.0f);
+		smoke.maxColor = glm::vec4(1.0f);
+
+		m_smokeParticleSystem = new ParticleSystem(smoke);
 
 		Material * grass = new Material(Shader::find("shader"));
 		//grass->setTexture(new Texture("resources/grass.bmp"));
@@ -73,10 +110,10 @@ namespace ParticlePhysicsDemo
 			m_camera.raiseFlag(Common::Camera::LEFT);
 		else if (key == Common::KEY_MOVE_RIGHT)
 			m_camera.raiseFlag(Common::Camera::RIGHT);
-		/*else if (key == Common::KEY_RESET_2)
-			m_camera.reset(glm::vec3(13.0f, 14.0f, -15.0f), glm::vec3(-2.0f, 0.0f, -2.0f));*/
+		else if (key == Common::KEY_RESET_2)
+			m_particleSystem->setShader(Shader::find("point"));
 		else if (key == Common::KEY_RESET_1)
-			m_components[1]->m_rigidbody->applyTorque(glm::vec3(0.0f, 0.0f, -1000.0f));
+			m_particleSystem->setShader(Shader::find("particle"));
 	}
 
 	void MainApplication::keyUp(Common::Key key)
@@ -128,16 +165,24 @@ namespace ParticlePhysicsDemo
 		}
 
 		m_particleSystem->update(dt);
+		m_smokeParticleSystem->update(dt);
 
-		for (int i = 0; i < 100; i++)
+		static Utils::Random r;
+		float radius = 2.0f;
+
+		for (int i = 0; i < 50; i++)
 		{
-			static Utils::Random r;
 			float angle = r.rand01() * 2 * M_PI;
-
-			glm::vec3 position(2.0f * glm::cos(angle), 2.0f + 2.0f * glm::sin(angle), 0.0f);
+			glm::vec3 position(radius * glm::cos(angle), radius + radius * glm::sin(angle), 0.0f);
 			m_particleSystem->addParticle(position, glm::vec3(0.0f));
 		}
 
+		for (int i = 0; i < 3; i++)
+		{
+			float angle = r.rand01() * 2 * M_PI;
+			glm::vec3 position(radius * glm::cos(angle), radius + radius * glm::sin(angle), 0.0f);
+			m_smokeParticleSystem->addParticle(position, glm::vec3(0.0f));
+		}
 	}
 
 	void MainApplication::draw()
@@ -149,7 +194,15 @@ namespace ParticlePhysicsDemo
 			(*it)->draw();
 		}
 
+		glEnable(GL_BLEND);
+
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		m_smokeParticleSystem->draw();
+
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		m_particleSystem->draw();
+		
+		glDisable(GL_BLEND);
 
 		GLenum err = glGetError();
 		if (err != GL_NO_ERROR)

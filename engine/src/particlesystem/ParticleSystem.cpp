@@ -8,95 +8,103 @@ namespace
 
 namespace Common
 {
-	ParticleSystem::ParticleSystem()
+	ParticleSystem::ParticleSystem(const ParticleSettings & settings)
+		: m_settings(settings),
+		firstFreeParticle(0),
+		firstActiveParticle(0)
 	{
-		m_renderer = new ParticleRenderer(Shader::find("point"), new Texture("resources/fire.bmp"), m_particles);
-
-		m_settings = new ParticleSettings();
-
-		m_settings->maxParticles = 5000;
-		m_settings->gravity = glm::vec3(0.0f, 1.0f, 0.0f);
-
-		m_settings->minDuration = 0.5f;
-		m_settings->maxDuration = 1.5f;
-
-		m_settings->minVelocity = glm::vec3(-1.0f, 0.0f, -1.0f);
-		m_settings->maxVelocity = glm::vec3(1.0f);
-
-		m_settings->minStartSize = 0.5f;
-		m_settings->maxStartSize = 1.0f;
-
-		m_settings->minEndSize = 2.0f;
-		m_settings->maxEndSize = 4.0f;
-
-		m_settings->minColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		m_settings->maxColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-		m_settings->minStartAlpha = 0.50f;
-		m_settings->maxStartAlpha = 0.75f;
+		m_particles = new Particle[m_settings.maxParticles];
+		m_renderer = new ParticleRenderer(new Texture(m_settings.texture.c_str()));
 	}
 
 	ParticleSystem::~ParticleSystem()
 	{
-		delete m_settings;
+		delete [] m_particles;
+		delete m_renderer;
 	}
 
 	void ParticleSystem::update(float dt)
 	{
-		//Trace::info("Particles %d\n", m_particles.size());
 		// convert to seconds
 		float elapsed = dt / 1000.0;
 
-		for (ParticleIterator it = m_particles.begin(); it != m_particles.end();)
+		unsigned currentParticle = firstActiveParticle;
+
+		while (currentParticle != firstFreeParticle)
 		{
-			if (it->age >= it->duration) {
-				it = m_particles.erase(it);
+			Particle * p = &m_particles[currentParticle];
+
+			if (p->age >= m_settings.duration) {
+				firstActiveParticle++;
+				if (firstActiveParticle >= m_settings.maxParticles)
+					firstActiveParticle = 0;
 			}
 			else {
-				it->age += elapsed;
+				p->age += elapsed * (1 + p->ageRandom);
 
-				it->velocity += m_settings->gravity * elapsed;
-				it->position += it->velocity * elapsed;
+				p->velocity += m_settings.gravity * elapsed;
+				p->position += p->velocity * elapsed;
 
-				float t = it->age / it->duration;
+				float t = p->age / m_settings.duration;
 
-				it->size = glm::mix(it->startSize, it->endSize, t);
-				it->color.a = glm::mix(it->startAlpha, 0.0f, t);
-
-				it++;
+				p->size = glm::mix(p->startSize, p->endSize, t);
+				p->color = glm::mix(m_settings.minColor, m_settings.maxColor, p->colorRandom);
+				p->color.a *= 1-t;
 			}
+
+			currentParticle++;
+			if (currentParticle >= m_settings.maxParticles)
+				currentParticle = 0;
 		}
 	}
 
 	void ParticleSystem::draw()
 	{
-		m_renderer->draw();
+		// nothing to draw
+		if (firstActiveParticle == firstFreeParticle)
+			return;
+
+		// check if we need to issue two drawing calls (in case the buffer has wrapped)
+		if (firstActiveParticle < firstFreeParticle) {
+			m_renderer->draw(&m_particles[firstActiveParticle], firstFreeParticle - firstActiveParticle);
+		}
+		else {
+			m_renderer->draw(&m_particles[firstActiveParticle], m_settings.maxParticles - firstActiveParticle);
+			m_renderer->draw(&m_particles[0], firstFreeParticle);
+		}
 	}
 
 	void ParticleSystem::addParticle(const glm::vec3 & position, const glm::vec3 & velocity)
 	{
-		if (m_particles.size() >= m_settings->maxParticles)
+		unsigned nextFreeParticle = firstFreeParticle + 1;
+
+		if (nextFreeParticle >= m_settings.maxParticles)
+			nextFreeParticle = 0;
+
+		if (nextFreeParticle == firstActiveParticle)
 			return;
 
 		Particle p;
-		p.position = position;
 
 		p.age = 0;
-		p.duration = glm::mix(m_settings->minDuration, m_settings->maxDuration, s_random.rand01());
+		p.position = position;
 
 		p.velocity = velocity;
 		p.velocity += glm::vec3(
-			glm::mix(m_settings->minVelocity.x, m_settings->maxVelocity.x, s_random.rand01()),
-			glm::mix(m_settings->minVelocity.y, m_settings->maxVelocity.y, s_random.rand01()),
-			glm::mix(m_settings->minVelocity.z, m_settings->maxVelocity.z, s_random.rand01()));
+			glm::mix(m_settings.minVelocity.x, m_settings.maxVelocity.x, s_random.rand01()),
+			glm::mix(m_settings.minVelocity.y, m_settings.maxVelocity.y, s_random.rand01()),
+			glm::mix(m_settings.minVelocity.z, m_settings.maxVelocity.z, s_random.rand01()));
 
-		p.color = glm::mix(m_settings->minColor, m_settings->maxColor, s_random.rand01());
+		p.color = glm::mix(m_settings.minColor, m_settings.maxColor, s_random.rand01());
 
-		p.startSize = glm::mix(m_settings->minStartSize, m_settings->maxStartSize, s_random.rand01());
-		p.endSize = glm::mix(m_settings->minEndSize, m_settings->maxEndSize, s_random.rand01());
+		p.startSize = glm::mix(m_settings.minStartSize, m_settings.maxStartSize, s_random.rand01());
+		p.endSize = glm::mix(m_settings.minEndSize, m_settings.maxEndSize, s_random.rand01());
 
-		p.startAlpha = glm::mix(m_settings->minStartAlpha, m_settings->maxStartAlpha, s_random.rand01());
+		p.colorRandom = s_random.rand01();
+		p.ageRandom = s_random.rand01();
 
-		m_particles.push_back(p);
+		m_particles[firstFreeParticle] = p;
+
+		firstFreeParticle = nextFreeParticle;
 	}
 }

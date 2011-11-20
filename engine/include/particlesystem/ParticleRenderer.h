@@ -16,12 +16,13 @@ namespace Common
 	class ParticleRenderer : public Renderer
 	{
 	public:
-		ParticleRenderer(Shader * shader, Texture * texture, std::vector<Particle> & particles);
+		ParticleRenderer(Texture * texture);
 		virtual ~ParticleRenderer();
 
 		void draw();
+		void draw(Particle * first, unsigned size);
 
-		inline void setParticles(std::vector<Particle> & particles) { m_particles = particles; }
+		inline void setShader(Shader * shader) { m_shader = shader; }
 
 	private:
 		Shader * m_shader;
@@ -29,8 +30,6 @@ namespace Common
 
 		glm::uint m_vaoID;
 		glm::uint m_vboID;
-
-		std::vector<Particle> & m_particles;
 	};
 }
 

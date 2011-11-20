@@ -40,6 +40,7 @@ namespace ParticlePhysicsDemo
 		Common::Camera m_camera;
 
 		Common::ParticleSystem * m_particleSystem;
+		Common::ParticleSystem * m_smokeParticleSystem;
 
 		typedef std::vector<Common::GameObject*> ComponentCollection;
 		typedef ComponentCollection::iterator ComponentIterator;

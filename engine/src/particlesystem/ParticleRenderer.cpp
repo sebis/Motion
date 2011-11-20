@@ -7,9 +7,11 @@
 
 namespace Common
 {
-	ParticleRenderer::ParticleRenderer(Shader * shader, Texture * texture, std::vector<Particle> & particles)
-		: Renderer(0), m_shader(shader), m_texture(texture), m_particles(particles)
+	ParticleRenderer::ParticleRenderer(Texture * texture)
+		: Renderer(0), m_texture(texture)
 	{
+		m_shader = Shader::find("particle");
+
 		glGenVertexArrays(1, &m_vaoID);
 		glBindVertexArray(m_vaoID);
 
@@ -37,14 +39,14 @@ namespace Common
 
 	void ParticleRenderer::draw()
 	{
-		glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	}
 
+	void ParticleRenderer::draw(Particle * first, unsigned size)
+	{
 		glBindVertexArray(m_vaoID);
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
-		glBufferData(GL_ARRAY_BUFFER, m_particles.size() * sizeof(Particle), &m_particles[0], GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, size * sizeof(Particle), first, GL_DYNAMIC_DRAW);
 
 		m_texture->bind();
 		m_shader->bind();
@@ -54,13 +56,11 @@ namespace Common
 		m_shader->setUniform("projection", GameObject::s_camera->projection());
 		m_shader->setUniform("aspect", Camera::s_aspect);
 
-		glDrawArrays(GL_POINTS, 0, m_particles.size());
+		glDrawArrays(GL_POINTS, 0, size);
 
 		m_shader->unbind();
 		m_texture->unbind();
 
 		glBindVertexArray(0);
-
-		glDisable(GL_BLEND);
 	}
 }

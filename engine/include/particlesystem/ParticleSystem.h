@@ -14,25 +14,26 @@ namespace Common
 		glm::vec3 position;
 		glm::vec3 velocity;
 		
-		float startAlpha;
 		glm::vec4 color;
 
 		float startSize;
 		float endSize;
 		float size;
 
-		float duration;
-		glm::float_t age;
+		float age;
+
+		float ageRandom;
+		float colorRandom;
 	};
 
 	struct ParticleSettings
 	{
 		unsigned maxParticles;
 
-		glm::vec3 gravity;
+		std::string texture;
 
-		float minDuration;
-		float maxDuration;
+		glm::vec3 gravity;
+		float duration;
 
 		glm::vec3 minVelocity;
 		glm::vec3 maxVelocity;
@@ -45,15 +46,12 @@ namespace Common
 
 		glm::vec4 minColor;
 		glm::vec4 maxColor;
-
-		float minStartAlpha;
-		float maxStartAlpha;
 	};
 
 	class ParticleSystem
 	{
 	public:
-		ParticleSystem();
+		ParticleSystem(const ParticleSettings & settings);
 		virtual ~ParticleSystem();
 
 		void update(float dt);
@@ -61,13 +59,16 @@ namespace Common
 
 		void addParticle(const glm::vec3 & position, const glm::vec3 & velocity);
 
+		inline void setShader(Shader * shader) { m_renderer->setShader(shader); }
+
 	private:
-		typedef std::vector<Particle> Particles;
-		typedef Particles::iterator ParticleIterator;
-		Particles m_particles;
+		Particle * m_particles;
+
+		unsigned firstActiveParticle;
+		unsigned firstFreeParticle;
 
 		ParticleRenderer * m_renderer;
-		ParticleSettings * m_settings;
+		const ParticleSettings m_settings;
 	};
 }
 

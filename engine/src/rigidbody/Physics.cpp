@@ -37,10 +37,11 @@ namespace Common
 		{
 			RigidBody * obj = *it;
 
-			// 1. Apply forces and torques (write to rigidbody data)
+			// 1. Apply forces and torques
+			// TODO: crete more generic force generators
 			obj->applyForce(glm::vec3(0.0f, -9.81f, 0.0f) * obj->m_mass);
 
-			// 2. Update rigid-body attributes (numerical integration), (write integrated data to rigidbody)
+			// 2. Update rigid-body attributes (numerical integration)
 			obj->integrate(elapsed);
 		}
 
@@ -48,7 +49,7 @@ namespace Common
 		std::vector<CollisionData> collisions;
 		CollisionDetector::instance()->detectCollisions(collisions);
 
-		// 4. Write postcollision position and velocity to rigidbody data
+		// 4. Resolve collisions and write velocity to rigidbody data
 		for (unsigned i = 0; i < collisions.size(); i++)
 		{
 			const CollisionData & data = collisions[i];
@@ -56,15 +57,10 @@ namespace Common
 			resolveVelocity(data);
 			resolveInterpenetration(data);
 		}
-
-		//calculateEnergy();
 	}
 
 	void Physics::resolveVelocity(const CollisionData & data)
 	{
-		const float s_mu = 0.5f;
-		const float d_mu = 0.4f;
-
 		RigidBody * body1 = data.bodies[0];
 		RigidBody * body2 = data.bodies[1];
 
@@ -76,108 +72,75 @@ namespace Common
 				glm::cross(body2->m_angularVelocity, data.point - body2->m_position);
 		}
 
-		/*float velocityFromAcc = glm::dot(body1->m_acceleration * elapsed, data.normal);
-		if (body2) velocityFromAcc -= glm::dot(body2->m_acceleration * elapsed, data.normal);
-
-		relativeVelocity += velocityFromAcc;*/
-
 		float separation = glm::dot(relativeVelocity, data.normal);
 
 		// check if the bodies are already moving apart
 		if (separation > 0)
 			return;
 
-		float invMass = 1.0f / body1->m_mass;
-		if (body2) invMass += 1.0f / body2->m_mass;
+		// calculate linear momentum
+		float denom = 1.0f / body1->m_mass;
+		if (body2) denom += 1.0f / body2->m_mass;
 
-		if (invMass <= 0)
-			return;
+		// calculate angular momentum
 
 		glm::vec3 r1 = data.point - body1->m_position;
 
 		glm::mat3 inertiaTensor = body1->m_rotation * body1->m_inertiaTensor * glm::transpose(body1->m_rotation);
-		glm::vec3 haka1 = glm::inverse(inertiaTensor) * glm::cross(r1, data.normal);
-
-		invMass += glm::dot(glm::cross(haka1, r1), data.normal);
+		denom += glm::dot(glm::cross(glm::inverse(inertiaTensor) * glm::cross(r1, data.normal), r1), data.normal);
 
 		if (body2) {
 			glm::vec3 r2 = data.point - body2->m_position;
 
 			glm::mat3 inertiaTensor = body2->m_rotation * body2->m_inertiaTensor * glm::transpose(body2->m_rotation);
-			glm::vec3 haka2 = glm::inverse(inertiaTensor) * glm::cross(r2, data.normal);
-
-			invMass += glm::dot(glm::cross(haka2, r2), data.normal);
+			denom += glm::dot(glm::cross(glm::inverse(inertiaTensor) * glm::cross(r2, data.normal), r2), data.normal);
 		}
 
-		float impulse = -separation * (1 + data.restitution) / invMass;
-		//float impulse = (-separation - restitution * (separation - velocityFromAcc)) / invMass;
+		// calculate impulse magnitude
+		float impulse = -separation * (1 + data.restitution) / denom;
 
-		// project relativeVelocity onto plane defined by data.normal and data.point
-		/*glm::vec3 tangent(0.0f);
-		if (separation < 0) {
-			glm::vec3 temp = glm::cross(data.normal, relativeVelocity);
-			temp = glm::cross(temp, data.normal);
-			float length = glm::length(temp);
-			if (length > 0.0001f) {
-				tangent = glm::normalize(temp);
-			}
-		}*/
-
+		// calculate tangential velocity
 		glm::vec3 tangent(0.0f);
-		float tangent_speed = 0.0f;
+		float tangentVelocity = 0.0f;
+
 		if (separation != 0)
 		{
 			glm::vec3 VonN = relativeVelocity - glm::dot(relativeVelocity, data.normal) * data.normal;
-			tangent_speed = glm::length(VonN);
-			if (tangent_speed > 0)
+			tangentVelocity = glm::length(VonN);
+			if (tangentVelocity > 0)
 				tangent = glm::normalize(VonN);
 		}
 
-		//separation = glm::dot(relativeVelocity, tangent);
-		invMass = 1.0f / body1->m_mass;
-		if (body2) invMass = 1.0f / body2->m_mass;
+		// calculate impulse based on tangential friction
+		if (tangentVelocity != 0)
+		{
+			// calculate linear momentum
+			denom = 1.0f / body1->m_mass;
+			if (body2) denom = 1.0f / body2->m_mass;
 
-		haka1 = glm::inverse(inertiaTensor) * glm::cross(r1, tangent);
-		invMass += glm::dot(glm::cross(haka1, r1), tangent);
+			glm::mat3 inertiaTensor = body1->m_rotation * body1->m_inertiaTensor * glm::transpose(body1->m_rotation);
+			denom += glm::dot(glm::cross(glm::inverse(inertiaTensor) * glm::cross(r1, tangent), r1), tangent);
 
-		if (body2) {
-			glm::vec3 r2 = data.point - body2->m_position;
+			if (body2) {
+				glm::vec3 r2 = data.point - body2->m_position;
 
-			glm::mat3 inertiaTensor = body2->m_rotation * body2->m_inertiaTensor * glm::transpose(body2->m_rotation);
-			glm::vec3 haka2 = glm::inverse(inertiaTensor) * glm::cross(r2, tangent);
+				glm::mat3 inertiaTensor = body2->m_rotation * body2->m_inertiaTensor * glm::transpose(body2->m_rotation);
+				denom += glm::dot(glm::cross(glm::inverse(inertiaTensor) * glm::cross(r2, tangent), r2), tangent);
+			}
+		
+			// desired impulse to overcome tangent velocity
+			float desiredImpulse = tangentVelocity / denom;
 
-			invMass += glm::dot(glm::cross(haka2, r2), tangent);
+			// check if impulse is within the friction cone
+			if (desiredImpulse > data.friction * impulse)
+				tangent *= impulse * data.friction;
+			else
+				tangent *= desiredImpulse;
 		}
 
-		float impulse_to_reverse = tangent_speed / invMass;
-		float impulse_from_normal_impulse = impulse * s_mu;
-		float friction_impulse = (impulse_to_reverse < impulse_from_normal_impulse) ? impulse_to_reverse : (impulse * d_mu);
-
-        tangent *= friction_impulse;
-
-		/*float tSeparation = glm::dot(relativeVelocity, tangent);
-
-		if (tSeparation == 0 && body1->m_mass * tSeparation <= js)
-			body1->applyImpulse(impulse * data.normal - body1->m_mass * tSeparation * tangent, data.point, data.normal);
-		else
-			body1->applyImpulse(impulse * data.normal - jd * tangent, data.point, data.normal);
-
-		if (body2)
-		{
-			if (tSeparation == 0 && body2->m_mass * tSeparation <= js)
-				body2->applyImpulse(-impulse * data.normal - body2->m_mass * tSeparation * tangent, data.point, data.normal);
-			else
-				body2->applyImpulse(-impulse * data.normal - jd * tangent, data.point, data.normal);
-		}*/
-
+		// apply impulses
 		body1->applyImpulse(impulse * data.normal - tangent, data.point);
-		//body1->applyImpulse(-tangent, data.point, tangent);
-
 		if (body2) body2->applyImpulse(-(impulse * data.normal - tangent), data.point);
-		//if (body2) body2->applyImpulse(-tangent, data.point, tangent);
-
-		/*body1->applyImpulse(impulse * data.normal, data.point);
-		if (body2) body2->applyImpulse(-impulse * data.normal, data.point);*/
 	}
 
 	void Physics::resolveInterpenetration(const CollisionData & data)
@@ -185,14 +148,11 @@ namespace Common
 		RigidBody * body1 = data.bodies[0];
 		RigidBody * body2 = data.bodies[1];
 
-		float totalInverseMass = 0.0f;
-		if (body1) totalInverseMass = 1.0f / body1->m_mass;
-		if (body2) totalInverseMass += 1.0f / body2->m_mass;
+		float invMass = 0.0f;
+		if (body1) invMass += 1.0f / body1->m_mass;
+		if (body2) invMass += 1.0f / body2->m_mass;
 
-		if (totalInverseMass <= 0)
-			return;
-
-		glm::vec3 movePerIMass = data.normal * (data.penetration / totalInverseMass);
+		glm::vec3 movePerIMass = data.normal * (data.penetration / invMass);
 
 		if (body1) body1->m_position += movePerIMass * (1.0f / body1->m_mass);
 		else if (body2) body2->m_position -= movePerIMass * (1.0f / body2->m_mass);
@@ -206,6 +166,7 @@ namespace Common
 
 			glm::vec3 cp = obj->position() - center;
 
+			// TODO: don't hardcode this
 			obj->applyForce(cp * (30.0f / glm::length(cp)));
 		}
 	}

@@ -105,6 +105,9 @@
     <ClInclude Include="include\particlesystem\ParticleRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\rigidbody\Collider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\Camera.cpp">

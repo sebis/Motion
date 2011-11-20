@@ -102,6 +102,7 @@
     <ClInclude Include="include\interpolation\TransformRenderer.h" />
     <ClInclude Include="include\particlesystem\ParticleRenderer.h" />
     <ClInclude Include="include\particlesystem\ParticleSystem.h" />
+    <ClInclude Include="include\rigidbody\Collider.h" />
     <ClInclude Include="include\rigidbody\CollisionDetector.h" />
     <ClInclude Include="include\rigidbody\Physics.h" />
     <ClInclude Include="include\rigidbody\RigidBody.h" />

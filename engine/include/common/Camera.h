@@ -32,6 +32,9 @@ namespace Common
 
 		void turn(glm::vec2 mouseDelta);
 
+		// TODO: better access to aspect ratio
+		static float s_aspect;
+
 	private:
 		static const float MOVE_SPEED;
 		static const float TURN_SPEED;

@@ -18,6 +18,10 @@ namespace Common
 
 		glVertexAttribPointer(Shader::POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)offsetof(Particle, position));
 		glEnableVertexAttribArray(Shader::POSITION);
+		glVertexAttribPointer(Shader::COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)offsetof(Particle, color));
+		glEnableVertexAttribArray(Shader::COLOR);
+		glVertexAttribPointer(Shader::POINTSIZE, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)offsetof(Particle, size));
+		glEnableVertexAttribArray(Shader::POINTSIZE);
 
 		glBindVertexArray(0);
 	}
@@ -34,7 +38,8 @@ namespace Common
 	void ParticleRenderer::draw()
 	{
 		glEnable(GL_BLEND);
-		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 		glBindVertexArray(m_vaoID);
 
@@ -47,6 +52,7 @@ namespace Common
 		m_shader->setUniform("world", glm::mat4(1.0f));
 		m_shader->setUniform("view", GameObject::s_camera->view());
 		m_shader->setUniform("projection", GameObject::s_camera->projection());
+		m_shader->setUniform("aspect", Camera::s_aspect);
 
 		glDrawArrays(GL_POINTS, 0, m_particles.size());
 

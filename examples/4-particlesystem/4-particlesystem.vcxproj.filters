@@ -28,13 +28,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\particle.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\particle.geom">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\particle.vert">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="resources\point.frag">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="resources\point.vert">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="resources\point.geom">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

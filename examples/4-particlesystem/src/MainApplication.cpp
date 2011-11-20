@@ -113,10 +113,13 @@ namespace ParticlePhysicsDemo
 
 		m_width = width;
 		m_height = height;
+
+		Camera::s_aspect = float(width)/float(height);
 	}
 
 	void MainApplication::update(float dt)
 	{
+		Trace::info("update since last: %f\n", dt);
 		m_camera.update(dt);
 
 		for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)
@@ -126,11 +129,14 @@ namespace ParticlePhysicsDemo
 
 		m_particleSystem->update(dt);
 
-		static Utils::Random r;
-		float angle = r.rand01() * 2 * M_PI;
+		for (int i = 0; i < 100; i++)
+		{
+			static Utils::Random r;
+			float angle = r.rand01() * 2 * M_PI;
 
-		glm::vec3 position(2.0f * glm::cos(angle), 2.0f + 2.0f * glm::sin(angle), 0.0f);
-		m_particleSystem->addParticle(position, glm::vec3(0.0f));
+			glm::vec3 position(2.0f * glm::cos(angle), 2.0f + 2.0f * glm::sin(angle), 0.0f);
+			m_particleSystem->addParticle(position, glm::vec3(0.0f));
+		}
 
 	}
 

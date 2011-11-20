@@ -6,6 +6,8 @@
 
 namespace Common
 {
+	float Camera::s_aspect = 0.0f;
+
 	const float Camera::MOVE_SPEED = 0.25f;
 	const float Camera::TURN_SPEED = 0.15f;
 

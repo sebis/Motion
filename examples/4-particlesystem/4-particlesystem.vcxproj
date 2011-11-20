@@ -18,8 +18,10 @@
     <ClInclude Include="src\MainApplication.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\particle.frag" />
+    <None Include="resources\particle.geom" />
+    <None Include="resources\particle.vert" />
     <None Include="resources\point.frag" />
-    <None Include="resources\point.geom" />
     <None Include="resources\point.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

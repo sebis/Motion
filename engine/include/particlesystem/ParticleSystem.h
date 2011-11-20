@@ -13,16 +13,41 @@ namespace Common
 	{
 		glm::vec3 position;
 		glm::vec3 velocity;
+		
+		float startAlpha;
+		glm::vec4 color;
+
+		float startSize;
+		float endSize;
+		float size;
+
+		float duration;
 		glm::float_t age;
 	};
 
 	struct ParticleSettings
 	{
+		unsigned maxParticles;
+
 		glm::vec3 gravity;
-		float duration;
+
+		float minDuration;
+		float maxDuration;
 
 		glm::vec3 minVelocity;
 		glm::vec3 maxVelocity;
+
+		float minStartSize;
+		float maxStartSize;
+
+		float minEndSize;
+		float maxEndSize;
+
+		glm::vec4 minColor;
+		glm::vec4 maxColor;
+
+		float minStartAlpha;
+		float maxStartAlpha;
 	};
 
 	class ParticleSystem

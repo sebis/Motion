@@ -115,10 +115,10 @@ namespace Utils
 		}
 	};
 
-	inline bool read_texture(const char * filename, unsigned char** data, TextureInfo * info)
+	inline bool read_texture(const char * filename, char** data, TextureInfo * info)
 	{
 		// create binary input stream
-		std::basic_ifstream<unsigned char> ifs(filename, std::ios::in | std::ios::binary);
+		std::ifstream ifs(filename, std::ios::in | std::ios::binary);
 
 		// header structures
 		bmp_magic magic;
@@ -126,7 +126,7 @@ namespace Utils
 		bmp_info_header info_header;
 
 		// read signature
-		ifs.read((unsigned char*)&magic, sizeof(bmp_magic));
+		ifs.read((char*)&magic, sizeof(bmp_magic));
 
 		// check that the signature is 'BM' (0x42 0x4D)
 		if (magic.magic[0] != 0x42 || magic.magic[1] != 0x4D) {
@@ -135,10 +135,10 @@ namespace Utils
 		}
 
 		// read bitmap file header, nothing really interesting here..
-		ifs.read((unsigned char*)&header, sizeof(bmp_header));
+		ifs.read((char*)&header, sizeof(bmp_header));
 
 		// read header size
-		ifs.read((unsigned char*)&info_header, sizeof(uint32_t));
+		ifs.read((char*)&info_header, sizeof(uint32_t));
 
 		// only support BITMAPINFOHEADER and newer headers
 		if (info_header.header_sz != 40) {
@@ -147,7 +147,7 @@ namespace Utils
 		}
 
 		// read rest of DIB header
-		ifs.read((unsigned char*)&info_header + sizeof(uint32_t), info_header.header_sz - sizeof(uint32_t));
+		ifs.read((char*)&info_header + sizeof(uint32_t), info_header.header_sz - sizeof(uint32_t));
 
 		// only support uncompressed images
 		if (info_header.compress_type != BI_RGB) {
@@ -180,15 +180,13 @@ namespace Utils
 		info->height = info_header.height;
 
 		// allocate memory for the pixels
-		*data = new unsigned char[info_header.width * info_header.height * bytespp];
-
-		unsigned char * bgr = new unsigned char[bytespp];
+		*data = new char[info_header.width * info_header.height * bytespp];
 
 		for (int y = 0; y < info_header.height; y++) {
 			for (int x = 0; x < info_header.width; x++) {
 
 				// read bpp bytes from the bitmap
-				unsigned char * bgra = &(*data)[y*info_header.width*bytespp + x*bytespp];
+				char * bgra = &(*data)[y*info_header.width*bytespp + x*bytespp];
 				ifs.read(bgra, bytespp);
 			}
 			// after each pixel row, check if we should expect a pad to fill rows to be dividable by 4
@@ -198,8 +196,6 @@ namespace Utils
 				ifs.seekg((int)ifs.tellg() + pad);
 			}
 		}
-
-		delete [] bgr;
 
 		return true;
 	}

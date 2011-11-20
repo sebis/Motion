@@ -27,7 +27,7 @@ namespace Common
 			m_torqueAccumulator += torque;
 		}
 
-		void applyImpulse(const glm::vec3 & impulse, const glm::vec3 & point, const glm::vec3 & normal);
+		void applyImpulse(const glm::vec3 & impulse, const glm::vec3 & point);
 
 		inline Transform transform() const
 		{
@@ -64,8 +64,6 @@ namespace Common
 
 		glm::vec3 m_acceleration;
 		glm::vec3 m_angularAcceleration;
-		//glm::vec3 m_linearMomentum; // m*v
-		//glm::vec3 m_angularMomentum; //I*w
 
 		glm::vec3 m_forceAccumulator;
 		glm::vec3 m_torqueAccumulator;

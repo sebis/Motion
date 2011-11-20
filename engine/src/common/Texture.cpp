@@ -7,7 +7,7 @@ namespace Common
 {
 	Texture::Texture(const char * filename)
 	{
-		unsigned char *data = 0;
+		char *data = 0;
 		Utils::TextureInfo info;
 
 		Utils::read_texture(filename, &data, &info);

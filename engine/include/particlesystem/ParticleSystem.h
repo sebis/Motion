@@ -62,13 +62,13 @@ namespace Common
 		inline void setShader(Shader * shader) { m_renderer->setShader(shader); }
 
 	private:
-		Particle * m_particles;
+		const ParticleSettings m_settings;
 
 		unsigned firstActiveParticle;
 		unsigned firstFreeParticle;
 
+		Particle * m_particles;
 		ParticleRenderer * m_renderer;
-		const ParticleSettings m_settings;
 	};
 }
 

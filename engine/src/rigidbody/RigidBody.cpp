@@ -6,15 +6,12 @@ namespace Common
 	RigidBody::RigidBody(GameObject * gameObject)
 		: m_gameObject(gameObject),
 		m_position(glm::vec3(0.0f)),
+		m_rotation(glm::mat3(1.0f)),
+		m_scale(glm::vec3(1.0f)),
 		m_velocity(glm::vec3(0.0f)),
 		m_angularVelocity(glm::vec3(0.0f)),
 		m_acceleration(glm::vec3(0.0f)),
-		m_angularAcceleration(glm::vec3(0.0f)),
-		m_rotation(glm::mat3(1.0f)),
-		m_scale(glm::vec3(1.0f))
-		//m_linearMomentum(glm::vec3(0.0f)),
-		//m_angularMomentum(glm::vec3(0.0f))
-
+		m_angularAcceleration(glm::vec3(0.0f))
 	{
 		m_position = gameObject->transform().position();
 		m_scale = gameObject->transform().scale();
@@ -79,7 +76,7 @@ namespace Common
 		//m_rotation += glm::mat3(glm::cross(angularVelocity, m_rotation[0]), glm::cross(angularVelocity, m_rotation[1]), glm::cross(angularVelocity, m_rotation[2])) * dt;
 	}
 
-	void RigidBody::applyImpulse(const glm::vec3 & impulse, const glm::vec3 & point, const glm::vec3 & normal)
+	void RigidBody::applyImpulse(const glm::vec3 & impulse, const glm::vec3 & point)
 	{
 		m_velocity += impulse * (1 / m_mass);
 

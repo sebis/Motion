@@ -3,8 +3,6 @@
 #include "Trace.h"
 #include "Utils.h"
 
-#include <GL\glew.h>
-
 namespace Common
 {
 	Physics::Physics()
@@ -27,6 +25,7 @@ namespace Common
 	void Physics::removeObject(RigidBody * rigidBody)
 	{
 		// TODO: should be able to remove objects
+		(void)rigidBody;
 	}
 
 	void Physics::step(float dt)
@@ -54,14 +53,14 @@ namespace Common
 		{
 			const CollisionData & data = collisions[i];
 
-			resolveVelocity(data, elapsed);
+			resolveVelocity(data);
 			resolveInterpenetration(data);
 		}
 
 		//calculateEnergy();
 	}
 
-	void Physics::resolveVelocity(const CollisionData & data, float elapsed)
+	void Physics::resolveVelocity(const CollisionData & data)
 	{
 		const float s_mu = 0.5f;
 		const float d_mu = 0.4f;
@@ -171,10 +170,10 @@ namespace Common
 				body2->applyImpulse(-impulse * data.normal - jd * tangent, data.point, data.normal);
 		}*/
 
-		body1->applyImpulse(impulse * data.normal - tangent, data.point, data.normal);
+		body1->applyImpulse(impulse * data.normal - tangent, data.point);
 		//body1->applyImpulse(-tangent, data.point, tangent);
 
-		if (body2) body2->applyImpulse(-(impulse * data.normal - tangent), data.point, data.normal);
+		if (body2) body2->applyImpulse(-(impulse * data.normal - tangent), data.point);
 		//if (body2) body2->applyImpulse(-tangent, data.point, tangent);
 
 		/*body1->applyImpulse(impulse * data.normal, data.point);

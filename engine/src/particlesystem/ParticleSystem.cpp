@@ -10,8 +10,8 @@ namespace Common
 {
 	ParticleSystem::ParticleSystem(const ParticleSettings & settings)
 		: m_settings(settings),
-		firstFreeParticle(0),
-		firstActiveParticle(0)
+		firstActiveParticle(0),
+		firstFreeParticle(0)
 	{
 		m_particles = new Particle[m_settings.maxParticles];
 		m_renderer = new ParticleRenderer(new Texture(m_settings.texture.c_str()));
@@ -87,6 +87,7 @@ namespace Common
 		Particle p;
 
 		p.age = 0;
+		p.size = 1.0f;
 		p.position = position;
 
 		p.velocity = velocity;

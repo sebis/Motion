@@ -27,7 +27,7 @@ namespace Common
 		float calculateEnergy(float potentialZero = 0.0f);
 
 	private:
-		void resolveVelocity(const CollisionData & data, float dt);
+		void resolveVelocity(const CollisionData & data);
 		void resolveInterpenetration(const CollisionData & data);
 
 		typedef std::vector<RigidBody *> Objects;

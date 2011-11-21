@@ -16,11 +16,6 @@ namespace Common
 		m_particles = new Particle[m_settings.maxParticles];
 		m_renderer = new ParticleRenderer(new Texture(m_settings.texture.c_str()));
 		m_renderer->setBlendMode(settings.srcBlend, settings.dstBlend);
-
-		//m_flows.push_back(new UniformFlow(glm::vec3(0.0f, 2.0f, 0.0f)));
-		//m_flows.push_back(new SourceFlow(glm::vec3(4.0f, 0.0f, 0.0f), 2.0f, -10.0f));
-		//m_flows.push_back(new VortexFlow(glm::vec3(4.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 5.0f, 2.0f));
-		//m_flows.push_back(new VortexFlow(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 5.0f, 2.0f));
 	}
 
 	ParticleSystem::~ParticleSystem()
@@ -36,20 +31,24 @@ namespace Common
 
 		unsigned currentParticle = firstActiveParticle;
 
+		// loop all active particles
 		while (currentParticle != firstFreeParticle)
 		{
 			Particle * p = &m_particles[currentParticle];
 
+			// check if particle should be removed
 			if (p->age >= m_settings.duration) {
 				firstActiveParticle++;
 				if (firstActiveParticle >= m_settings.maxParticles)
 					firstActiveParticle = 0;
 			}
 			else {
+				// some randomness to aging
 				p->age += elapsed * (1 + p->ageRandom);
 
 				glm::vec3 force;
 
+				// accumulate affecting forces from flow primitives
 				for (FlowIterator it = m_flows.begin(); it != m_flows.end(); ++it)
 				{
 					FlowPrimitive * flow = *it;
@@ -58,16 +57,19 @@ namespace Common
 					force += 1.0f * vr;
 				}
 				
+				// integrate
 				p->velocity += force * elapsed;
 				p->position += p->velocity * elapsed;
 
 				float t = p->age / m_settings.duration;
 
+				// set size and color based on life cycle
 				p->size = glm::mix(p->startSize, p->endSize, t);
 				p->color = glm::mix(m_settings.minColor, m_settings.maxColor, p->colorRandom);
 				p->color.a *= 1-t;
 			}
 
+			// wrap around if necessary
 			currentParticle++;
 			if (currentParticle >= m_settings.maxParticles)
 				currentParticle = 0;
@@ -94,9 +96,11 @@ namespace Common
 	{
 		unsigned nextFreeParticle = firstFreeParticle + 1;
 
+		// check if need to wrap around
 		if (nextFreeParticle >= m_settings.maxParticles)
 			nextFreeParticle = 0;
 
+		// check if there is room in the array
 		if (nextFreeParticle == firstActiveParticle)
 			return;
 
@@ -105,6 +109,8 @@ namespace Common
 		p.age = 0;
 		p.size = 1.0f;
 		p.position = position;
+
+		// randomize starting values based on given parameters
 
 		p.velocity = velocity;
 		p.velocity += glm::vec3(

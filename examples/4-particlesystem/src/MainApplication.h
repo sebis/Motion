@@ -42,7 +42,6 @@ namespace ParticlePhysicsDemo
 
 		Common::Camera m_camera;
 
-		bool m_renderPoints;
 		int m_currentScene;
 
 		std::string text;

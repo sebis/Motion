@@ -7,10 +7,12 @@
 
 namespace Common
 {
+	bool ParticleRenderer::s_renderPoints = false;
+
 	ParticleRenderer::ParticleRenderer(Texture * texture)
 		: Renderer(0), m_texture(texture)
 	{
-		m_shader = Shader::find("particle");
+		m_shader = Shader::find(s_renderPoints ? "point" : "particle");
 
 		glGenVertexArrays(1, &m_vaoID);
 		glBindVertexArray(m_vaoID);

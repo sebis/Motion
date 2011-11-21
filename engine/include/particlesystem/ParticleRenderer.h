@@ -25,6 +25,8 @@ namespace Common
 		inline void setShader(Shader * shader) { m_shader = shader; }
 		inline void setBlendMode(GLenum src, GLenum dst) { m_srcBlend = src; m_dstBlend = dst; }
 
+		static bool s_renderPoints;
+
 	private:
 		Shader * m_shader;
 		Texture * m_texture;

@@ -17,7 +17,6 @@ namespace ParticlePhysicsDemo
 	MainApplication::MainApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
 		: Base(title, fixedTimeStep, targetElapsedTime),
 		m_camera(glm::vec3(10.0f), glm::vec3(0.0f)),
-		m_renderPoints(false),
 		m_currentScene(0),
 		m_fireTrailEmitter(0),
 		m_smokeTrailEmitter(0)
@@ -130,7 +129,9 @@ namespace ParticlePhysicsDemo
 			ss << "ParticleSystem Fluid Demo: Fire and smoke" << std::endl;
 			ss << "Smoke is directed by uniform flow" << std::endl;
 			ss << std::endl;
-			ss << "Drag with right mouse to create own flames. <Space> for next demo." << std::endl;
+			ss << "Drag with right mouse to create own flames" << std::endl;
+			ss << "<Space> for next demo" << std::endl;
+			ss << "<Enter> Toggle point/textured rendering" << std::endl;
 			text = ss.str();
 
 		}
@@ -165,6 +166,7 @@ namespace ParticlePhysicsDemo
 			ss << "Local uniform flow causes waterfall to fall. Source flow acts as an obstacle." << std::endl;
 			ss << std::endl;
 			ss << "<Space> for next demo" << std::endl;
+			ss << "<Enter> Toggle point/textured rendering" << std::endl;
 			text = ss.str();
 		}
 		else if (scene == 2)
@@ -197,6 +199,7 @@ namespace ParticlePhysicsDemo
 			ss << "Vortex flow spins leaves around a center point. Sink flow keeps leaves within the vortex." << std::endl;
 			ss << std::endl;
 			ss << "<Space> for first demo" << std::endl;
+			ss << "<Enter> Toggle point/textured rendering" << std::endl;
 			text = ss.str();
 		}
 	}
@@ -219,8 +222,8 @@ namespace ParticlePhysicsDemo
 		}
 		else if (key == Common::KEY_RESET_1) {
 			// TODO: hack, should implement messaging
-			m_renderPoints = !m_renderPoints;
-			Shader * shader = Shader::find(m_renderPoints ? "point" : "particle");
+			ParticleRenderer::s_renderPoints = !ParticleRenderer::s_renderPoints;
+			Shader * shader = Shader::find(ParticleRenderer::s_renderPoints ? "point" : "particle");
 
 			for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)
 			{

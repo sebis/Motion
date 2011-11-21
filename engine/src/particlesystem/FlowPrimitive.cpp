@@ -6,7 +6,6 @@ namespace Common
 	{
 		glm::vec3 r = position - m_center;
 		float d = glm::length(r);
-		float r0 = m_radius;
 
 		if (d <= m_radius)
 			return m_velocity;

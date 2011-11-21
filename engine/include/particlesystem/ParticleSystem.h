@@ -34,7 +34,6 @@ namespace Common
 
 		std::string texture;
 
-		glm::vec3 gravity;
 		float duration;
 
 		glm::vec3 minVelocity;

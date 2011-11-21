@@ -58,7 +58,6 @@ namespace Common
 					force += 1.0f * vr;
 				}
 				
-				//p->velocity += m_settings.gravity * elapsed;
 				p->velocity += force * elapsed;
 				p->position += p->velocity * elapsed;
 

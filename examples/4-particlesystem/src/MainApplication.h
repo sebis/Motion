@@ -38,14 +38,14 @@ namespace ParticlePhysicsDemo
 		void draw();
 
 	private:
+		void initScene(int scene);
+
 		Common::Camera m_camera;
 
 		bool m_renderPoints;
+		int m_currentScene;
 
-		Common::ParticleSettings fire;
-		Common::ParticleSettings smoke;
-		Common::ParticleSettings water;
-		Common::ParticleSettings leaves;
+		std::string text;
 
 		Common::TrailParticleEmitter * m_fireTrailEmitter;
 		Common::TrailParticleEmitter * m_smokeTrailEmitter;

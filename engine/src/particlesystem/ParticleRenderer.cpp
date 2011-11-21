@@ -56,7 +56,15 @@ namespace Common
 		m_shader->setUniform("projection", GameObject::s_camera->projection());
 		m_shader->setUniform("aspect", Camera::s_aspect);
 
+		// TODO: these should be set to original values instead of disabling
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(m_srcBlend, m_dstBlend);
+
 		glDrawArrays(GL_POINTS, 0, size);
+
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
 
 		m_shader->unbind();
 		m_texture->unbind();

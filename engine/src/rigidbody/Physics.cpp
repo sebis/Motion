@@ -116,7 +116,7 @@ namespace Common
 		{
 			// calculate linear momentum
 			denom = 1.0f / body1->m_mass;
-			if (body2) denom = 1.0f / body2->m_mass;
+			if (body2) denom += 1.0f / body2->m_mass;
 
 			glm::mat3 inertiaTensor = body1->m_rotation * body1->m_inertiaTensor * glm::transpose(body1->m_rotation);
 			denom += glm::dot(glm::cross(glm::inverse(inertiaTensor) * glm::cross(r1, tangent), r1), tangent);

@@ -44,6 +44,8 @@ namespace Common
 		bool m_fixedTimeStep;
 		float m_targetElapsedTime;
 		int m_totalTime;
+
+		int m_mouseButton;
 	};
 }
 

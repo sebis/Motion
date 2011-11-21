@@ -3,13 +3,15 @@
 
 #include "Animator.h"
 #include "Camera.h"
+#include "Component.h"
 #include "Transform.h"
 #include "Renderer.h"
 #include "RigidBody.h"
 
 namespace Common
 {
-	class GameObject
+
+	class GameObject : public Component
 	{
 	public:
 		GameObject();

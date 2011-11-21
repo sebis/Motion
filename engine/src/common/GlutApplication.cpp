@@ -12,7 +12,8 @@ namespace Common
 		: m_title(title),
 		  m_fixedTimeStep(fixedTimeStep),
 		  m_targetElapsedTime(targetElapsedTime),
-		  m_totalTime(0)
+		  m_totalTime(0),
+		  m_mouseButton(0)
 	{
 	}
 
@@ -83,14 +84,26 @@ namespace Common
 
 		if (middleX != x || middleY != y)
 		{
-			m_instance->mouse(KEY_MOUSE_LEFT, middleX - x, middleY - y);
-			glutWarpPointer(middleX, middleY);
+			if (m_instance->m_mouseButton == GLUT_LEFT_BUTTON) {
+				m_instance->mouse(KEY_MOUSE_LEFT, middleX - x, middleY - y);
+				glutWarpPointer(middleX, middleY);
+			} else {
+				m_instance->mouse(KEY_MOUSE_RIGHT, x, y);
+			}
 		}
 	}
 
-	void GlutApplication::mouseWrapper(int /*button*/, int /*state*/, int /*x*/, int /*y*/)
+	void GlutApplication::mouseWrapper(int button, int state, int /*x*/, int /*y*/)
 	{
-		glutWarpPointer(int(m_instance->m_width/2), int(m_instance->m_height/2));
+		if (state == GLUT_UP) {
+			m_instance->m_mouseButton = 0;
+			return;
+		}
+
+		m_instance->m_mouseButton = button;
+
+		if (button == GLUT_LEFT_BUTTON)
+			glutWarpPointer(int(m_instance->m_width/2), int(m_instance->m_height/2));
 	}
 
 	void GlutApplication::keyboardWrapper(unsigned char key, int /*x*/, int /*y*/)

@@ -1,6 +1,7 @@
 #include "MainApplication.h"
 #include "Material.h"
 #include "MeshObject.h"
+#include "ParticleEmitter.h"
 #include "Trace.h"
 #include "Utils.h"
 
@@ -14,13 +15,13 @@ namespace ParticlePhysicsDemo
 
 	MainApplication::MainApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
 		: Base(title, fixedTimeStep, targetElapsedTime),
-		m_camera(glm::vec3(10.0f), glm::vec3(0.0f))
+		m_camera(glm::vec3(10.0f), glm::vec3(0.0f)),
+		m_renderPoints(false)
 	{
 	}
 
 	MainApplication::~MainApplication()
 	{
-		delete m_particleSystem;
 	}
 
 	bool MainApplication::init(int argc, char * argv[])
@@ -47,31 +48,43 @@ namespace ParticlePhysicsDemo
 
 		Common::GameObject::s_camera = &m_camera;
 
+		Material * grass = new Material(Shader::find("shader"));
+		//grass->setTexture(new Texture("resources/grass.bmp"));
+		grass->setDiffuseColor(glm::vec4(0.8f));
+		grass->setSpecularColor(glm::vec4(0.2f));
+
+		MeshObject * terrain = new MeshObject(MeshFactory::Plane(glm::vec4(1.0f), 1), grass);
+		//terrain->transform().scale() = glm::vec3(50.0f);
+
+		m_components.push_back(terrain);
+
 		ParticleSettings fire;
 		fire.texture = "resources/fire.bmp";
-
-		fire.maxParticles = 5000;
+		fire.maxParticles = 50000;
 		fire.gravity = glm::vec3(0.0f, 1.5f, 0.0f);
-
 		fire.duration = 2.0f;
-
 		fire.minVelocity = glm::vec3(-1.0f, 0.0f, -1.0f);
 		fire.maxVelocity = glm::vec3(1.0f, 1.0f, 1.0f);
-
 		fire.minStartSize = 0.5f;
 		fire.maxStartSize = 1.0f;
-
 		fire.minEndSize = 1.0f;
 		fire.maxEndSize = 4.0f;
-
 		fire.minColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.05f);
 		fire.maxColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.15f);
+		fire.srcBlend = GL_SRC_ALPHA;
+		fire.dstBlend = GL_ONE;
 
-		m_particleSystem = new ParticleSystem(fire);
+		ParticleSystem * fireSystem = new ParticleSystem(fire);
+		m_components.push_back(fireSystem);
+		m_components.push_back(new CircleParticleEmitter(fireSystem, 2500, 2.0f));
+		
+		ParticleSystem * fireTrailSystem = new ParticleSystem(fire);
+		m_components.push_back(fireTrailSystem);
+		m_fireTrailEmitter = new TrailParticleEmitter(fireTrailSystem, 2000);
+		m_components.push_back(m_fireTrailEmitter);
 
 		ParticleSettings smoke;
 		smoke.texture = "resources/smoke.bmp";
-
 		smoke.maxParticles = 2000;
 		smoke.gravity = glm::vec3(-2.0f, -0.5f, 0.0f);
 		smoke.duration = 10.0f;
@@ -83,18 +96,17 @@ namespace ParticlePhysicsDemo
 		smoke.maxEndSize = 14.0f;
 		smoke.minColor = glm::vec4(1.0f);
 		smoke.maxColor = glm::vec4(1.0f);
+		smoke.srcBlend = GL_SRC_ALPHA;
+		smoke.dstBlend = GL_ONE_MINUS_SRC_ALPHA;
 
-		m_smokeParticleSystem = new ParticleSystem(smoke);
+		ParticleSystem * smokeSystem = new ParticleSystem(smoke);
+		m_components.push_back(smokeSystem);
+		m_components.push_back(new CircleParticleEmitter(smokeSystem, 180, 2.0f));
 
-		Material * grass = new Material(Shader::find("shader"));
-		//grass->setTexture(new Texture("resources/grass.bmp"));
-		grass->setDiffuseColor(glm::vec4(0.8f));
-		grass->setSpecularColor(glm::vec4(0.2f));
-
-		MeshObject * terrain = new MeshObject(MeshFactory::Plane(glm::vec4(1.0f), 1), grass);
-		//terrain->transform().scale() = glm::vec3(50.0f);
-
-		m_components.push_back(terrain);
+		ParticleSystem * smokeTrailSystem = new ParticleSystem(smoke);
+		m_components.push_back(smokeTrailSystem);
+		m_smokeTrailEmitter = new TrailParticleEmitter(smokeTrailSystem, 180);
+		m_components.push_back(m_smokeTrailEmitter);
 
 		return true;
 	}
@@ -109,10 +121,17 @@ namespace ParticlePhysicsDemo
 			m_camera.raiseFlag(Common::Camera::LEFT);
 		else if (key == Common::KEY_MOVE_RIGHT)
 			m_camera.raiseFlag(Common::Camera::RIGHT);
-		else if (key == Common::KEY_RESET_2)
-			m_particleSystem->setShader(Shader::find("point"));
-		else if (key == Common::KEY_RESET_1)
-			m_particleSystem->setShader(Shader::find("particle"));
+		else if (key == Common::KEY_RESET_1) {
+			m_renderPoints = !m_renderPoints;
+			Shader * shader = Shader::find(m_renderPoints ? "point" : "particle");
+
+			for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)
+			{
+				ParticleSystem * system = dynamic_cast<ParticleSystem*>(*it);
+				if (system)
+					system->setShader(shader);
+			}
+		}
 	}
 
 	void MainApplication::keyUp(Common::Key key)
@@ -140,6 +159,20 @@ namespace ParticlePhysicsDemo
 	{
 		if (key == Common::KEY_MOUSE_LEFT)
 			m_camera.turn(glm::vec2(x, y));
+		else if (key == Common::KEY_MOUSE_RIGHT) {
+			glm::vec3 nearScreen(x, m_height-y, 0.0f);
+			glm::vec3 farScreen(x, m_height-y, 1.0f);
+
+			glm::vec3 nearWorld = glm::unProject(nearScreen, m_camera.view(), m_camera.projection(), glm::vec4(0, 0, m_width, m_height));
+			glm::vec3 farWorld = glm::unProject(farScreen, m_camera.view(), m_camera.projection(), glm::vec4(0, 0, m_width, m_height));
+
+			glm::vec3 v = farWorld - nearWorld;
+			float t = -nearWorld.y / v.y;
+			glm::vec3 position = nearWorld + t * v;
+
+			m_fireTrailEmitter->addPosition(position);
+			m_smokeTrailEmitter->addPosition(position);
+		}
 	}
 
 	void MainApplication::window_resized(int width, int height)
@@ -162,26 +195,6 @@ namespace ParticlePhysicsDemo
 		{
 			(*it)->update(dt);
 		}
-
-		m_particleSystem->update(dt);
-		m_smokeParticleSystem->update(dt);
-
-		static Utils::Random r;
-		float radius = 2.0f;
-
-		for (int i = 0; i < 50; i++)
-		{
-			float angle = float(r.rand01() * 2 * M_PI);
-			glm::vec3 position(radius * glm::cos(angle), 0.0f, radius * glm::sin(angle));
-			m_particleSystem->addParticle(position, glm::vec3(0.0f));
-		}
-
-		for (int i = 0; i < 3; i++)
-		{
-			float angle = float(r.rand01() * 2 * M_PI);
-			glm::vec3 position(radius * glm::cos(angle), 0.0f, radius * glm::sin(angle));
-			m_smokeParticleSystem->addParticle(position, glm::vec3(0.0f));
-		}
 	}
 
 	void MainApplication::draw()
@@ -192,20 +205,6 @@ namespace ParticlePhysicsDemo
 		{
 			(*it)->draw();
 		}
-
-		glDisable(GL_DEPTH_TEST);
-
-		glEnable(GL_BLEND);
-
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		m_smokeParticleSystem->draw();
-
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		m_particleSystem->draw();
-		
-		glDisable(GL_BLEND);
-
-		glEnable(GL_DEPTH_TEST);
 
 		GLenum err = glGetError();
 		if (err != GL_NO_ERROR)

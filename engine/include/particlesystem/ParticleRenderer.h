@@ -23,10 +23,14 @@ namespace Common
 		void draw(Particle * first, unsigned size);
 
 		inline void setShader(Shader * shader) { m_shader = shader; }
+		inline void setBlendMode(GLenum src, GLenum dst) { m_srcBlend = src; m_dstBlend = dst; }
 
 	private:
 		Shader * m_shader;
 		Texture * m_texture;
+
+		GLenum m_srcBlend;
+		GLenum m_dstBlend;
 
 		glm::uint m_vaoID;
 		glm::uint m_vboID;

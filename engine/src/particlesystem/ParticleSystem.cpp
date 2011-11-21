@@ -15,6 +15,7 @@ namespace Common
 	{
 		m_particles = new Particle[m_settings.maxParticles];
 		m_renderer = new ParticleRenderer(new Texture(m_settings.texture.c_str()));
+		m_renderer->setBlendMode(settings.srcBlend, settings.dstBlend);
 	}
 
 	ParticleSystem::~ParticleSystem()

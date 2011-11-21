@@ -1,6 +1,7 @@
 #ifndef COMMON_PARTICLESYSTEM
 #define COMMON_PARTICLESYSTEM
 
+#include "Component.h"
 #include "ParticleRenderer.h"
 
 #include "glm/glm.hpp"
@@ -46,9 +47,12 @@ namespace Common
 
 		glm::vec4 minColor;
 		glm::vec4 maxColor;
+
+		GLenum srcBlend;
+		GLenum dstBlend;
 	};
 
-	class ParticleSystem
+	class ParticleSystem : public Component
 	{
 	public:
 		ParticleSystem(const ParticleSettings & settings);

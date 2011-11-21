@@ -4,16 +4,18 @@
 #include "Component.h"
 #include "ParticleSystem.h"
 
+#include "glm/glm.hpp"
+
 namespace Common
 {
 	class ParticleEmitter : public Component
 	{
 	public:
-		ParticleEmitter(ParticleSystem * system, float particlesPerSecond)
-			: m_system(system), m_particlesPerSecond(particlesPerSecond) {}
+		ParticleEmitter(ParticleSystem * system, float particlesPerSecond, const glm::vec3 & position = glm::vec3(0.0f), const glm::vec3 & variance = glm::vec3(0.0f))
+			: m_system(system), m_particlesPerSecond(particlesPerSecond), m_position(position), m_variance(variance) {}
 		virtual ~ParticleEmitter() {}
 
-		virtual void update(float dt) = 0;
+		virtual void update(float dt);
 
 		inline int available(float dt)
 		{
@@ -23,6 +25,8 @@ namespace Common
 	protected:
 		ParticleSystem * m_system;
 		float m_particlesPerSecond;
+		glm::vec3 m_position;
+		glm::vec3 m_variance;
 	};
 
 	class CircleParticleEmitter : public ParticleEmitter

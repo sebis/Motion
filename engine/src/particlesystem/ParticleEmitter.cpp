@@ -8,6 +8,14 @@ namespace Common
 		Utils::Random r;
 	}
 
+	void ParticleEmitter::update(float dt)
+	{
+		for (int i = 0; i < available(dt); i++)
+		{
+			m_system->addParticle(m_position + float(r.rand11()) * m_variance, glm::vec3(0.0f));
+		}
+	}
+
 	void CircleParticleEmitter::update(float dt)
 	{
 		for (int i = 0; i < available(dt); i++)

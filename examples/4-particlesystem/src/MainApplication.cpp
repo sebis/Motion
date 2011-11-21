@@ -48,17 +48,22 @@ namespace ParticlePhysicsDemo
 
 		Common::GameObject::s_camera = &m_camera;
 
-		Material * grass = new Material(Shader::find("shader"));
-		//grass->setTexture(new Texture("resources/grass.bmp"));
-		grass->setDiffuseColor(glm::vec4(0.8f));
-		grass->setSpecularColor(glm::vec4(0.2f));
+		/*Material * metal = new Material(Shader::find("shader"));
+		metal->setDiffuseColor(glm::vec4(0.6f, 0.5f, 0.5f, 1.0f));
+		metal->setSpecularColor(glm::vec4(0.6f, 0.5f, 0.5f, 1.0f));
 
-		MeshObject * terrain = new MeshObject(MeshFactory::Plane(glm::vec4(1.0f), 1), grass);
-		//terrain->transform().scale() = glm::vec3(50.0f);
+		MeshObject * buddha = new MeshObject(MeshFactory::FromFile("resources/happy.ply"), metal);
+		buddha->transform().scale() = glm::vec3(10.0f);
 
-		m_components.push_back(terrain);
+		m_components.push_back(buddha);*/
 
-		ParticleSettings fire;
+		/*Material * metal = new Material(Shader::find("shader"));
+		metal->setDiffuseColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+		MeshObject * ball = new MeshObject(MeshFactory::Sphere(), metal);
+		ball->transform().scale() = glm::vec3(1.0f);
+		ball->transform().position() = glm::vec3(10.0f, 2.0f, -8.0f);
+		m_components.push_back(ball);*/
+
 		fire.texture = "resources/fire.bmp";
 		fire.maxParticles = 50000;
 		fire.gravity = glm::vec3(0.0f, 1.5f, 0.0f);
@@ -83,7 +88,6 @@ namespace ParticlePhysicsDemo
 		m_fireTrailEmitter = new TrailParticleEmitter(fireTrailSystem, 2000);
 		m_components.push_back(m_fireTrailEmitter);
 
-		ParticleSettings smoke;
 		smoke.texture = "resources/smoke.bmp";
 		smoke.maxParticles = 2000;
 		smoke.gravity = glm::vec3(-2.0f, -0.5f, 0.0f);
@@ -100,6 +104,7 @@ namespace ParticlePhysicsDemo
 		smoke.dstBlend = GL_ONE_MINUS_SRC_ALPHA;
 
 		ParticleSystem * smokeSystem = new ParticleSystem(smoke);
+		smokeSystem->addFlow(new UniformFlow(glm::vec3(-2.0f, 0.0f, 0.0f)));
 		m_components.push_back(smokeSystem);
 		m_components.push_back(new CircleParticleEmitter(smokeSystem, 180, 2.0f));
 
@@ -107,6 +112,50 @@ namespace ParticlePhysicsDemo
 		m_components.push_back(smokeTrailSystem);
 		m_smokeTrailEmitter = new TrailParticleEmitter(smokeTrailSystem, 180);
 		m_components.push_back(m_smokeTrailEmitter);
+
+		water.texture = "resources/blue.bmp";
+		water.maxParticles = 100000;
+		water.duration = 15.0f;
+		water.minVelocity = glm::vec3(0.0f, 0.0f, 1.0f);
+		water.maxVelocity = glm::vec3(0.0f, 0.0f, 2.0f);
+		water.minStartSize = 0.75f;
+		water.maxStartSize = 0.75f;
+		water.minEndSize = 0.75f;
+		water.maxEndSize = 0.75f;
+		water.minColor = glm::vec4(0.8f, 0.8f, 1.0f, 0.5f);
+		water.maxColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.6f);
+		water.srcBlend = GL_SRC_ALPHA;
+		water.dstBlend = GL_ONE_MINUS_SRC_ALPHA;
+
+		ParticleSystem * waterSystem = new ParticleSystem(water);
+		//waterSystem->addFlow(new VortexFlow(glm::vec3(8.0f, 0.0f, -4.0f), glm::vec3(0.0f, 1.0f, 0.0f), 1.0f, 5.0f));
+		waterSystem->addFlow(new UniformFlow(glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(8.0f, 5.0f, -10.0f), 4.0f));
+		waterSystem->addFlow(new SourceFlow(glm::vec3(8.0f, 2.0f, -10.0f), 1.0f, 15.0f));
+		//waterSystem->addFlow(new UniformFlow(glm::vec3(3.0f, 0.0f, 0.0f), glm::vec3(10.0f, 0.0f, -8.0f), 4.0f));
+
+		m_components.push_back(waterSystem);
+		m_components.push_back(new ParticleEmitter(waterSystem, 2500, glm::vec3(8.0f, 5.0f, -20.0f), glm::vec3(3.0f, 0.0f, 0.0f)));
+
+		leaves.texture = "resources/leaf.bmp";
+		leaves.maxParticles = 1000;
+		leaves.duration = 120.0f;
+		leaves.minVelocity = glm::vec3(0.0f);
+		leaves.maxVelocity = glm::vec3(0.0f);
+		leaves.minStartSize = 0.5f;
+		leaves.maxStartSize = 1.0f;
+		leaves.minEndSize = 0.5f;
+		leaves.maxEndSize = 1.0f;
+		leaves.minColor = glm::vec4(1.0f, 1.0f, 0.5f, 1.0f);
+		leaves.maxColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		leaves.srcBlend = GL_SRC_ALPHA;
+		leaves.dstBlend = GL_ONE_MINUS_SRC_ALPHA;
+
+		ParticleSystem * leafSystem = new ParticleSystem(leaves);
+		leafSystem->addFlow(new VortexFlow(glm::vec3(-10.0f, 0.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), 5.0f, 5.0f));
+		leafSystem->addFlow(new SourceFlow(glm::vec3(-10.0f, 0.0f, 15.0f), 10.0f, -50.0f));
+		
+		m_components.push_back(leafSystem);
+		m_components.push_back(new ParticleEmitter(leafSystem, 75, glm::vec3(-10.0f, 0.0f, 15.0f), glm::vec3(1.0f)));
 
 		return true;
 	}
@@ -188,7 +237,6 @@ namespace ParticlePhysicsDemo
 
 	void MainApplication::update(float dt)
 	{
-		Trace::info("update since last: %f\n", dt);
 		m_camera.update(dt);
 
 		for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)

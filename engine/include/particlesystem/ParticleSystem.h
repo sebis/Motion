@@ -2,6 +2,7 @@
 #define COMMON_PARTICLESYSTEM
 
 #include "Component.h"
+#include "FlowPrimitive.h"
 #include "ParticleRenderer.h"
 
 #include "glm/glm.hpp"
@@ -62,6 +63,7 @@ namespace Common
 		void draw();
 
 		void addParticle(const glm::vec3 & position, const glm::vec3 & velocity);
+		void addFlow(FlowPrimitive * flow);
 
 		inline void setShader(Shader * shader) { m_renderer->setShader(shader); }
 
@@ -73,6 +75,10 @@ namespace Common
 
 		Particle * m_particles;
 		ParticleRenderer * m_renderer;
+
+		typedef std::vector<FlowPrimitive*> Flows;
+		typedef Flows::iterator FlowIterator;
+		Flows m_flows;
 	};
 }
 

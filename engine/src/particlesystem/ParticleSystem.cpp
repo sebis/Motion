@@ -16,6 +16,11 @@ namespace Common
 		m_particles = new Particle[m_settings.maxParticles];
 		m_renderer = new ParticleRenderer(new Texture(m_settings.texture.c_str()));
 		m_renderer->setBlendMode(settings.srcBlend, settings.dstBlend);
+
+		//m_flows.push_back(new UniformFlow(glm::vec3(0.0f, 2.0f, 0.0f)));
+		//m_flows.push_back(new SourceFlow(glm::vec3(4.0f, 0.0f, 0.0f), 2.0f, -10.0f));
+		//m_flows.push_back(new VortexFlow(glm::vec3(4.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 5.0f, 2.0f));
+		//m_flows.push_back(new VortexFlow(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 5.0f, 2.0f));
 	}
 
 	ParticleSystem::~ParticleSystem()
@@ -43,7 +48,18 @@ namespace Common
 			else {
 				p->age += elapsed * (1 + p->ageRandom);
 
-				p->velocity += m_settings.gravity * elapsed;
+				glm::vec3 force;
+
+				for (FlowIterator it = m_flows.begin(); it != m_flows.end(); ++it)
+				{
+					FlowPrimitive * flow = *it;
+
+					glm::vec3 vr = flow->velocityAt(p->position);
+					force += 1.0f * vr;
+				}
+				
+				//p->velocity += m_settings.gravity * elapsed;
+				p->velocity += force * elapsed;
 				p->position += p->velocity * elapsed;
 
 				float t = p->age / m_settings.duration;
@@ -108,5 +124,10 @@ namespace Common
 		m_particles[firstFreeParticle] = p;
 
 		firstFreeParticle = nextFreeParticle;
+	}
+
+	void ParticleSystem::addFlow(FlowPrimitive * flow)
+	{
+		m_flows.push_back(flow);
 	}
 }

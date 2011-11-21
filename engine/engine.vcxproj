@@ -101,6 +101,7 @@
     <ClInclude Include="include\interpolation\KeyframeAnimator.h" />
     <ClInclude Include="include\interpolation\SplineRenderer.h" />
     <ClInclude Include="include\interpolation\TransformRenderer.h" />
+    <ClInclude Include="include\particlesystem\FlowPrimitive.h" />
     <ClInclude Include="include\particlesystem\ParticleEmitter.h" />
     <ClInclude Include="include\particlesystem\ParticleRenderer.h" />
     <ClInclude Include="include\particlesystem\ParticleSystem.h" />
@@ -128,6 +129,7 @@
     <ClCompile Include="src\interpolation\KeyframeAnimator.cpp" />
     <ClCompile Include="src\interpolation\SplineRenderer.cpp" />
     <ClCompile Include="src\interpolation\TransformRenderer.cpp" />
+    <ClCompile Include="src\particlesystem\FlowPrimitive.cpp" />
     <ClCompile Include="src\particlesystem\ParticleEmitter.cpp" />
     <ClCompile Include="src\particlesystem\ParticleRenderer.cpp" />
     <ClCompile Include="src\particlesystem\ParticleSystem.cpp" />

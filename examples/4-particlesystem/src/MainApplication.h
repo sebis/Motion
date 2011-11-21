@@ -11,6 +11,7 @@ typedef Common::GlutApplication Base;
 
 #include "Camera.h"
 #include "GameObject.h"
+#include "ParticleSystem.h"
 #include "ParticleEmitter.h"
 
 #include <vector>
@@ -40,6 +41,11 @@ namespace ParticlePhysicsDemo
 		Common::Camera m_camera;
 
 		bool m_renderPoints;
+
+		Common::ParticleSettings fire;
+		Common::ParticleSettings smoke;
+		Common::ParticleSettings water;
+		Common::ParticleSettings leaves;
 
 		Common::TrailParticleEmitter * m_fireTrailEmitter;
 		Common::TrailParticleEmitter * m_smokeTrailEmitter;

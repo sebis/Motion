@@ -20,12 +20,13 @@ namespace Common
 	{
 		float elapsed = dt / 1000.0f;
 
-		int samples = 5;
+		int samples = 1;
+		float fps = 1.0f/1000.0f;
 		for (int i = 0; i < samples; i++)
 		{
 			for (Iterator it = m_bodies.begin(); it != m_bodies.end(); it++)
 			{
-				(*it)->update(elapsed / samples);
+				(*it)->update(fps);
 			}
 		}
 	}

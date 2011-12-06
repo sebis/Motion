@@ -65,7 +65,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>include;include\common;include\interpolation;include\ik;include\particlesystem;include\rigidbody</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;include\common;include\softbody;include\interpolation;include\ik;include\particlesystem;include\rigidbody</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
     </ClCompile>
     <Link>

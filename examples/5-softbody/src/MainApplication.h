@@ -37,6 +37,7 @@ namespace SoftBodyDemo
 
 	private:
 		Common::Camera m_camera;
+		bool m_started;
 
 		typedef std::vector<Common::Component*> ComponentCollection;
 		typedef ComponentCollection::iterator ComponentIterator;

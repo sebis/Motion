@@ -19,7 +19,8 @@ namespace SoftBodyDemo
 
 	MainApplication::MainApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
 		: Base(title, fixedTimeStep, targetElapsedTime),
-		m_camera(glm::vec3(10.0f), glm::vec3(0.0f))
+		m_camera(glm::vec3(10.0f), glm::vec3(0.0f)),
+		m_started(false)
 	{
 	}
 
@@ -79,6 +80,8 @@ namespace SoftBodyDemo
 			m_camera.raiseFlag(Common::Camera::LEFT);
 		else if (key == Common::KEY_MOVE_RIGHT)
 			m_camera.raiseFlag(Common::Camera::RIGHT);
+		else if (key == Common::KEY_CONTINUE)
+			m_started = true;
 	}
 
 	void MainApplication::keyUp(Common::Key key)
@@ -122,6 +125,9 @@ namespace SoftBodyDemo
 	void MainApplication::update(float dt)
 	{
 		m_camera.update(dt);
+
+		if (!m_started)
+			return;
 
 		for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)
 		{

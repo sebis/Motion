@@ -1,0 +1,26 @@
+#ifndef COMMON_SOFTBODYWORLD
+#define COMMON_SOFTBODYWORLD
+
+#include <vector>
+
+namespace Common
+{
+	class SoftBody;
+
+	class SoftBodyWorld
+	{
+	public:
+		SoftBodyWorld();
+		virtual ~SoftBodyWorld();
+
+		void addSoftBody(SoftBody * softBody);
+		void update(float dt);
+
+	private:
+		typedef std::vector<SoftBody *> Container;
+		typedef Container::iterator Iterator;
+		Container m_bodies;
+	};
+}
+
+#endif /* COMMON_SOFTBODYWORLD */

@@ -52,7 +52,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>include;include\common;include\interpolation;include\ik;include\particlesystem;include\rigidbody</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;include\common;include\softbody;include\interpolation;include\ik;include\particlesystem;include\rigidbody</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -109,6 +109,8 @@
     <ClInclude Include="include\rigidbody\CollisionDetector.h" />
     <ClInclude Include="include\rigidbody\Physics.h" />
     <ClInclude Include="include\rigidbody\RigidBody.h" />
+    <ClInclude Include="include\softbody\SoftBody.h" />
+    <ClInclude Include="include\softbody\SoftBodyWorld.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\Camera.cpp" />
@@ -137,6 +139,8 @@
     <ClCompile Include="src\rigidbody\CollisionDetector.cpp" />
     <ClCompile Include="src\rigidbody\Physics.cpp" />
     <ClCompile Include="src\rigidbody\RigidBody.cpp" />
+    <ClCompile Include="src\softbody\SoftBody.cpp" />
+    <ClCompile Include="src\softbody\SoftBodyWorld.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

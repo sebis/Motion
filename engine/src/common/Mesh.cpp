@@ -6,11 +6,8 @@
 
 namespace Common
 {
-	Mesh::Mesh(Mesh::vertex vData[], size_t vSize, glm::uint iData[], size_t iSize)
+	Mesh::Mesh()
 	{
-		// store number of drawable elements
-		m_count = iSize;
-
 		// create single vertex array object and bind it
 		glGenVertexArrays(1, &m_vaoID);
 		glBindVertexArray(m_vaoID);
@@ -18,7 +15,7 @@ namespace Common
 		// generate, bind and fill one interleaved vertex buffer object with all vertex attributes
 		glGenBuffers(1, &m_vboID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
-		glBufferData(GL_ARRAY_BUFFER, vSize*sizeof(vertex), vData, GL_STATIC_DRAW);
+		//glBufferData(GL_ARRAY_BUFFER, vSize*sizeof(vertex), vData, GL_STATIC_DRAW);
 
 		// create vertex attribute pointers into our buffer data with correct strides and offsets
 		glVertexAttribPointer(Shader::POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
@@ -33,7 +30,7 @@ namespace Common
 		// create and fill index buffer
 		glGenBuffers(1, &m_eboID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize*sizeof(glm::uint), iData, GL_STATIC_DRAW);
+		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize*sizeof(glm::uint), iData, GL_STATIC_DRAW);
 
 		// we're finished with the VAO so unbind it
 		glBindVertexArray(0);
@@ -54,11 +51,23 @@ namespace Common
 		glDeleteVertexArrays(1, &m_vaoID);
 	}
 
+	size_t Mesh::count() const
+	{
+		return m_indices.size();
+	}
+
 	void Mesh::draw()
 	{
 		// draw the mesh using the bound index buffer
 		glBindVertexArray(m_vaoID);
-		glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, 0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
+		glBufferData(GL_ARRAY_BUFFER, m_vertices.size()*sizeof(vertex), &m_vertices[0], GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboID);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size()*sizeof(unsigned int), &m_indices[0], GL_DYNAMIC_DRAW);
+
+		glDrawElements(GL_TRIANGLES, count(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 	}
 }

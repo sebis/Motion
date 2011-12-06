@@ -66,7 +66,7 @@ namespace Common
 			vertices.push_back(top);
 
 			std::vector<Mesh::vertex> vData;
-			std::vector<glm::uint> iData;
+			std::vector<unsigned int> iData;
 
 			for (int i = 0; i < segments; i++)
             {
@@ -105,7 +105,10 @@ namespace Common
 			for (unsigned i = 0; i < vData.size(); i++)
 				iData.push_back(i);
 
-			return new Mesh(&vData[0], vData.size(), &iData[0], iData.size());
+			Mesh * mesh = new Mesh();
+			mesh->setVertices(vData);
+			mesh->setIndices(iData);
+			return mesh;
 		}
 
 		Mesh * Plane(glm::vec4 color, int gridSize)
@@ -117,12 +120,91 @@ namespace Common
 				{ glm::vec3(1.0f, 0, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(gridSize, 0), color },
 			};
 
-			glm::uint iData[] = {
+			unsigned int iData[] = {
 				0, 1, 2,
 				2, 1, 3
 			};
 
-			return new Mesh(vData, 4, iData, 6);
+			std::vector<Mesh::vertex> vertices(&vData[0], &vData[3]);
+			std::vector<unsigned int> indices(&iData[0], &iData[5]);
+			
+			Mesh * mesh = new Mesh();
+			mesh->setVertices(vertices);
+			mesh->setIndices(indices);
+			return mesh;
+		}
+
+		/*void PlaneMesh(int width, int length, std::vector<Mesh::vertex> & vData, std::vector<glm::uint> & iData, glm::vec4 color)
+		{
+			float dx = 1.0f/width;
+			float dz = 1.0f/length;
+
+			for (int x = 0; x < width; x++)
+			{
+				for (int z = 0; z < length; z++)
+				{
+					int offset = vData.size();
+
+					Mesh::vertex v1 = { glm::vec3(x * dx, 0.0f, z * dz), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0, 1), color };
+					vData.push_back(v1);
+
+					Mesh::vertex v2 = { glm::vec3(x * dx, 0.0f, (z+1) * dz), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0, 0), color };
+					vData.push_back(v2);
+
+					Mesh::vertex v3 = { glm::vec3((x+1) * dx, 0.0f, z * dz), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1, 1), color };
+					vData.push_back(v3);
+
+					Mesh::vertex v4 = { glm::vec3((x+1) * dx, 0.0f, (z+1) * dz), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1, 0), color };
+					vData.push_back(v4);
+
+					//int offset = x * length + z;
+					iData.push_back(offset + 0);
+					iData.push_back(offset + 1);
+					iData.push_back(offset + 2);
+					iData.push_back(offset + 2);
+					iData.push_back(offset + 1);
+					iData.push_back(offset + 3);
+				}
+			}
+		}*/
+
+		void PlaneMesh(int width, int length, std::vector<Mesh::vertex> & vData, std::vector<glm::uint> & iData, glm::vec4 color)
+		{
+			float dx = 1.0f/width;
+			float dz = 1.0f/length;
+
+			for (int z = 0; z < length+1; z++)
+			{
+				for (int x = 0; x < width+1; x++)
+				{
+					Mesh::vertex v = { glm::vec3(x * dx, 0.0f, z * dz), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(x * dx, z * dz), color };
+					vData.push_back(v);
+
+					if (x < width && z < length)
+					{
+						iData.push_back((width+1)*(z)   + (x));
+						iData.push_back((width+1)*(z+1) + (x));
+						iData.push_back((width+1)*(z)   + (x+1));
+
+						iData.push_back((width+1)*(z)   + (x+1));
+						iData.push_back((width+1)*(z+1) + (x));
+						iData.push_back((width+1)*(z+1) + (x+1));
+					}
+				}
+			}
+		}
+
+		Mesh * PlaneMesh(glm::vec4 color, int width, int length)
+		{
+			std::vector<Mesh::vertex> vData;
+			std::vector<glm::uint> iData;
+
+			PlaneMesh(width, length, vData, iData, color);
+
+			Mesh * mesh = new Mesh();
+			mesh->setVertices(vData);
+			mesh->setIndices(iData);
+			return mesh;
 		}
 
 		Mesh * Cube(bool override_color, glm::vec4 color)
@@ -172,7 +254,7 @@ namespace Common
 				{ glm::vec3(1.0f, -1.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0, 0), bottom_color },
 			};
 
-			glm::uint iData[] =
+			unsigned int iData[] =
 			{
 				0, 1, 2, 2, 1, 3,
 				4, 5, 6, 6, 5, 7,
@@ -182,7 +264,13 @@ namespace Common
 				20, 21, 22, 22, 21, 23,
 			};
 
-			return new Mesh(vData, 24, iData, 36);
+			std::vector<Mesh::vertex> vertices(&vData[0], &vData[23]);
+			std::vector<unsigned int> indices(&iData[0], &iData[35]);
+
+			Mesh * mesh = new Mesh();
+			mesh->setVertices(vertices);
+			mesh->setIndices(indices);
+			return mesh;
 		}
 
 		Mesh * FromFile(std::string str, glm::vec4 color)
@@ -191,7 +279,7 @@ namespace Common
 			int num_triangles = 0;
 
 			std::vector<Mesh::vertex> vData;
-			std::vector<glm::uint> iData;
+			std::vector<unsigned int> iData;
 
 			// Load model from file
 			std::string line;
@@ -281,7 +369,10 @@ namespace Common
 				vData[i].normal = glm::normalize(vData[i].normal);
 			}*/
 
-			return new Mesh(&vData[0], num_vertices, &iData[0], 3 * num_triangles);
+			Mesh * mesh = new Mesh();
+			mesh->setVertices(vData);
+			mesh->setIndices(iData);
+			return mesh;
 		}
 	};	
 } /* namespace Common */

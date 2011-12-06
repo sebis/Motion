@@ -51,7 +51,7 @@ namespace Common
 
 		for (int i = 0; i < available(dt); i++)
 		{
-			int index = int(r.rand01() * m_positions.size());
+			unsigned index = unsigned(r.rand01() * m_positions.size());
 			if (index == m_positions.size())
 				continue;
 

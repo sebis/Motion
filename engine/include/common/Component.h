@@ -9,7 +9,7 @@ namespace Common
 		Component() {}
 		virtual ~Component() {}
 
-		virtual void update(float dt) {}
+		virtual void update(float /*dt*/) {}
 		virtual void draw() {}
 	};
 }

@@ -22,15 +22,16 @@ namespace Common
 		float ks = 10.0f;
 		float kd = 0.22f;
 
-		// apply forces
+		// apply gravity forces
 		for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
 		{
 			Node * i = *nit;
 
-			glm::vec3 gravity(0.0f, -9.81f, 0.0f);
+			glm::vec3 gravity(0.0f, -0.981f, 0.0f);
 			i->force = i->mass * gravity;
 		}
 
+		// apply internal forces
 		for (SpringIterator it = m_springs.begin(); it != m_springs.end(); it++)
 		{
 			Spring * s = *it;
@@ -55,39 +56,29 @@ namespace Common
 			if (i->constrained)
 				continue;
 
-			glm::vec3 newPosition = i->position + i->velocity * dt;
-			Contact * contact = CollisionDetector::instance()->collides(glm::vec3(m_gameObject->transform().world() * glm::vec4(newPosition, 1.0f)));
-			if (!contact) {
-				i->constrained = false;
 				i->velocity += (1.0f / i->mass) * i->force * dt;
 				i->position += i->velocity * dt;
-			} else {
-				i->constrained = true;
-				/*glm::vec3 rn = contact->point;
-				glm::vec3 d = i->velocity * dt;
-				glm::vec3 dt = d - contact->normal * glm::dot(d, contact->normal);
-				glm::vec3 rt = -1.0f * dt;
-
-				//i->position += (rn + rt);
-				i->position += rn;
-				i->velocity = glm::vec3(0.0f);*/
-			}
 		}
 
+		// post-process inverse dynamics
+		glm::mat4 world = m_gameObject->transform().world();
+		glm::mat4 invWorld = glm::inverse(m_gameObject->transform().world());
+
+		CollisionDetector * cd = CollisionDetector::instance();
 		// TODO: proper iteration variables (maxIter, error)
-		for (int i = 0; i < 30; i++)
+		for (int i = 0; i < 1; i++)
 		{
 			for (SpringIterator it = m_springs.begin(); it != m_springs.end(); it++)
 			{
 				Node * n1 = (*it)->n1;
 				Node * n2 = (*it)->n2;
 
-				glm::vec3 p1 = n1->position;
-				glm::vec3 p2 = n2->position;
+				const glm::vec3 & p1 = n1->position;
+				const glm::vec3 & p2 = n2->position;
 
-				glm::vec3 delta = p2 - p1;
+				const glm::vec3 & delta = p2 - p1;
 
-				float d = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+				float d = glm::dot(delta, delta);
 				float f = (*it)->restLength * (*it)->restLength;
 
 				float im1 = n1->constrained ? 0 : 1.0f / n1->mass;
@@ -102,8 +93,73 @@ namespace Common
 				if (im2 != 0) {
 					n2->position -= delta * (im2 * diff);
 				}
+
+				{
+					glm::vec3 wp1 = glm::vec3(world * glm::vec4(p1, 1.0f));
+					glm::vec3 wp2 = glm::vec3(world * glm::vec4(p1 + n1->velocity * dt, 1.0f));
+
+					Contact * contact = cd->collides(wp1, wp2);
+					if (contact) {
+						//glm::vec3 rn = glm::vec3(invWorld * glm::vec4(contact->point, 1.0f));
+						n1->position += contact->point;
+					}
+				}
+
+				{
+					glm::vec3 wp1 = glm::vec3(world * glm::vec4(p2, 1.0f));
+					glm::vec3 wp2 = glm::vec3(world * glm::vec4(p2 + n2->velocity * dt, 1.0f));
+
+					Contact * contact = cd->collides(wp1, wp2);
+					if (contact) {
+						//glm::vec3 rn = glm::vec3(invWorld * glm::vec4(contact->point, 1.0f));
+						n2->position += contact->point;
+					}
+				}
 			}
 		}
+
+		/*if (false)
+		for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
+		{
+			Node * i = *nit;
+
+			if (i->constrained)
+				continue;
+
+			glm::vec3 newVelocity = (1.0f / i->mass) * i->force * dt;
+			glm::vec3 newPosition = i->position + newVelocity * dt;
+			Contact * contact = CollisionDetector::instance()->collides(glm::vec3(m_gameObject->transform().world() * glm::vec4(i->position, 1.0f)));
+
+			if (contact) {
+				//i->constrained = true;
+				//glm::vec3 rn = contact->point;
+				//glm::vec3 d = i->velocity * dt;
+				//glm::vec3 dt = d - contact->normal * glm::dot(d, contact->normal);
+				//glm::vec3 rt = -1.0f * dt;
+
+				////i->position += (rn + rt);
+				//i->position += rn;
+				//i->velocity = glm::vec3(0.0f);
+
+				assert(glm::length(contact->normal) < 1.1f && glm::length(contact->normal) > 0.9f);
+				glm::vec3 vn = glm::dot(i->velocity, contact->normal) * contact->normal;
+				glm::vec3 vt = i->velocity - vn;
+
+				float kf = 0.1f;
+				float kd = 1.0f;
+
+				if (glm::length(vt) >= kf * glm::length(vn)) {
+					Utils::print_vector("vt", vt);
+					i->velocity = vt - kf * glm::length(vn) * glm::normalize(vt) - kd * vn;
+				} else {
+
+					Utils::print_vector("vn", vn);
+					i->velocity = -kd * vn;
+				}
+				
+				i->position += i->velocity * dt;
+			}
+		}*/
 	}
 
 	MeshObject * SoftBody::createCloth(Material * material, SoftBodyWorld * world, SoftBody * body)

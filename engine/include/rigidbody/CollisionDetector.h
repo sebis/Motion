@@ -57,7 +57,7 @@ namespace Common
 		inline void addCollider(Collider * collider) { m_colliders.push_back(collider); }
 		inline void clear() { m_colliders.clear(); }
 
-		Contact * collides(const glm::vec3 & position);
+		Contact * collides(const glm::vec3 & p1, const glm::vec3 & p2);
 		void detectCollisions(std::vector<CollisionData> & collisions);
 
 	private:

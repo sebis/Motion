@@ -6,19 +6,19 @@
 namespace
 {
 	// From Real-Time Collision Detection by Christopher Ericson. Uses Lagrange's identity.
-	bool PointInTriangle(const glm::vec3 & p, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 & n, glm::vec3 & q, float & t)
+	bool PointInTriangle(const glm::vec3 & p, const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, glm::vec3 & n, glm::vec3 & q, float & t)
 	{
 		const glm::vec3 & pa = a - p;
 		const glm::vec3 & pb = b - p;
 		const glm::vec3 & pc = c - p;
 
-		glm::vec3 u = glm::cross(pb, pc);
-		glm::vec3 v = glm::cross(pc, pa);
+		const glm::vec3 u = glm::cross(pb, pc);
+		const glm::vec3 v = glm::cross(pc, pa);
 
 		if (glm::dot(u, v) < 0.0f)
 			return false;
 
-		glm::vec3 w = glm::cross(pa, pb);
+		const glm::vec3 w = glm::cross(pa, pb);
 		
 		if (glm::dot(u, w) < 0.0f)
 			return false;
@@ -27,12 +27,12 @@ namespace
 		const glm::vec3 & ac = c - a;
 
 		// calculate normal for triangle
-		n = glm::cross(ab, ac);
-		n *= 1.0f / glm::dot(n, n);
+		n = glm::normalize(glm::cross(ab, ac));
+		//n *= 1.0f / glm::dot(n, n);
 
 		// distance of point p along normal
 		t = glm::dot(n, p - a);
-		const float CONSTANT = 0.01f;
+		const float CONSTANT = 0.0f;
 		if (t > CONSTANT)
 			return false;
 
@@ -56,24 +56,25 @@ namespace
 		// check if r inside triangle abc
 	}*/
 
-	bool IntersectRayTriangle(const glm::vec3 & p, const glm::vec3 & q, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 & hit)
+	bool IntersectLineTriangle(const glm::vec3 & p, const glm::vec3 & q, const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, glm::vec3 & n, glm::vec3 & r, float & t)
 	{
-		glm::vec3 ab = b - a;
-		glm::vec3 ac = c - a;
-		glm::vec3 qp = p - q;
+		const glm::vec3 & ab = b - a;
+		const glm::vec3 & ac = c - a;
+		const glm::vec3 & qp = p - q;
 
-		glm::vec3 n = glm::cross(ab, ac);
+		n = glm::cross(ab, ac);
 
 		float d = glm::dot(qp, n);
 		if (d <= 0.0f)
 			return false;
 
-		glm::vec3 ap = p - a;
-		float t = glm::dot(ap, n);
-		if (t < 0.0f)
+		const glm::vec3 & ap = p - a;
+
+		t = glm::dot(ap, n);
+		if (t < 0.0f || t > d)
 			return false;
 
-		glm::vec3 e = glm::cross(qp, ap);
+		const glm::vec3 e = glm::cross(qp, ap);
 
 		float v = glm::dot(ac, e);
 		if (v < 0.0f || v > d)
@@ -84,10 +85,14 @@ namespace
 			return false;
 
 		float ood = 1.0f / d;
+		
 		t *= ood;
+
 		v *= ood;
 		w *= ood;
 		float u = 1.0f - v - w;
+
+		r = u * a + v * b + w * c;
 
 		return true;
 	}
@@ -215,57 +220,83 @@ namespace Common
 		return data->contacts.size() > 0;
 	}
 
-	Contact * CollisionDetector::collides(const glm::vec3 & position)
+	void getVertices(MeshCollider * mesh, const Mesh::Indices & indices, glm::vec3 & a, glm::vec3 & b, glm::vec3 & c, int i)
+	{
+		a = mesh->m_mesh->vertexAt(indices[i+0]).position;
+		b = mesh->m_mesh->vertexAt(indices[i+1]).position;
+		c = mesh->m_mesh->vertexAt(indices[i+2]).position;
+	}
+
+	Contact * collidesInternal(MeshCollider * mesh, const glm::vec3 & p, const glm::vec3 & q, const Mesh::Indices & indices)
+	{
+		glm::vec3 finalNormal(0.0f);
+		glm::vec3 finalPoint(0.0f);
+		float minPenetration = std::numeric_limits<float>::max();
+		bool collide = false;
+
+		int count = indices.size();
+
+		glm::vec3 normal(0.0f);
+		glm::vec3 point(0.0f);
+		float penetration = 0;
+
+		for (int i = 0; i < count; i += 3) {
+
+			glm::vec3 a, b, c;
+			getVertices(mesh, indices, a, b, c, i);
+
+			if (PointInTriangle(p, a, b, c, normal, point, penetration))
+			{
+				if (penetration < minPenetration)
+				{
+					finalNormal = normal;
+					finalPoint = point;
+					minPenetration = penetration;
+					collide = true;
+				}
+			}
+
+			/*if (IntersectLineTriangle(p, q, a, b, c, normal, point, penetration))
+			{
+				Contact * contact = new Contact;
+
+				contact->normal = normal;
+				contact->point = point;
+				contact->penetration = penetration;
+
+				return contact;
+			}*/
+		}
+
+		if (collide) 
+		{
+			Contact * contact = new Contact;
+
+			contact->normal = finalNormal;
+			contact->point = finalPoint;
+			contact->penetration = minPenetration;
+
+			return contact;
+		}
+
+		return 0;
+	}
+
+	Contact * CollisionDetector::collides(const glm::vec3 & p1, const glm::vec3 & p2)
 	{
 		for (unsigned i = 0; i < m_colliders.size(); i++)
 		{
 			MeshCollider * mesh = dynamic_cast<MeshCollider*>(m_colliders[i]);
 			if (mesh)
 			{
-				const glm::mat4 & world = mesh->transform().world();
+				const glm::mat4 & invWorld = glm::inverse(mesh->transform().world());
+				const glm::vec3 & p = glm::vec3(invWorld * glm::vec4(p1, 1.0f));
+				const glm::vec3 & q = glm::vec3(invWorld * glm::vec4(p2, 1.0f));
 
 				// check if a points are contained in b's triangles
-				Mesh::Indices indices = mesh->m_mesh->indices();
+				const Mesh::Indices & indices = mesh->m_mesh->indices();
 
-				glm::vec3 finalNormal;
-				glm::vec3 finalPoint;
-				float minPenetration = std::numeric_limits<float>::max();
-				bool collide = false;
-
-				for (int i = 0; i < indices.size(); i += 3) {
-
-					const glm::vec3 a(world * glm::vec4(mesh->m_mesh->vertexAt(indices[i+0]).position, 1.0f));
-					const glm::vec3 b(world * glm::vec4(mesh->m_mesh->vertexAt(indices[i+1]).position, 1.0f));
-					const glm::vec3 c(world * glm::vec4(mesh->m_mesh->vertexAt(indices[i+2]).position, 1.0f));
-
-					glm::vec3 normal;
-					glm::vec3 point;
-					float penetration;
-
-					if (PointInTriangle(position, a, b, c, normal, point, penetration))
-					{
-						if (penetration < minPenetration)
-						{
-							finalNormal = normal;
-							finalPoint = point;
-							minPenetration = penetration;
-							collide = true;
-						}
-					}
-				}
-
-				if (collide) 
-				{
-					Contact * contact = new Contact;
-
-					contact->normal = finalNormal;
-					contact->point = finalPoint;
-					contact->penetration = minPenetration;
-
-					Trace::info("Found contact: %f\n", minPenetration);
-
-					return contact;
-				}
+				return collidesInternal(mesh, p, q, indices);
 			}
 		}
 

@@ -14,6 +14,8 @@ namespace Common
 		MeshObject(Mesh * mesh, Material * material);
 		virtual ~MeshObject();
 
+		inline Mesh * mesh() const { return m_mesh; }
+
 	private:
 		Mesh * m_mesh;
 	};

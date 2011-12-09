@@ -1,4 +1,5 @@
 #include "MainApplication.h"
+#include "CollisionDetector.h"
 #include "Material.h"
 #include "MeshObject.h"
 #include "SoftBody.h"
@@ -55,15 +56,31 @@ namespace SoftBodyDemo
 		Common::GameObject::s_camera = &m_camera;
 
 		Material * yellowMaterial = new Material(Shader::find("shader"));
-		MeshObject * cube = new MeshObject(MeshFactory::Cube(), yellowMaterial);
+		//MeshObject * cube = new MeshObject(MeshFactory::Cube(), yellowMaterial);
+		MeshObject * cube = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 8), yellowMaterial);
+		cube->transform().translate(glm::vec3(0.5f, 0.0f, 0.5f));
+		//cube->transform().scale() = glm::vec3(5.0f);
+
+		MeshObject * lowpoly = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 8), 0);
+
+		MeshCollider * cubeCollider = new MeshCollider(cube);
+		cubeCollider->m_mesh = lowpoly->mesh();
+		CollisionDetector::instance()->addCollider(cubeCollider);
+
 		m_components.push_back(cube);
 
 		Material * clothMaterial = new Material(Shader::find("shader"));
 		clothMaterial->setTexture(new Texture("resources/scarf.bmp"));
 		clothMaterial->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		//MeshObject * cloth = new MeshObject(MeshFactory::PlaneMesh(), clothMaterial);
-		MeshObject * cloth = SoftBody::createCloth(clothMaterial, &g_world);
+		SoftBody * body = 0;
+		MeshObject * cloth = SoftBody::createCloth(clothMaterial, &g_world, body);
 		cloth->transform().translate(glm::vec3(0.0f, 5.0f, 0.0f));
+		cloth->transform().scale() = glm::vec3(5.0f);
+
+		/*MeshCollider * clothCollider = new MeshCollider(cloth, body, true);
+		clothCollider->m_mesh = cloth->mesh();
+		CollisionDetector::instance()->addCollider(clothCollider);*/
 
 		m_components.push_back(cloth);
 

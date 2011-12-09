@@ -1,3 +1,4 @@
+#include "CollisionDetector.h"
 #include "Mesh.h"
 #include "MeshObject.h"
 #include "SoftBody.h"
@@ -8,6 +9,7 @@
 namespace Common
 {
 	SoftBody::SoftBody(GameObject * gameObject)
+		: m_gameObject(gameObject)
 	{
 	}
 
@@ -53,8 +55,23 @@ namespace Common
 			if (i->constrained)
 				continue;
 
-			i->velocity += (1.0f / i->mass) * i->force * dt;
-			i->position += i->velocity * dt;
+			glm::vec3 newPosition = i->position + i->velocity * dt;
+			Contact * contact = CollisionDetector::instance()->collides(glm::vec3(m_gameObject->transform().world() * glm::vec4(newPosition, 1.0f)));
+			if (!contact) {
+				i->constrained = false;
+				i->velocity += (1.0f / i->mass) * i->force * dt;
+				i->position += i->velocity * dt;
+			} else {
+				i->constrained = true;
+				/*glm::vec3 rn = contact->point;
+				glm::vec3 d = i->velocity * dt;
+				glm::vec3 dt = d - contact->normal * glm::dot(d, contact->normal);
+				glm::vec3 rt = -1.0f * dt;
+
+				//i->position += (rn + rt);
+				i->position += rn;
+				i->velocity = glm::vec3(0.0f);*/
+			}
 		}
 
 		// TODO: proper iteration variables (maxIter, error)
@@ -89,15 +106,15 @@ namespace Common
 		}
 	}
 
-	MeshObject * SoftBody::createCloth(Material * material, SoftBodyWorld * world)
+	MeshObject * SoftBody::createCloth(Material * material, SoftBodyWorld * world, SoftBody * body)
 	{
 		MeshObject * object;
 		{
 		std::vector<Mesh::vertex> vData;
 		std::vector<glm::uint> iData;
 
-		int width = 40;
-		int length = 40;
+		int width = 20;
+		int length = 20;
 
 		MeshFactory::PlaneMesh(width, length, vData, iData);
 
@@ -110,7 +127,7 @@ namespace Common
 
 		object = new MeshObject(mesh, material);
 
-		SoftBody * body = new SoftBody(object);
+		body = new SoftBody(object);
 
 		// initialize nodes
 		for (int z = 0; z < length+1; z++)
@@ -171,7 +188,8 @@ namespace Common
 			}
 		}
 
-		for (NodeIterator it = body->m_nodes.begin(); it != body->m_nodes.end(); it++)
+		// for testing only
+		/*for (NodeIterator it = body->m_nodes.begin(); it != body->m_nodes.end(); it++)
 		{
 			Node * i = *it;
 
@@ -179,7 +197,7 @@ namespace Common
 			if (d < 0.707f) {
 				i->constrained = true;
 			}
-		}
+		}*/
 
 		world->addSoftBody(body);
 		}

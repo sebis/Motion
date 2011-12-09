@@ -264,8 +264,8 @@ namespace Common
 				20, 21, 22, 22, 21, 23,
 			};
 
-			std::vector<Mesh::vertex> vertices(&vData[0], &vData[23]);
-			std::vector<unsigned int> indices(&iData[0], &iData[35]);
+			std::vector<Mesh::vertex> vertices(&vData[0], &vData[24]);
+			std::vector<unsigned int> indices(&iData[0], &iData[36]);
 
 			Mesh * mesh = new Mesh();
 			mesh->setVertices(vertices);

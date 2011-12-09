@@ -123,6 +123,9 @@
     <ClInclude Include="include\softbody\SoftBodyWorld.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\rigidbody\CollisionBody.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\Camera.cpp">

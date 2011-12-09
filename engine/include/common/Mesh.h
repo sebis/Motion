@@ -33,6 +33,11 @@ namespace Common
 		inline Vertices & vertices() { return m_vertices; }
 		inline const Vertices & vertices() const { return m_vertices; }
 
+		inline Mesh::vertex & vertexAt(unsigned int index) { return m_vertices[index]; }
+		inline const Mesh::vertex & vertexAt(unsigned int index) const { return m_vertices[index]; }
+
+		inline const Indices & indices() const { return m_indices; }
+
 	private:
 		glm::uint m_vaoID;
 		glm::uint m_vboID;

@@ -1,6 +1,7 @@
 #ifndef COMMON_SOFTBODY
 #define COMMON_SOFTBODY
 
+#include "CollisionBody.h"
 #include "MeshObject.h"
 #include "Material.h"
 #include "SoftBodyWorld.h"
@@ -12,7 +13,7 @@
 
 namespace Common
 {
-	class SoftBody
+	class SoftBody : public CollisionBody
 	{
 	public:
 		struct Node
@@ -58,7 +59,7 @@ namespace Common
 
 		void update(float dt);
 
-		static MeshObject * createCloth(Material * material, SoftBodyWorld * world);
+		static MeshObject * createCloth(Material * material, SoftBodyWorld * world, SoftBody * body = 0);
 
 	private:
 		typedef std::vector<Node*> Nodes;
@@ -68,6 +69,8 @@ namespace Common
 		typedef std::vector<Spring*> Springs;
 		typedef Springs::iterator SpringIterator;
 		Springs m_springs;
+
+		GameObject * m_gameObject;
 	};
 }
 

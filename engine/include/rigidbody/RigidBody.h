@@ -1,6 +1,7 @@
 #ifndef COMMON_RIGIDBODY
 #define COMMON_RIGIDBODY
 
+#include "CollisionBody.h"
 #include "Transform.h"
 
 #include "glm/glm.hpp"
@@ -11,7 +12,7 @@ namespace Common
 {
 	class GameObject;
 
-	class RigidBody
+	class RigidBody : public CollisionBody
 	{
 	public:
 		RigidBody(GameObject * gameObject);

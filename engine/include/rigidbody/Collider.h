@@ -1,7 +1,9 @@
 #ifndef COMMON_COLLIDER
 #define COMMON_COLLIDER
 
-#include "RigidBody.h"
+#include "CollisionBody.h"
+#include "Mesh.h"
+#include "Transform.h"
 
 #include "glm/glm.hpp"
 
@@ -14,25 +16,25 @@ namespace Common
 	class Collider
 	{
 	public:
-		Collider(GameObject * gameObject, RigidBody * rigidBody = 0) : m_gameObject(gameObject), m_rigidBody(rigidBody) {}
+		Collider(GameObject * gameObject, CollisionBody * body = 0) : m_gameObject(gameObject), m_collisionBody(body) {}
 		virtual ~Collider() {}
 
 		std::string name;
 
-		inline RigidBody * rigidBody() const { return m_rigidBody; }
+		inline CollisionBody * collisionBody() const { return m_collisionBody; }
 
 		Transform transform();
 
 	private:
 		GameObject * m_gameObject;
-		RigidBody * m_rigidBody;
+		CollisionBody * m_collisionBody;
 	};
 
 	class SphereCollider : public Collider
 	{
 	public:
-		SphereCollider(GameObject * gameObject, RigidBody * rigidBody = 0) 
-			: Collider(gameObject, rigidBody),
+		SphereCollider(GameObject * gameObject, CollisionBody * body = 0) 
+			: Collider(gameObject, body),
 			m_position(glm::vec3(0.0f)),
 			m_radius(1.0f) {}
 
@@ -45,11 +47,21 @@ namespace Common
 	class PlaneCollider : public Collider
 	{
 	public:
-		PlaneCollider(GameObject * gameObject, RigidBody * rigidBody = 0) : Collider(gameObject, rigidBody) {}
+		PlaneCollider(GameObject * gameObject, CollisionBody * body = 0) : Collider(gameObject, body) {}
 		virtual ~PlaneCollider() {}
 
 		glm::vec3 m_normal;
 		glm::float_t m_d;
+	};
+
+	class MeshCollider : public Collider
+	{
+	public:
+		MeshCollider(GameObject * gameObject, CollisionBody * body = 0, bool usePoints = false) : Collider(gameObject, body), m_usePoints(usePoints) {}
+		virtual ~MeshCollider() {}
+
+		Mesh * m_mesh;
+		bool m_usePoints;
 	};
 }
 

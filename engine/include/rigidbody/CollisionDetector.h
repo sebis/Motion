@@ -2,7 +2,7 @@
 #define COMMON_COLLISIONDETECTOR
 
 #include "Collider.h"
-#include "RigidBody.h"
+#include "CollisionBody.h"
 
 #include <vector>
 #include <string>
@@ -19,16 +19,28 @@ namespace Common
 		const float FRICTION_BALL_CLOTH = 0.5f;
 	}
 
-	struct CollisionData
+	struct Contact
 	{
 		glm::vec3 point;
 		glm::vec3 normal;
 		float penetration;
+
+		void * userData;
+	};
+
+	struct CollisionData
+	{
+		enum Type {
+			RIGID,
+			SOFT
+		};
+
+		std::vector<Contact*> contacts;
 		float restitution;
 		float friction;
-		std::string result;
 
-		RigidBody * bodies[2];
+		Type type;
+		CollisionBody * bodies[2];
 	};
 
 	class CollisionDetector
@@ -40,10 +52,12 @@ namespace Common
 
 		static bool SphereAndSphere(SphereCollider * a, SphereCollider * b, CollisionData * data);
 		static bool SphereAndPlane(SphereCollider * a, PlaneCollider * b, CollisionData * data);
+		static bool MeshAndMesh(MeshCollider * a, MeshCollider * b, CollisionData * data);
 
 		inline void addCollider(Collider * collider) { m_colliders.push_back(collider); }
 		inline void clear() { m_colliders.clear(); }
 
+		Contact * collides(const glm::vec3 & position);
 		void detectCollisions(std::vector<CollisionData> & collisions);
 
 	private:

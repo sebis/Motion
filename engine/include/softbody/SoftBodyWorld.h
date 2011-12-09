@@ -6,6 +6,7 @@
 namespace Common
 {
 	class SoftBody;
+	struct CollisionData;
 
 	class SoftBodyWorld
 	{
@@ -17,6 +18,8 @@ namespace Common
 		void update(float dt);
 
 	private:
+		void resolveInterpenetration(const CollisionData & data);
+
 		typedef std::vector<SoftBody *> Container;
 		typedef Container::iterator Iterator;
 		Container m_bodies;

@@ -54,6 +54,9 @@ namespace Common
 		{
 			const CollisionData & data = collisions[i];
 
+			// TODO: make Physics support soft bodies as well
+			assert(data.type == CollisionData::RIGID);
+
 			resolveVelocity(data);
 			resolveInterpenetration(data);
 		}
@@ -61,18 +64,20 @@ namespace Common
 
 	void Physics::resolveVelocity(const CollisionData & data)
 	{
-		RigidBody * body1 = data.bodies[0];
-		RigidBody * body2 = data.bodies[1];
+		RigidBody * body1 = static_cast<RigidBody*>(data.bodies[0]);
+		RigidBody * body2 = static_cast<RigidBody*>(data.bodies[1]);
+
+		Contact * contact = data.contacts[0];
 
 		glm::vec3 relativeVelocity = body1->velocity() + 
-			glm::cross(body1->m_angularVelocity, data.point - body1->m_position);
+			glm::cross(body1->m_angularVelocity, contact->point - body1->m_position);
 
 		if (body2) {
 			relativeVelocity -= body2->velocity() +
-				glm::cross(body2->m_angularVelocity, data.point - body2->m_position);
+				glm::cross(body2->m_angularVelocity, contact->point - body2->m_position);
 		}
 
-		float separation = glm::dot(relativeVelocity, data.normal);
+		float separation = glm::dot(relativeVelocity, contact->normal);
 
 		// check if the bodies are already moving apart
 		if (separation > 0)
@@ -84,16 +89,16 @@ namespace Common
 
 		// calculate angular momentum
 
-		glm::vec3 r1 = data.point - body1->m_position;
+		glm::vec3 r1 = contact->point - body1->m_position;
 
 		glm::mat3 inertiaTensor = body1->m_rotation * body1->m_inertiaTensor * glm::transpose(body1->m_rotation);
-		denom += glm::dot(glm::cross(glm::inverse(inertiaTensor) * glm::cross(r1, data.normal), r1), data.normal);
+		denom += glm::dot(glm::cross(glm::inverse(inertiaTensor) * glm::cross(r1, contact->normal), r1), contact->normal);
 
 		if (body2) {
-			glm::vec3 r2 = data.point - body2->m_position;
+			glm::vec3 r2 = contact->point - body2->m_position;
 
 			glm::mat3 inertiaTensor = body2->m_rotation * body2->m_inertiaTensor * glm::transpose(body2->m_rotation);
-			denom += glm::dot(glm::cross(glm::inverse(inertiaTensor) * glm::cross(r2, data.normal), r2), data.normal);
+			denom += glm::dot(glm::cross(glm::inverse(inertiaTensor) * glm::cross(r2, contact->normal), r2), contact->normal);
 		}
 
 		// calculate impulse magnitude
@@ -105,7 +110,7 @@ namespace Common
 
 		if (separation != 0)
 		{
-			glm::vec3 VonN = relativeVelocity - glm::dot(relativeVelocity, data.normal) * data.normal;
+			glm::vec3 VonN = relativeVelocity - glm::dot(relativeVelocity, contact->normal) * contact->normal;
 			tangentVelocity = glm::length(VonN);
 			if (tangentVelocity > 0)
 				tangent = glm::normalize(VonN);
@@ -122,7 +127,7 @@ namespace Common
 			denom += glm::dot(glm::cross(glm::inverse(inertiaTensor) * glm::cross(r1, tangent), r1), tangent);
 
 			if (body2) {
-				glm::vec3 r2 = data.point - body2->m_position;
+				glm::vec3 r2 = contact->point - body2->m_position;
 
 				glm::mat3 inertiaTensor = body2->m_rotation * body2->m_inertiaTensor * glm::transpose(body2->m_rotation);
 				denom += glm::dot(glm::cross(glm::inverse(inertiaTensor) * glm::cross(r2, tangent), r2), tangent);
@@ -139,20 +144,22 @@ namespace Common
 		}
 
 		// apply impulses
-		body1->applyImpulse(impulse * data.normal - tangent, data.point);
-		if (body2) body2->applyImpulse(-(impulse * data.normal - tangent), data.point);
+		body1->applyImpulse(impulse * contact->normal - tangent, contact->point);
+		if (body2) body2->applyImpulse(-(impulse * contact->normal - tangent), contact->point);
 	}
 
 	void Physics::resolveInterpenetration(const CollisionData & data)
 	{
-		RigidBody * body1 = data.bodies[0];
-		RigidBody * body2 = data.bodies[1];
+		RigidBody * body1 = static_cast<RigidBody*>(data.bodies[0]);
+		RigidBody * body2 = static_cast<RigidBody*>(data.bodies[1]);
+
+		Contact * contact = data.contacts[0];
 
 		float invMass = 0.0f;
 		if (body1) invMass += 1.0f / body1->m_mass;
 		if (body2) invMass += 1.0f / body2->m_mass;
 
-		glm::vec3 movePerIMass = data.normal * (data.penetration / invMass);
+		glm::vec3 movePerIMass = contact->normal * (contact->penetration / invMass);
 
 		if (body1) body1->m_position += movePerIMass * (1.0f / body1->m_mass);
 		else if (body2) body2->m_position -= movePerIMass * (1.0f / body2->m_mass);

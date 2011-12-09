@@ -5,7 +5,92 @@
 
 namespace
 {
-	
+	// From Real-Time Collision Detection by Christopher Ericson. Uses Lagrange's identity.
+	bool PointInTriangle(const glm::vec3 & p, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 & n, glm::vec3 & q, float & t)
+	{
+		const glm::vec3 & pa = a - p;
+		const glm::vec3 & pb = b - p;
+		const glm::vec3 & pc = c - p;
+
+		glm::vec3 u = glm::cross(pb, pc);
+		glm::vec3 v = glm::cross(pc, pa);
+
+		if (glm::dot(u, v) < 0.0f)
+			return false;
+
+		glm::vec3 w = glm::cross(pa, pb);
+		
+		if (glm::dot(u, w) < 0.0f)
+			return false;
+
+		const glm::vec3 & ab = b - a;
+		const glm::vec3 & ac = c - a;
+
+		// calculate normal for triangle
+		n = glm::cross(ab, ac);
+		n *= 1.0f / glm::dot(n, n);
+
+		// distance of point p along normal
+		t = glm::dot(n, p - a);
+		const float CONSTANT = 0.01f;
+		if (t > CONSTANT)
+			return false;
+
+		// projected point on triangle
+		q = n * (CONSTANT - t);
+
+		return true;
+	}
+
+	/*bool MyPointInTriangle(const glm::vec3 & p, glm::vec3 a, glm::vec3 b, glm::vec3 c)
+	{
+		glm::vec3 ab = b - a;
+		glm::vec3 ac = c - a;
+
+		glm::vec3 n = glm::cross(ab, ac);
+
+		float t = glm::dot(n, p - a) / glm::dot(n, n);
+
+		glm::vec3 r = p - t * n;
+
+		// check if r inside triangle abc
+	}*/
+
+	bool IntersectRayTriangle(const glm::vec3 & p, const glm::vec3 & q, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 & hit)
+	{
+		glm::vec3 ab = b - a;
+		glm::vec3 ac = c - a;
+		glm::vec3 qp = p - q;
+
+		glm::vec3 n = glm::cross(ab, ac);
+
+		float d = glm::dot(qp, n);
+		if (d <= 0.0f)
+			return false;
+
+		glm::vec3 ap = p - a;
+		float t = glm::dot(ap, n);
+		if (t < 0.0f)
+			return false;
+
+		glm::vec3 e = glm::cross(qp, ap);
+
+		float v = glm::dot(ac, e);
+		if (v < 0.0f || v > d)
+			return false;
+
+		float w = -glm::dot(ab, e);
+		if (w < 0.0f || v + w > d)
+			return false;
+
+		float ood = 1.0f / d;
+		t *= ood;
+		v *= ood;
+		w *= ood;
+		float u = 1.0f - v - w;
+
+		return true;
+	}
 }
 
 namespace Common
@@ -31,13 +116,13 @@ namespace Common
 		if (length <= 0.0f || length > a->m_radius + b->m_radius)
 			return false;
 
-		data->normal = glm::normalize(ab);
-		data->point = pa + 0.5f * ab;
-		data->penetration = a->m_radius + b->m_radius - length;
+		Contact * contact = new Contact;
 
-		std::stringstream ss;
-		ss << a->name << " vs " << b->name;
-		data->result = ss.str();
+		contact->normal = glm::normalize(ab);
+		contact->point = pa + 0.5f * ab;
+		contact->penetration = a->m_radius + b->m_radius - length;
+
+		data->contacts.push_back(contact);
 
 		return true;
 	}
@@ -51,15 +136,140 @@ namespace Common
 		if (distance >= 0)
 			return false;
 
-		data->normal = plane->m_normal;
-		data->point = position - plane->m_normal * (distance + sphere->m_radius);
-		data->penetration = -distance;
+		Contact * contact = new Contact;
 
-		std::stringstream ss;
-		ss << sphere->name << " vs " << plane->name;
-		data->result = ss.str();
+		contact->normal = plane->m_normal;
+		contact->point = position - plane->m_normal * (distance + sphere->m_radius);
+		contact->penetration = -distance;
+
+		data->contacts.push_back(contact);
 
 		return true;
+	}
+
+	bool CollisionDetector::MeshAndMesh(MeshCollider * mesh1, MeshCollider * mesh2, CollisionData * data)
+	{
+		if (mesh1->m_usePoints && !mesh2->m_usePoints) {
+			// right order, do nothing
+		} else if (mesh2->m_usePoints && !mesh1->m_usePoints) {
+			// swap
+			MeshCollider * tmp = mesh1;
+			mesh1 = mesh2;
+			mesh2 = tmp;
+		} else {
+			Trace::error("Unsupported mesh collision\n");
+			return false;
+		}
+
+		const glm::mat4 & world1 = mesh1->transform().world();
+		const glm::mat4 & world2 = mesh2->transform().world();
+
+		// check if a points are contained in b's triangles
+		Mesh::Indices indices = mesh2->m_mesh->indices();
+
+		for (int i = 0; i < indices.size(); i += 3) {
+
+			const glm::vec3 a(world2 * glm::vec4(mesh2->m_mesh->vertexAt(indices[i+0]).position, 1.0f));
+			const glm::vec3 b(world2 * glm::vec4(mesh2->m_mesh->vertexAt(indices[i+1]).position, 1.0f));
+			const glm::vec3 c(world2 * glm::vec4(mesh2->m_mesh->vertexAt(indices[i+2]).position, 1.0f));
+
+			glm::vec3 finalNormal;
+			glm::vec3 finalPoint;
+			float minPenetration = std::numeric_limits<float>::max();
+			bool collide = false;
+
+			int totalcounter = 0;
+			int incounter = 0;
+			int hitcounter = 0;
+
+			for (int v = 0; v < mesh1->m_mesh->vertices().size(); v++)
+			{
+				totalcounter++;
+
+				glm::vec3 * currentVertex = &mesh1->m_mesh->vertexAt(v).position;
+				const glm::vec3 p(world1 * glm::vec4(*currentVertex, 1.0f));
+
+				glm::vec3 normal;
+				glm::vec3 point;
+				float penetration;
+
+				if (PointInTriangle(p, a, b, c, normal, point, penetration))
+				{
+					incounter++;
+					if (penetration < minPenetration)
+					{
+						Contact * contact = new Contact;
+
+						contact->normal = normal;
+						contact->point = point;
+						contact->penetration = penetration;
+						contact->userData = currentVertex;
+
+						data->contacts.push_back(contact);
+					}
+				}
+			}
+		}
+
+		Trace::info("Number of contacts: %d\n", data->contacts.size());
+		return data->contacts.size() > 0;
+	}
+
+	Contact * CollisionDetector::collides(const glm::vec3 & position)
+	{
+		for (unsigned i = 0; i < m_colliders.size(); i++)
+		{
+			MeshCollider * mesh = dynamic_cast<MeshCollider*>(m_colliders[i]);
+			if (mesh)
+			{
+				const glm::mat4 & world = mesh->transform().world();
+
+				// check if a points are contained in b's triangles
+				Mesh::Indices indices = mesh->m_mesh->indices();
+
+				glm::vec3 finalNormal;
+				glm::vec3 finalPoint;
+				float minPenetration = std::numeric_limits<float>::max();
+				bool collide = false;
+
+				for (int i = 0; i < indices.size(); i += 3) {
+
+					const glm::vec3 a(world * glm::vec4(mesh->m_mesh->vertexAt(indices[i+0]).position, 1.0f));
+					const glm::vec3 b(world * glm::vec4(mesh->m_mesh->vertexAt(indices[i+1]).position, 1.0f));
+					const glm::vec3 c(world * glm::vec4(mesh->m_mesh->vertexAt(indices[i+2]).position, 1.0f));
+
+					glm::vec3 normal;
+					glm::vec3 point;
+					float penetration;
+
+					if (PointInTriangle(position, a, b, c, normal, point, penetration))
+					{
+						if (penetration < minPenetration)
+						{
+							finalNormal = normal;
+							finalPoint = point;
+							minPenetration = penetration;
+							collide = true;
+						}
+					}
+				}
+
+				if (collide) 
+				{
+					Contact * contact = new Contact;
+
+					contact->normal = finalNormal;
+					contact->point = finalPoint;
+					contact->penetration = minPenetration;
+
+					Trace::info("Found contact: %f\n", minPenetration);
+
+					return contact;
+				}
+			}
+		}
+
+		return 0;
 	}
 
 	void CollisionDetector::detectCollisions(std::vector<CollisionData> & collisions)
@@ -76,16 +286,33 @@ namespace Common
 
 				CollisionData data;
 
-				PlaneCollider * plane = dynamic_cast<PlaneCollider*>(m_colliders[i]);
+				MeshCollider * mesh = dynamic_cast<MeshCollider*>(m_colliders[i]);
+				if (mesh)
+				{
+					MeshCollider * mesh2 = dynamic_cast<MeshCollider*>(m_colliders[j]);
+					if (mesh2) {
+						CollisionData * pData = &data;
+						if (CollisionDetector::MeshAndMesh(mesh, mesh2, pData)) {
+							data.bodies[0] = mesh->collisionBody();
+							data.bodies[1] = mesh->collisionBody();
+							data.restitution = 0;
+							data.friction = 0;
+							collisions.push_back(data);
+						}
+						continue;
+					}
+					continue; // Mesh-Other not implemented
+				}
 
+				PlaneCollider * plane = dynamic_cast<PlaneCollider*>(m_colliders[i]);
 				if (plane)
 				{
 					SphereCollider * sphere = dynamic_cast<SphereCollider*>(m_colliders[j]);
 					if (sphere) {
 						CollisionData * pData = &data;
 						if (CollisionDetector::SphereAndPlane(sphere, plane, pData)) {
-							data.bodies[0] = sphere->rigidBody();
-							data.bodies[1] = plane->rigidBody();
+							data.bodies[0] = sphere->collisionBody();
+							data.bodies[1] = plane->collisionBody();
 							data.restitution = COF_BALL_TABLE;
 							data.friction = FRICTION_BALL_CLOTH;
 							collisions.push_back(data);
@@ -102,8 +329,8 @@ namespace Common
 					PlaneCollider * plane = dynamic_cast<PlaneCollider*>(m_colliders[j]);
 					if (plane) {
 						if (SphereAndPlane(sphere, plane, &data)) {
-							data.bodies[0] = sphere->rigidBody();
-							data.bodies[1] = plane->rigidBody();
+							data.bodies[0] = sphere->collisionBody();
+							data.bodies[1] = plane->collisionBody();
 							data.restitution = COF_BALL_TABLE;
 							data.friction = FRICTION_BALL_CLOTH;
 							collisions.push_back(data);
@@ -114,8 +341,8 @@ namespace Common
 					SphereCollider * sphere2 = dynamic_cast<SphereCollider*>(m_colliders[j]);
 					if (sphere2) {
 						if (SphereAndSphere(sphere, sphere2, &data)) {
-							data.bodies[0] = sphere->rigidBody();
-							data.bodies[1] = sphere2->rigidBody();
+							data.bodies[0] = sphere->collisionBody();
+							data.bodies[1] = sphere2->collisionBody();
 							data.restitution = COF_BALL_BALL;
 							data.friction = FRICTION_BALL_BALL;
 							collisions.push_back(data);

@@ -8,7 +8,8 @@ namespace Common
 		  m_ambientColor(glm::vec4(0.0f)),
 		  m_diffuseColor(glm::vec4(0.5f)),
 		  m_specularColor(glm::vec4(1.0f)),
-		  m_shininess(30.0f)
+		  m_shininess(30.0f),
+		  m_wireframe(false)
 	{
 	}
 	
@@ -30,6 +31,9 @@ namespace Common
 		if (m_texture)
 			m_texture->bind();
 
+		if (m_wireframe)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 		m_shader->bind();
 
 		// TODO: light should come from a global stuff?
@@ -46,6 +50,9 @@ namespace Common
 	void Material::end()
 	{
 		m_shader->unbind();
+
+		if (m_wireframe)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		if (m_texture)
 			m_texture->unbind();

@@ -56,9 +56,11 @@ namespace SoftBodyDemo
 		Common::GameObject::s_camera = &m_camera;
 
 		Material * yellowMaterial = new Material(Shader::find("shader"));
+		yellowMaterial->setAmbientColor(glm::vec4(1, 0, 0, 1));
+		//yellowMaterial->setWireframe(true);
 		//MeshObject * cube = new MeshObject(MeshFactory::Cube(), yellowMaterial);
 		MeshObject * cube = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 8), yellowMaterial);
-		cube->transform().translate(glm::vec3(0.5f, 0.0f, 0.5f));
+		cube->transform().translate(glm::vec3(0.0f, 0.0f, 0.0f));
 		//cube->transform().scale() = glm::vec3(5.0f);
 
 		MeshObject * lowpoly = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 8), 0);
@@ -85,7 +87,37 @@ namespace SoftBodyDemo
 
 		m_components.push_back(cloth);
 
+		//addDrawDebug(cubeCollider->m_bvh);
+
 		return true;
+	}
+
+	void MainApplication::addDrawDebug(BVH * bvh)
+	{
+		BVHNode * root = bvh->root();
+
+		Material * wireframe = new Material(Shader::find("shader"));
+		wireframe->setAmbientColor(glm::vec4(1.0f));
+		wireframe->setWireframe(true);
+
+		for (std::vector<BVHNode*>::iterator it = root->m_children.begin(); it != root->m_children.end(); it++)
+		{
+			BVHNode * current = *it;
+			//BVHNode * current = root;
+			BoundingSphere * bs = dynamic_cast<BoundingSphere *>(current->m_bv);
+			if (bs)
+			{
+				bs->print_debug();
+
+				MeshObject * sphere = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 10), wireframe);
+
+				sphere->transform().translate(bs->center());
+				sphere->transform().scale() = glm::vec3(1.0f) * bs->radius();
+
+				m_components.push_back(sphere);
+			}
+			//break;
+		}
 	}
 
 	void MainApplication::keyDown(Common::Key key)

@@ -1,3 +1,4 @@
+#include "BVH.h"
 #include "CollisionDetector.h"
 #include "Trace.h"
 
@@ -42,9 +43,33 @@ namespace
 		return true;
 	}
 
-	/*bool PointInMesh(MeshCollider * mesh)
+	bool PointInBVH(const Common::BVH * bvh, const glm::vec3 & p, Common::Contact * contact)
 	{
-	}*/
+		Common::BVHNode * parent = bvh->root();
+
+		if (parent->isInside(p)) {
+
+			for (std::vector<Common::BVHNode*>::iterator it = parent->m_children.begin(); it != parent->m_children.end(); it++)
+			{
+				Common::BVHNode * current = *it;
+				if (current->isInside(p)) {
+					Common::Triangle * tri = current->m_triangle;
+					glm::vec3 n, q;
+					float t;
+					if (PointInTriangle(p, tri->a, tri->b, tri->c, n, q, t))
+					{
+						contact->normal = n;
+						contact->point = q;
+						contact->penetration = t;
+
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
 
 	bool IntersectLineTriangle(const glm::vec3 & p, const glm::vec3 & q, const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, glm::vec3 & n, glm::vec3 & r, float & t)
 	{
@@ -275,6 +300,8 @@ namespace Common
 
 	Contact * CollisionDetector::collides(const glm::vec3 & p1, const glm::vec3 & p2)
 	{
+		Contact * contact = new Contact;
+
 		for (unsigned i = 0; i < m_colliders.size(); i++)
 		{
 			MeshCollider * mesh = dynamic_cast<MeshCollider*>(m_colliders[i]);
@@ -285,8 +312,7 @@ namespace Common
 				const glm::vec3 & p = glm::vec3(invWorld * glm::vec4(p1, 1.0f));
 				const glm::vec3 & q = glm::vec3(invWorld * glm::vec4(p2, 1.0f));
 
-				// check if a points are contained in b's triangles
-				const Mesh::Indices & indices = mesh->m_mesh->indices();
+				/*const Mesh::Indices & indices = mesh->m_mesh->indices();
 
 				Contact * contact = collidesInternal(mesh, p, q, indices);
 				if (contact) {
@@ -295,9 +321,19 @@ namespace Common
 					contact->point = glm::vec3(world * glm::vec4(contact->point, 1.0f));
 
 					return contact;
+				}*/
+
+				if (PointInBVH(mesh->m_bvh, p, contact))
+				{
+					contact->normal = glm::vec3(world * glm::vec4(contact->normal, 0.0f));
+					contact->point = glm::vec3(world * glm::vec4(contact->point, 1.0f));
+
+					return contact;
 				}
 			}
 		}
+
+		delete contact;
 
 		return 0;
 	}

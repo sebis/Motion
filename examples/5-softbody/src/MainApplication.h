@@ -9,6 +9,7 @@ typedef Common::SDLApplication Base;
 typedef Common::GlutApplication Base;
 #endif
 
+#include "BVH.h"
 #include "Camera.h"
 #include "Component.h"
 
@@ -36,6 +37,7 @@ namespace SoftBodyDemo
 		void draw();
 
 	private:
+		void addDrawDebug(Common::BVH * bvh);
 		Common::Camera m_camera;
 		bool m_started;
 

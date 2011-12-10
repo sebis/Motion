@@ -1,5 +1,6 @@
 #include "BVH.h"
 #include "Mesh.h"
+#include "Trace.h"
 
 namespace Common
 {
@@ -50,7 +51,7 @@ namespace Common
 			assert(max.first && max.second);
 
 			glm::vec3 center = *max.first + 0.5f * (*max.second - *max.first);
-			float radius = 0.5f * maxDistanceSqr;
+			float radius = 0.5f * glm::sqrt(maxDistanceSqr);
 
 			return new BoundingSphere(center, radius);
 		}
@@ -61,12 +62,17 @@ namespace Common
 		return glm::distance(p, m_center) < m_radius;
 	}
 
+	void BoundingSphere::print_debug()
+	{
+		Trace::info("Bounding sphere: (%.2f, %.2f, %.2f) -- %.2f\n", m_center.x, m_center.y, m_center.z, m_radius);
+	}
+
 	void BoundingSphere::grow(const BoundingSphere & s)
 	{
-		const glm::vec3 & d = m_center - s.m_center;
+		const glm::vec3 & d = s.m_center - m_center;
 		float dist2 = glm::dot(d, d);
 
-		if (glm::sqrt(s.m_radius - m_radius) >= dist2) {
+		if ((s.m_radius - m_radius) * (s.m_radius - m_radius) >= dist2) {
 			if (s.m_radius >= m_radius) {
 				m_radius = s.m_radius;
 				m_center = s.m_center;

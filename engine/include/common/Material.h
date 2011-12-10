@@ -30,6 +30,8 @@ namespace Common
 		inline void setSpecularColor(const glm::vec4& specularColor) { m_specularColor = specularColor; }
 		inline void setShininess(const glm::float_t& shininess) { m_shininess = shininess; }
 
+		inline void setWireframe(bool wireframe) { m_wireframe = wireframe; }
+
 	private:
 		Shader * m_shader;
 		Texture * m_texture;
@@ -38,6 +40,8 @@ namespace Common
 		glm::vec4 m_diffuseColor;
 		glm::vec4 m_specularColor;
 		glm::float_t m_shininess;
+
+		bool m_wireframe;
 	};
 }
 

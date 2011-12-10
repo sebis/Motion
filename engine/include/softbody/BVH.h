@@ -22,6 +22,7 @@ namespace Common
 	{
 	public:
 		virtual bool isInside(const glm::vec3 & p) const = 0;
+		virtual void print_debug() {}
 	};
 
 	class BoundingSphere : public BoundingVolume
@@ -31,7 +32,12 @@ namespace Common
 			: m_center(center), m_radius(radius) {}
 
 		virtual bool isInside(const glm::vec3 & p) const;
+		inline void print_debug();
+
 		void grow(const BoundingSphere & s);
+
+		const glm::vec3 & center() const { return m_center; }
+		float radius() const { return m_radius; }
 
 	private:
 		glm::vec3 m_center;
@@ -40,6 +46,8 @@ namespace Common
 
 	struct BVHNode
 	{
+		inline bool isInside(const glm::vec3 & p) { return m_bv->isInside(p); }
+
 		BoundingVolume * m_bv;
 		std::vector<BVHNode*> m_children;
 
@@ -50,9 +58,9 @@ namespace Common
 	class BVH
 	{
 	public:
-		bool isInside(const glm::vec3 & p) const;
-
 		static BVH * constructFromMesh(Mesh * mesh);
+
+		inline BVHNode * root() const { return m_root; }
 
 	private:
 		friend class CollisionDetector;

@@ -16,9 +16,6 @@ namespace Common
 	class SoftBody : public CollisionBody
 	{
 	public:
-
-		struct Link;
-
 		struct Node
 		{
 			Node(glm::vec3 & _position, float _mass) 
@@ -36,16 +33,6 @@ namespace Common
 			glm::vec3 & position;
 			glm::vec3 oldPosition;
 			bool constrained;
-
-			typedef std::set<Link*> Links;
-			typedef Links::iterator LinkIterator;
-			Links links;
-		};
-
-		struct Link
-		{
-			Node * n;
-			float l;
 		};
 
 		struct Spring
@@ -64,6 +51,7 @@ namespace Common
 		SoftBody(GameObject * gameObject);
 		virtual ~SoftBody();
 
+		void applyForces(float dt);
 		void solveConstraints();
 		void integrate(float dt);
 		void resolveCollisions();
@@ -73,6 +61,11 @@ namespace Common
 		static MeshObject * createCloth(Material * material, SoftBodyWorld * world, SoftBody * body = 0);
 
 	private:
+		static const unsigned WIDTH;
+		static const unsigned HEIGHT;
+
+		Node * node(unsigned x, unsigned z);
+
 		typedef std::vector<Node*> Nodes;
 		typedef Nodes::iterator NodeIterator;
 		Nodes m_nodes;

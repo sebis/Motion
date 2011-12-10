@@ -8,6 +8,9 @@
 
 namespace Common
 {
+	const unsigned SoftBody::WIDTH = 50;
+	const unsigned SoftBody::HEIGHT = 50;
+
 	SoftBody::SoftBody(GameObject * gameObject)
 		: m_gameObject(gameObject)
 	{
@@ -15,6 +18,20 @@ namespace Common
 
 	SoftBody::~SoftBody()
 	{
+	}
+
+	void SoftBody::applyForces(float dt)
+	{
+		float dt2 = dt * dt;
+
+		const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
+
+		for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
+		{
+			Node * i = *nit;
+
+			i->force = gravity * dt2;
+		}
 	}
 
 	void SoftBody::solveConstraints()
@@ -65,8 +82,6 @@ namespace Common
 	{
 		float dt2 = dt * dt;
 
-		const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
-		glm::vec3 force = gravity * dt2;
 		glm::vec3 velocity;
 		glm::vec3 tmp;
 		float damping = 0.99f;
@@ -78,8 +93,9 @@ namespace Common
 			if (i->constrained)
 				continue;
 
+			// Use Verlet integration to calculate velocity and new position based on previous state
 			tmp = i->position;
-			velocity = (i->position - i->oldPosition) * damping + (force / i->mass) * dt2;
+			velocity = (i->position - i->oldPosition) * damping + (i->force / i->mass) * dt2;
 			i->position += velocity;
 			i->oldPosition = tmp;
 		}
@@ -119,13 +135,20 @@ namespace Common
 				//glm::vec3 rn = glm::vec3(invWorld * glm::vec4(contact->point, 1.0f));
 				//n1->position += glm::dot(contact->normal, contact->point - wp1) * contact->normal;
 
-				i->position += contact->point - wp1;
+				float friction = 5.0f;
+				glm::vec3 rn = contact->point - wp1;
+				glm::vec3 d = i->position - i->oldPosition;
+				glm::vec3 dt = d - contact->normal * glm::dot(d, contact->normal);
+				glm::vec3 rt = -friction * dt;
+
+				i->position += rn + rt;
 			}
 		}
 	}
 
 	void SoftBody::update(float dt)
 	{
+		applyForces(dt);
 		solveConstraints();
 		integrate(dt);
 		resolveCollisions();
@@ -287,6 +310,11 @@ namespace Common
 		}*/
 	}
 
+	SoftBody::Node * SoftBody::node(unsigned x, unsigned z)
+	{
+		return m_nodes[z*(WIDTH+1) + x];
+	}
+
 	MeshObject * SoftBody::createCloth(Material * material, SoftBodyWorld * world, SoftBody * body)
 	{
 		MeshObject * object;
@@ -294,8 +322,8 @@ namespace Common
 		std::vector<Mesh::vertex> vData;
 		std::vector<glm::uint> iData;
 
-		int width = 50;
-		int length = 50;
+		int width = WIDTH;
+		int length = HEIGHT;
 
 		MeshFactory::PlaneMesh(width, length, vData, iData);
 
@@ -370,7 +398,7 @@ namespace Common
 					body->m_springs.push_back(s);
 				}*/
 
-				if (x > 0) {
+				/*if (x > 0) {
 					Link * link = new Link;
 					link->n = body->m_nodes[z*(width+1) + (x-1)];
 					link->l = 1.0f / width;
@@ -405,7 +433,7 @@ namespace Common
 					Node * n2 = body->m_nodes[(z+1)*(width+1) + x];
 					Link * link = new Link;
 					link->n = n2;
-				}
+				}*/
 
 			}
 		}

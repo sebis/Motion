@@ -3,7 +3,7 @@
 
 #include "glm/glm.hpp"
 
-#include <vector>
+#include <list>
 
 namespace Common
 {
@@ -28,10 +28,14 @@ namespace Common
 	class BoundingSphere : public BoundingVolume
 	{
 	public:
+		BoundingSphere()
+			: c(glm::vec3(0.0f)), r(0.0f), r2(0.0f)
+		{}
+
 		BoundingSphere(const glm::vec3 & center, float radius)
-			: m_center(center), m_radius(radius)
+			: c(center), r(radius)
 		{
-			m_radius2 = radius * radius;
+			r2 = radius * radius;
 		}
 
 		inline bool isInside(const glm::vec3 & p) const;
@@ -39,21 +43,19 @@ namespace Common
 
 		void grow(const BoundingSphere & s);
 
-		const glm::vec3 & center() const { return m_center; }
-		float radius() const { return m_radius; }
-
-	private:
-		glm::vec3 m_center;
-		float m_radius;
-		float m_radius2;
+		glm::vec3 c;
+		float r;
+		float r2;
 	};
 
 	struct BVHNode
 	{
-		inline bool isInside(const glm::vec3 & p) { return m_bv->isInside(p); }
+		inline bool isInside(const glm::vec3 & p) const { return m_bv->isInside(p); }
 
-		BoundingVolume * m_bv;
-		std::vector<BVHNode*> m_children;
+		BoundingSphere * m_bv;
+
+		BVHNode * left;
+		BVHNode * right;
 
 		Triangle * m_triangle;
 		bool m_isLeaf;

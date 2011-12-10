@@ -2,6 +2,8 @@
 #include "Mesh.h"
 #include "Trace.h"
 
+#include <list>
+
 namespace Common
 {
 	// Helper functions
@@ -59,33 +61,122 @@ namespace Common
 
 	bool BoundingSphere::isInside(const glm::vec3 & p) const
 	{
-		const glm::vec3 & diff = p - m_center;
-		return glm::dot(diff, diff) < m_radius2;
+		const glm::vec3 & diff = p - c;
+		return glm::dot(diff, diff) < r2;
 	}
 
 	void BoundingSphere::print_debug()
 	{
-		Trace::info("Bounding sphere: (%.2f, %.2f, %.2f) -- %.2f\n", m_center.x, m_center.y, m_center.z, m_radius);
+		Trace::info("Bounding sphere: (%.2f, %.2f, %.2f) -- %.2f\n", c.x, c.y, c.z, r);
 	}
 
 	void BoundingSphere::grow(const BoundingSphere & s)
 	{
-		const glm::vec3 & d = s.m_center - m_center;
+		const glm::vec3 & d = s.c - c;
 		float dist2 = glm::dot(d, d);
 
-		if ((s.m_radius - m_radius) * (s.m_radius - m_radius) >= dist2) {
-			if (s.m_radius >= m_radius) {
-				m_radius = s.m_radius;
-				m_radius2 = m_radius * m_radius;
-				m_center = s.m_center;
+		if ((s.r - r) * (s.r - r) >= dist2) {
+			if (s.r >= r) {
+				r = s.r;
+				r2 = r * r;
+				c = s.c;
 			}
 		} else {
 			float dist = glm::sqrt(dist2);
-			float newRadius = (dist + m_radius + s.m_radius) * 0.5f;
+			float newRadius = (dist + r + s.r) * 0.5f;
 			if (dist > std::numeric_limits<float>::epsilon())
-				m_center += ((newRadius - m_radius) / dist) * d;
-			m_radius = newRadius;
-			m_radius2 = m_radius * m_radius;
+				c += ((newRadius - r) / dist) * d;
+			r = newRadius;
+			r2 = r * r;
+		}
+	}
+
+	namespace
+	{
+		typedef std::list<BVHNode*>::iterator NodeIterator;
+
+		float ComputeVolume(const BoundingSphere & s)
+		{
+			return (4.0f / 3.0f) * M_PI * s.r * s.r * s.r;
+		}
+
+		void ComputeBoundingVolume(BoundingSphere & s, const BoundingSphere s0, const BoundingSphere s1)
+		{
+			glm::vec3 d = s1.c - s0.c;
+			float dist2 = glm::dot(d, d);
+
+			if ((s1.r - s0.r) * (s1.r - s0.r) >= dist2) {
+				if (s1.r >= s0.r)
+					s = s1;
+				else
+					s = s0;
+			} else {
+				float dist = std::sqrt(dist2);
+				s.r = (dist + s0.r + s1.r) * 0.5f;
+				s.r2 = s.r * s.r;
+				s.c = s0.c;
+				if (dist > std::numeric_limits<float>::epsilon())
+					s.c += ((s.r - s0.r) / dist) * d;
+			}
+		}
+
+		BoundingSphere * FindNodesToMerge(std::list<BVHNode *> & nodes, NodeIterator & i, NodeIterator & j)
+		{
+			NodeIterator begin = nodes.begin();
+			NodeIterator end = nodes.end();
+
+			BoundingSphere s, best;
+
+			float smallestVolume = std::numeric_limits<float>::max();
+
+			Trace::info("num nodes: %d\n", nodes.size());
+
+			for (NodeIterator it = begin; it != end; it++)
+			{
+				NodeIterator it2(it);
+				for (it2++; it2 != end; it2++)
+				{
+					ComputeBoundingVolume(s, *(*it)->m_bv, *(*it2)->m_bv);
+
+					float volume = ComputeVolume(s);
+
+					if (volume < smallestVolume) {
+						smallestVolume = volume;
+
+						best = s;
+
+						i = it;
+						j = it2;
+					}
+				}
+			}
+
+			return new BoundingSphere(best);
+		}
+
+		BVHNode * BottomUpBVTree(std::list<BVHNode*> & nodes)
+		{
+			NodeIterator i, j;
+
+			while (nodes.size() > 1)
+			{
+				// erases i and j from nodes
+				BoundingSphere * s = FindNodesToMerge(nodes, i, j);
+
+				BVHNode * node = new BVHNode;
+
+				node->m_isLeaf = false;
+				node->left = *i;
+				node->right = *j;
+				node->m_bv = s;
+
+				nodes.erase(i);
+				nodes.erase(j);
+
+				nodes.push_back(node);
+			}
+
+			return nodes.front();
 		}
 	}
 
@@ -93,7 +184,7 @@ namespace Common
 	{
 		const Mesh::Indices & indices = mesh->indices();
 
-		std::vector<BVHNode*> leaves;
+		std::list<BVHNode*> nodes;
 
 		BoundingSphere * rootSphere;
 
@@ -111,18 +202,20 @@ namespace Common
 			node->m_triangle = t;
 			node->m_bv = bs;
 			node->m_isLeaf = true;
+			node->left = 0;
+			node->right = 0;
 
-			leaves.push_back(node);
+			nodes.push_back(node);
 		}
 
-		rootSphere = new BoundingSphere(*static_cast<BoundingSphere *>(leaves[0]->m_bv));
+		/*rootSphere = new BoundingSphere(*static_cast<BoundingSphere *>(leaves[0]->m_bv));
 		for (int i = 1; i < leaves.size(); i++)
-			rootSphere->grow(*static_cast<BoundingSphere *>(leaves[i]->m_bv));
+			rootSphere->grow(*static_cast<BoundingSphere *>(leaves[i]->m_bv));*/
 
-		BVHNode * root = new BVHNode();
-		root->m_bv = rootSphere;
+		BVHNode * root = BottomUpBVTree(nodes);
+		/*root->m_bv = rootSphere;
 		root->m_isLeaf = false;
-		root->m_children = leaves;
+		root->m_children = leaves;*/
 
 		BVH * bvh = new BVH();
 		bvh->m_root = root;

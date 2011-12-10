@@ -19,7 +19,7 @@ namespace Common
 
 	void SoftBody::solveConstraints()
 	{
-		const unsigned maxIter = 10;
+		const unsigned maxIter = 20;
 
 		SpringIterator it;
 		SpringIterator begin = m_springs.begin();
@@ -34,15 +34,15 @@ namespace Common
 
 				const glm::vec3 & delta = n2->position - n1->position;
 
-				/*float d = glm::length(delta);
+				float d = glm::length(delta);
 				float l = (*it)->restLength;
 
 				const glm::vec3 & offset = delta * (1 - l/d) * 0.5f;
 
 				n1->position += offset;
-				n2->position -= offset;*/
+				n2->position -= offset;
 
-				float d = glm::dot(delta, delta);
+				/*float d = glm::dot(delta, delta);
 				float f = (*it)->restLength * (*it)->restLength;
 
 				float im1 = n1->constrained ? 0 : 1.0f / n1->mass;
@@ -56,7 +56,7 @@ namespace Common
 
 				if (im2 != 0) {
 					n2->position -= delta * (im2 * diff);
-				}
+				}*/
 			}
 		}
 	}
@@ -294,8 +294,8 @@ namespace Common
 		std::vector<Mesh::vertex> vData;
 		std::vector<glm::uint> iData;
 
-		int width = 30;
-		int length = 30;
+		int width = 50;
+		int length = 50;
 
 		MeshFactory::PlaneMesh(width, length, vData, iData);
 
@@ -332,7 +332,6 @@ namespace Common
 			for (int x = 0; x < width+1; x++)
 			{
 				int index = (width+1)*z + x;
-				Trace::info("%d, ", index);
 				Node * node = body->m_nodes[index];
 
 				// Immediate neighbors

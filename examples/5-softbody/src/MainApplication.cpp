@@ -59,9 +59,10 @@ namespace SoftBodyDemo
 		//yellowMaterial->setAmbientColor(glm::vec4(1, 0, 0, 1));
 		//yellowMaterial->setWireframe(true);
 		//MeshObject * cube = new MeshObject(MeshFactory::FromFile("resources/goomba.ply"), yellowMaterial);
-		MeshObject * cube = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 8), yellowMaterial);
+		MeshObject * cube = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 32), yellowMaterial);
 		cube->transform().translate(glm::vec3(0.0f, 0.0f, 0.0f));
 		//cube->transform().scale() = glm::vec3(0.4f);
+		cube->transform().update();
 
 		Mesh * lowpoly = MeshFactory::Sphere(glm::vec4(1.0f), 8);
 		//Mesh * lowpoly = MeshFactory::FromFile("resources/goomba-low.ply");
@@ -81,6 +82,7 @@ namespace SoftBodyDemo
 		MeshObject * cloth = SoftBody::createCloth(clothMaterial, &g_world, body);
 		cloth->transform().translate(glm::vec3(-2.5f, 5.0f, -2.5f));
 		//cloth->transform().scale() = glm::vec3(5.0f);
+		cloth->transform().update();
 
 		/*MeshCollider * clothCollider = new MeshCollider(cloth, body, true);
 		clothCollider->m_mesh = cloth->mesh();
@@ -93,6 +95,23 @@ namespace SoftBodyDemo
 		return true;
 	}
 
+	namespace
+	{
+		void collectBvhs(std::vector<BVHNode *> & nodes, BVHNode * current, int levelFrom, int levelTo, int level = 0)
+		{
+			if (level >= levelFrom && level <= levelTo)
+				nodes.push_back(current);
+
+			if (level == levelTo)
+				return;
+
+			if (current->left)
+				collectBvhs(nodes, current->left, levelFrom, levelTo, level+1);
+			if (current->right)
+				collectBvhs(nodes, current->right, levelFrom, levelTo, level+1);
+		}
+	}
+	
 	void MainApplication::addDrawDebug(BVH * bvh)
 	{
 		BVHNode * root = bvh->root();
@@ -101,24 +120,26 @@ namespace SoftBodyDemo
 		wireframe->setAmbientColor(glm::vec4(1.0f));
 		wireframe->setWireframe(true);
 
-		for (std::vector<BVHNode*>::iterator it = root->m_children.begin(); it != root->m_children.end(); it++)
-		{
-			BVHNode * current = *it;
-			//BVHNode * current = root;
-			BoundingSphere * bs = dynamic_cast<BoundingSphere *>(current->m_bv);
-			if (bs)
-			{
-				bs->print_debug();
+		std::vector<BVHNode *> nodes;
+		collectBvhs(nodes, root, 5, 5);
 
-				MeshObject * sphere = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 10), wireframe);
+		int leaves = 0;
 
-				sphere->transform().translate(bs->center());
-				sphere->transform().scale() = glm::vec3(1.0f) * bs->radius();
+		for (int i = 0; i < nodes.size(); i++) {
+			BoundingSphere * bs = nodes[i]->m_bv;
+			if (nodes[i]->m_isLeaf)
+				leaves++;
+			//bs->print_debug();
 
-				m_components.push_back(sphere);
-			}
-			//break;
+			MeshObject * sphere = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 10), wireframe);
+
+			sphere->transform().translate(bs->c);
+			sphere->transform().scale() = glm::vec3(1.0f) * bs->r;
+
+			m_components.push_back(sphere);
 		}
+
+		Trace::info("%d/%d nodes\n", leaves, nodes.size());
 	}
 
 	void MainApplication::keyDown(Common::Key key)

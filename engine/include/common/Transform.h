@@ -80,6 +80,15 @@ namespace Common
 			return Transform::extract(world() * other.world());
 		}
 
+		inline void update()
+		{
+			m_worldMatrix = world();
+			m_invWorld = glm::inverse(m_worldMatrix);
+		}
+
+		inline const glm::mat4 & worldMatrix() const { return m_worldMatrix; }
+		inline const glm::mat4 & invWorldMatrix() const { return m_invWorld; }
+
 	private:
 		RotationType m_rotationType;
 
@@ -91,6 +100,9 @@ namespace Common
 		glm::quat m_quaternion;
 	
 		Transform * m_parent;
+
+		glm::mat4 m_worldMatrix;
+		glm::mat4 m_invWorld;
 	};
 }
 

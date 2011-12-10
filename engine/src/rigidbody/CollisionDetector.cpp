@@ -68,7 +68,7 @@ namespace
 		// distance of point p along normal
 		contact->penetration = glm::dot(tri->n, p - tri->a);
 
-		const float CONSTANT = 0.05f;
+		const float CONSTANT = 0.075f;
 		if (contact->penetration > CONSTANT)
 			return false;
 
@@ -79,31 +79,18 @@ namespace
 		return true;
 	}
 
-	bool PointInBVH(const Common::BVH * bvh, const glm::vec3 & p, Common::Contact * contact)
+	bool PointInBVH(const Common::BVHNode * node, const glm::vec3 & p, Common::Contact * contact)
 	{
-		Common::BVHNode * parent = bvh->root();
+		if (!node->isInside(p))
+			return false;
 
-		if (parent->isInside(p)) {
-
-			for (std::vector<Common::BVHNode*>::iterator it = parent->m_children.begin(); it != parent->m_children.end(); it++)
-			{
-				Common::BVHNode * current = *it;
-				if (current->isInside(p)) {
-					/*Common::Triangle * tri = current->m_triangle;
-					glm::vec3 n, q;
-					float t;
-					if (PointInTriangle(p, tri->a, tri->b, tri->c, n, q, t))
-					{
-						contact->normal = n;
-						contact->point = q;
-						contact->penetration = t;
-
-						return true;
-					}*/
-					if (PointInTriangle(p, current->m_triangle, contact))
-						return true;
-				}
-			}
+		if (node->m_isLeaf) {
+			return PointInTriangle(p, node->m_triangle, contact);
+		} else {
+			if (PointInBVH(node->left, p, contact))
+				return true;
+			if (PointInBVH(node->right, p, contact))
+				return true;
 		}
 
 		return false;
@@ -345,8 +332,8 @@ namespace Common
 			MeshCollider * mesh = dynamic_cast<MeshCollider*>(m_colliders[i]);
 			if (mesh)
 			{
-				const glm::mat4 & world = mesh->transform().world();
-				const glm::mat4 & invWorld = glm::inverse(world);
+				const glm::mat4 & world = mesh->transform().worldMatrix();
+				const glm::mat4 & invWorld = mesh->transform().invWorldMatrix();
 				const glm::vec3 & p = glm::vec3(invWorld * glm::vec4(p1, 1.0f));
 				const glm::vec3 & q = glm::vec3(invWorld * glm::vec4(p2, 1.0f));
 
@@ -361,7 +348,7 @@ namespace Common
 					return contact;
 				}*/
 
-				if (PointInBVH(mesh->m_bvh, p, contact))
+				if (PointInBVH(mesh->m_bvh->root(), p, contact))
 				{
 					contact->normal = glm::vec3(world * glm::vec4(contact->normal, 0.0f));
 					contact->point = glm::vec3(world * glm::vec4(contact->point, 1.0f));

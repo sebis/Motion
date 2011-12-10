@@ -32,28 +32,18 @@ namespace
 
 		// distance of point p along normal
 		t = glm::dot(n, p - a);
-		const float CONSTANT = 0.0f;
+		const float CONSTANT = 0.05f;
 		if (t > CONSTANT)
 			return false;
 
 		// projected point on triangle
-		q = n * (CONSTANT - t);
+		q = p + n * (CONSTANT - t);
 
 		return true;
 	}
 
-	/*bool MyPointInTriangle(const glm::vec3 & p, glm::vec3 a, glm::vec3 b, glm::vec3 c)
+	/*bool PointInMesh(MeshCollider * mesh)
 	{
-		glm::vec3 ab = b - a;
-		glm::vec3 ac = c - a;
-
-		glm::vec3 n = glm::cross(ab, ac);
-
-		float t = glm::dot(n, p - a) / glm::dot(n, n);
-
-		glm::vec3 r = p - t * n;
-
-		// check if r inside triangle abc
 	}*/
 
 	bool IntersectLineTriangle(const glm::vec3 & p, const glm::vec3 & q, const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, glm::vec3 & n, glm::vec3 & r, float & t)
@@ -71,7 +61,7 @@ namespace
 		const glm::vec3 & ap = p - a;
 
 		t = glm::dot(ap, n);
-		if (t < 0.0f || t > d)
+		if (t < -0.05f || t > d)
 			return false;
 
 		const glm::vec3 e = glm::cross(qp, ap);
@@ -92,6 +82,7 @@ namespace
 		w *= ood;
 		float u = 1.0f - v - w;
 
+		//r = p + t * (q - p);
 		r = u * a + v * b + w * c;
 
 		return true;
@@ -289,14 +280,22 @@ namespace Common
 			MeshCollider * mesh = dynamic_cast<MeshCollider*>(m_colliders[i]);
 			if (mesh)
 			{
-				const glm::mat4 & invWorld = glm::inverse(mesh->transform().world());
+				const glm::mat4 & world = mesh->transform().world();
+				const glm::mat4 & invWorld = glm::inverse(world);
 				const glm::vec3 & p = glm::vec3(invWorld * glm::vec4(p1, 1.0f));
 				const glm::vec3 & q = glm::vec3(invWorld * glm::vec4(p2, 1.0f));
 
 				// check if a points are contained in b's triangles
 				const Mesh::Indices & indices = mesh->m_mesh->indices();
 
-				return collidesInternal(mesh, p, q, indices);
+				Contact * contact = collidesInternal(mesh, p, q, indices);
+				if (contact) {
+
+					contact->normal = glm::vec3(world * glm::vec4(contact->normal, 0.0f));
+					contact->point = glm::vec3(world * glm::vec4(contact->point, 1.0f));
+
+					return contact;
+				}
 			}
 		}
 

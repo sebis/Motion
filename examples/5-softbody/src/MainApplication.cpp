@@ -65,6 +65,7 @@ namespace SoftBodyDemo
 
 		MeshCollider * cubeCollider = new MeshCollider(cube);
 		cubeCollider->m_mesh = lowpoly->mesh();
+		cubeCollider->m_bvh = BVH::constructFromMesh(lowpoly->mesh());
 		CollisionDetector::instance()->addCollider(cubeCollider);
 
 		m_components.push_back(cube);

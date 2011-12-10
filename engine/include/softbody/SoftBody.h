@@ -25,6 +25,7 @@ namespace Common
 				  force(glm::vec3(0.0f)),
 				  dv0(glm::vec3(0.0f)),
 				  dv1(glm::vec3(0.0f)),
+				  newPosition(glm::vec3(0.0f)),
 				  constrained(false)
 			{}
 
@@ -32,6 +33,7 @@ namespace Common
 			glm::vec3 velocity;
 			glm::vec3 force;
 			glm::vec3 & position;
+			glm::vec3 newPosition;
 			glm::vec3 dv0;
 			glm::vec3 dv1;
 			bool constrained;

@@ -56,8 +56,8 @@ namespace Common
 			if (i->constrained)
 				continue;
 
-				i->velocity += (1.0f / i->mass) * i->force * dt;
-				i->position += i->velocity * dt;
+			i->velocity += (1.0f / i->mass) * i->force * dt;
+			i->position += i->velocity * dt;
 		}
 
 		// post-process inverse dynamics
@@ -66,15 +66,15 @@ namespace Common
 
 		CollisionDetector * cd = CollisionDetector::instance();
 		// TODO: proper iteration variables (maxIter, error)
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			for (SpringIterator it = m_springs.begin(); it != m_springs.end(); it++)
 			{
 				Node * n1 = (*it)->n1;
 				Node * n2 = (*it)->n2;
 
-				const glm::vec3 & p1 = n1->position;
-				const glm::vec3 & p2 = n2->position;
+				glm::vec3 p1 = n1->position;
+				glm::vec3 p2 = n2->position;
 
 				const glm::vec3 & delta = p2 - p1;
 
@@ -94,25 +94,27 @@ namespace Common
 					n2->position -= delta * (im2 * diff);
 				}
 
-				{
-					glm::vec3 wp1 = glm::vec3(world * glm::vec4(p1, 1.0f));
-					glm::vec3 wp2 = glm::vec3(world * glm::vec4(p1 + n1->velocity * dt, 1.0f));
+				if (!n1->constrained) {
+					glm::vec3 wp1 = glm::vec3(world * glm::vec4(n1->position, 1.0f));
+					glm::vec3 wp2 = glm::vec3(world * glm::vec4(n1->position + n1->velocity * dt, 1.0f));
 
 					Contact * contact = cd->collides(wp1, wp2);
 					if (contact) {
 						//glm::vec3 rn = glm::vec3(invWorld * glm::vec4(contact->point, 1.0f));
-						n1->position += contact->point;
+						n1->position += glm::dot(contact->normal, contact->point - wp1) * contact->normal;
+						//n1->position += contact->point;
 					}
 				}
 
-				{
-					glm::vec3 wp1 = glm::vec3(world * glm::vec4(p2, 1.0f));
-					glm::vec3 wp2 = glm::vec3(world * glm::vec4(p2 + n2->velocity * dt, 1.0f));
+				if (!n2->constrained) {
+					glm::vec3 wp1 = glm::vec3(world * glm::vec4(n2->position, 1.0f));
+					glm::vec3 wp2 = glm::vec3(world * glm::vec4(n2->position + n2->velocity * dt, 1.0f));
 
 					Contact * contact = cd->collides(wp1, wp2);
 					if (contact) {
 						//glm::vec3 rn = glm::vec3(invWorld * glm::vec4(contact->point, 1.0f));
-						n2->position += contact->point;
+						n2->position += glm::dot(contact->normal, contact->point - wp1) * contact->normal;
+						//n2->position += contact->point;
 					}
 				}
 			}

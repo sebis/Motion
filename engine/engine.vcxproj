@@ -110,6 +110,7 @@
     <ClInclude Include="include\rigidbody\CollisionDetector.h" />
     <ClInclude Include="include\rigidbody\Physics.h" />
     <ClInclude Include="include\rigidbody\RigidBody.h" />
+    <ClInclude Include="include\softbody\BVH.h" />
     <ClInclude Include="include\softbody\SoftBody.h" />
     <ClInclude Include="include\softbody\SoftBodyWorld.h" />
   </ItemGroup>
@@ -140,6 +141,7 @@
     <ClCompile Include="src\rigidbody\CollisionDetector.cpp" />
     <ClCompile Include="src\rigidbody\Physics.cpp" />
     <ClCompile Include="src\rigidbody\RigidBody.cpp" />
+    <ClCompile Include="src\softbody\BVH.cpp" />
     <ClCompile Include="src\softbody\SoftBody.cpp" />
     <ClCompile Include="src\softbody\SoftBodyWorld.cpp" />
   </ItemGroup>

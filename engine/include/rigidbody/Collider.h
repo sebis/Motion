@@ -1,6 +1,7 @@
 #ifndef COMMON_COLLIDER
 #define COMMON_COLLIDER
 
+#include "BVH.h"
 #include "CollisionBody.h"
 #include "Mesh.h"
 #include "Transform.h"
@@ -61,6 +62,7 @@ namespace Common
 		virtual ~MeshCollider() {}
 
 		Mesh * m_mesh;
+		BVH * m_bvh;
 		bool m_usePoints;
 	};
 }

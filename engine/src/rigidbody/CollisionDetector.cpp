@@ -43,6 +43,42 @@ namespace
 		return true;
 	}
 
+	bool PointInTriangle(const glm::vec3 & p, const Common::Triangle * tri, Common::Contact * contact)
+	{
+		const glm::vec3 & a = tri->a - p;
+		const glm::vec3 & b = tri->b - p;
+		const glm::vec3 & c = tri->c - p;
+
+		float ab = glm::dot(a, b);
+		float ac = glm::dot(a, c);
+		float bc = glm::dot(b, c);
+		float cc = glm::dot(c, c);
+
+		if (bc * ac - cc * ab < 0.0f)
+			return false;
+
+		float bb = glm::dot(b, b);
+		if (ab * bc - ac * bb < 0.0f)
+			return false;
+
+		// calculate normal for triangle
+		
+		//n *= 1.0f / glm::dot(n, n);
+
+		// distance of point p along normal
+		contact->penetration = glm::dot(tri->n, a);
+
+		const float CONSTANT = -0.05f;
+		if (contact->penetration < CONSTANT)
+			return false;
+
+		// projected point on triangle
+		contact->normal = tri->n;
+		contact->point = p + contact->normal * (contact->penetration - CONSTANT);
+
+		return true;
+	}
+
 	bool PointInBVH(const Common::BVH * bvh, const glm::vec3 & p, Common::Contact * contact)
 	{
 		Common::BVHNode * parent = bvh->root();
@@ -53,7 +89,7 @@ namespace
 			{
 				Common::BVHNode * current = *it;
 				if (current->isInside(p)) {
-					Common::Triangle * tri = current->m_triangle;
+					/*Common::Triangle * tri = current->m_triangle;
 					glm::vec3 n, q;
 					float t;
 					if (PointInTriangle(p, tri->a, tri->b, tri->c, n, q, t))
@@ -63,7 +99,9 @@ namespace
 						contact->penetration = t;
 
 						return true;
-					}
+					}*/
+					if (PointInTriangle(p, current->m_triangle, contact))
+						return true;
 				}
 			}
 		}

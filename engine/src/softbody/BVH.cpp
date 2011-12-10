@@ -19,7 +19,7 @@ namespace Common
 			t->ac = t->c - t->a;
 			t->bc = t->c - t->b;
 
-			t->n = glm::cross(t->ab, t->ac);
+			t->n = glm::normalize(glm::cross(t->ab, t->ac));
 
 			return t;
 		}

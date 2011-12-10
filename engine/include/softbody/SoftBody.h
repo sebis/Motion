@@ -62,7 +62,7 @@ namespace Common
 
 	private:
 		static const unsigned WIDTH;
-		static const unsigned HEIGHT;
+		static const unsigned LENGTH;
 
 		Node * node(unsigned x, unsigned z);
 

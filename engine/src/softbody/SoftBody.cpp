@@ -9,7 +9,7 @@
 namespace Common
 {
 	const unsigned SoftBody::WIDTH = 50;
-	const unsigned SoftBody::HEIGHT = 50;
+	const unsigned SoftBody::LENGTH = 50;
 
 	SoftBody::SoftBody(GameObject * gameObject)
 		: m_gameObject(gameObject)
@@ -20,23 +20,60 @@ namespace Common
 	{
 	}
 
+	namespace
+	{
+		void addForceToTriangle(SoftBody::Node * n1, SoftBody::Node * n2, SoftBody::Node * n3, const glm::vec3 & force)
+		{
+			const glm::vec3 & n12 = n2->position - n1->position;
+			const glm::vec3 & n13 = n3->position - n1->position;
+
+			const glm::vec3 n = glm::normalize(glm::cross(n12, n13));
+
+			const glm::vec3 directedForce = n * glm::dot(n, force);
+
+			n1->force += directedForce;
+			n2->force += directedForce;
+			n3->force += directedForce;
+		}
+	}
+
 	void SoftBody::applyForces(float dt)
 	{
 		float dt2 = dt * dt;
 
 		const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
+		const glm::vec3 wind(0.5f, 1.0f, 0.1f);
 
-		for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
+		for (int z = 0; z < LENGTH; z++)
+		{
+			for (int x = 0; x < WIDTH; x++)
+			{
+				Node * n1 = node(x, z);
+
+				n1->force += gravity * dt2;
+
+				if (x < WIDTH - 1 && z < LENGTH - 1) {
+					Node * n2 = node(x, z+1);
+					Node * n3 = node(x+1, z);
+					Node * n4 = node(x+1, z+1);
+
+					addForceToTriangle(n1, n2, n3, wind * dt2);
+					addForceToTriangle(n3, n2, n4, wind * dt2);
+				}
+			}
+		}
+
+		/*for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
 		{
 			Node * i = *nit;
 
 			i->force = gravity * dt2;
-		}
+		}*/
 	}
 
 	void SoftBody::solveConstraints()
 	{
-		const unsigned maxIter = 20;
+		const unsigned maxIter = 5;
 
 		SpringIterator it;
 		SpringIterator begin = m_springs.begin();
@@ -98,6 +135,8 @@ namespace Common
 			velocity = (i->position - i->oldPosition) * damping + (i->force / i->mass) * dt2;
 			i->position += velocity;
 			i->oldPosition = tmp;
+
+			i->force = glm::vec3(0.0f);
 		}
 	}
 
@@ -152,6 +191,7 @@ namespace Common
 		solveConstraints();
 		integrate(dt);
 		resolveCollisions();
+		//calculateNormals();
 
 		return;
 
@@ -312,7 +352,7 @@ namespace Common
 
 	SoftBody::Node * SoftBody::node(unsigned x, unsigned z)
 	{
-		return m_nodes[z*(WIDTH+1) + x];
+		return m_nodes[z*WIDTH + x];
 	}
 
 	MeshObject * SoftBody::createCloth(Material * material, SoftBodyWorld * world, SoftBody * body)
@@ -323,9 +363,9 @@ namespace Common
 		std::vector<glm::uint> iData;
 
 		int width = WIDTH;
-		int length = HEIGHT;
+		int length = LENGTH;
 
-		MeshFactory::PlaneMesh(width, length, vData, iData);
+		MeshFactory::PlaneMesh(width-1, length-1, vData, iData);
 
 		Mesh * mesh = new Mesh();
 
@@ -339,11 +379,11 @@ namespace Common
 		body = new SoftBody(object);
 
 		// initialize nodes
-		for (int z = 0; z < length+1; z++)
+		for (int z = 0; z < length; z++)
 		{
-			for (int x = 0; x < width+1; x++)
+			for (int x = 0; x < width; x++)
 			{
-				int index = (width+1)*z + x;
+				int index = z*width + x;
 
 				Mesh::vertex * v = &vertices[index];
 				Node * node = new Node(v->position, 0.000001f);
@@ -355,39 +395,45 @@ namespace Common
 		assert(body->m_nodes.size() == vData.size());
 
 		// construct links
-		for (int z = 0; z < length+1; z++)
+		for (int z = 0; z < length; z++)
 		{
-			for (int x = 0; x < width+1; x++)
+			for (int x = 0; x < width; x++)
 			{
-				int index = (width+1)*z + x;
-				Node * node = body->m_nodes[index];
+				int index = (width)*z + x;
+				Node * n1 = body->node(x, z);
 
 				// Immediate neighbors
-				if (x < width) {
-					Node * n = body->m_nodes[z*(width+1) + (x+1)];
-					body->m_springs.push_back(new Spring(node, n));
+				if (x < width - 1) {
+					//Node * n = body->m_nodes[z*(width) + (x+1)];
+					Node * n2  = body->node(x+1, z);
+					body->m_springs.push_back(new Spring(n1, n2));
 				}
-				if (z < length) {
-					Node * n = body->m_nodes[(z+1)*(width+1) + x];
-					body->m_springs.push_back(new Spring(node, n));
+				if (z < length - 1) {
+					//Node * n = body->m_nodes[(z+1)*(width) + x];
+					Node * n2 = body->node(x, z+1);
+					body->m_springs.push_back(new Spring(n1, n2));
 				}
-				if (x < width && z < length) {
-					Node * n = body->m_nodes[(z+1)*(width+1) + (x+1)];
-					body->m_springs.push_back(new Spring(node, n));
+				if (x < width - 1 && z < length - 1) {
+					//Node * n = body->m_nodes[(z+1)*(width) + (x+1)];
+					Node * n2 = body->node(x+1, z+1);
+					body->m_springs.push_back(new Spring(n1, n2));
 				}
 
 				// Secondary neighbors
-				if (x < width - 1) {
-					Node * n = body->m_nodes[z*(width+1) + (x+2)];
-					body->m_springs.push_back(new Spring(node, n));
+				if (x < width - 2) {
+					//Node * n = body->m_nodes[z*(width) + (x+2)];
+					Node * n2 = body->node(x+2, z);
+					body->m_springs.push_back(new Spring(n1, n2));
 				}
-				if (z < length - 1) {
-					Node * n = body->m_nodes[(z+2)*(width+1) + x];
-					body->m_springs.push_back(new Spring(node, n));
+				if (z < length - 2) {
+					//Node * n = body->m_nodes[(z+2)*(width) + x];
+					Node * n2 = body->node(x, z+2);
+					body->m_springs.push_back(new Spring(n1, n2));
 				}
-				if (x < width - 1 && z < length - 1) {
-					Node * n = body->m_nodes[(z+2)*(width+1) + (x+2)];
-					body->m_springs.push_back(new Spring(node, n));
+				if (x < width - 2 && z < length - 2) {
+					//Node * n = body->m_nodes[(z+2)*(width) + (x+2)];
+					Node * n2 = body->node(x+2, z+2);
+					body->m_springs.push_back(new Spring(n1, n2));
 				}
 
 

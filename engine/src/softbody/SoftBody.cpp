@@ -17,8 +17,103 @@ namespace Common
 	{
 	}
 
+	void SoftBody::solveConstraints()
+	{
+		const unsigned maxIter = 10;
+
+		for (unsigned i = 0; i < maxIter; i++)
+		{
+			for (SpringIterator it = m_springs.begin(); it != m_springs.end(); it++)
+			{
+				Spring * s = *it;
+
+				Node * n1 = s->n1;
+				Node * n2 = s->n2;
+
+				glm::vec3 delta = n2->position - n1->position;
+
+				float d = glm::length(delta);
+				float l = s->restLength;
+
+				glm::vec3 offset = delta * (1 - l/d) * 0.5f;
+
+				n1->position += offset;
+				n2->position -= offset;
+			}
+		}
+	}
+
+	void SoftBody::integrate(float dt)
+	{
+		float dt2 = dt * dt;
+
+		const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
+		glm::vec3 force = gravity * dt2;
+		glm::vec3 velocity;
+		glm::vec3 tmp;
+		float damping = 0.99f;
+
+		for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
+		{
+			Node * i = *nit;
+
+			if (i->constrained)
+				continue;
+
+			tmp = i->position;
+			velocity = (i->position - i->oldPosition) * damping + (force / i->mass) * dt2;
+			i->position += velocity;
+			i->oldPosition = tmp;
+		}
+	}
+
+	void SoftBody::resolveCollisions()
+	{
+		// TODO: this is temporary for testing
+		/*glm::vec3 center(0.0f, 0.0f, 0.0f);
+		float radius = 1.0f;
+
+		const glm::mat4 & world = m_gameObject->transform().world();
+
+		for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
+		{
+			Node * i = *nit;
+
+			glm::vec3 delta = glm::vec3(world * glm::vec4(i->position, 1.0f)) - center;
+			float l = glm::length(delta);
+			if (l < radius) {
+				i->position += glm::normalize(delta) * (radius - l);
+			}
+		}*/
+
+		const glm::mat4 & world = m_gameObject->transform().world();
+		CollisionDetector * cd = CollisionDetector::instance();
+
+		for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
+		{
+			Node * i = *nit;
+			
+			glm::vec3 wp1 = glm::vec3(world * glm::vec4(i->position, 1.0f));
+			glm::vec3 dummy;
+
+			Contact * contact = cd->collides(wp1, dummy);
+			if (contact) {
+				//glm::vec3 rn = glm::vec3(invWorld * glm::vec4(contact->point, 1.0f));
+				//n1->position += glm::dot(contact->normal, contact->point - wp1) * contact->normal;
+
+				i->position += contact->point - wp1;
+			}
+		}
+	}
+
 	void SoftBody::update(float dt)
 	{
+		solveConstraints();
+		integrate(dt);
+		resolveCollisions();
+
+		return;
+
 		float ks = 10.0f;
 		float kd = 0.22f;
 
@@ -58,6 +153,8 @@ namespace Common
 
 			i->velocity += (1.0f / i->mass) * i->force * dt;
 			i->position += i->velocity * dt;
+
+			i->velocity = (i->position - i->oldPosition) / dt;
 		}
 
 		// post-process inverse dynamics
@@ -66,7 +163,7 @@ namespace Common
 
 		CollisionDetector * cd = CollisionDetector::instance();
 		// TODO: proper iteration variables (maxIter, error)
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			for (SpringIterator it = m_springs.begin(); it != m_springs.end(); it++)
 			{
@@ -80,8 +177,9 @@ namespace Common
 					Contact * contact = cd->collides(wp1, wp2);
 					if (contact) {
 						//glm::vec3 rn = glm::vec3(invWorld * glm::vec4(contact->point, 1.0f));
-						n1->position += glm::dot(contact->normal, contact->point - wp1) * contact->normal;
-						//n1->position += contact->normal * contact->penetration;
+						//n1->position += glm::dot(contact->normal, contact->point - wp1) * contact->normal;
+
+						n1->position += contact->point - wp1;
 					}
 				}
 
@@ -92,8 +190,8 @@ namespace Common
 					Contact * contact = cd->collides(wp1, wp2);
 					if (contact) {
 						//glm::vec3 rn = glm::vec3(invWorld * glm::vec4(contact->point, 1.0f));
-						n2->position += glm::dot(contact->normal, contact->point - wp1) * contact->normal;
-						//n2->position += contact->normal * contact->penetration;
+						//n2->position += glm::dot(contact->normal, contact->point - wp1) * contact->normal;
+						n2->position += contact->point - wp1;
 					}
 				}
 
@@ -118,6 +216,13 @@ namespace Common
 					n2->position -= delta * (im2 * diff);
 				}
 			}
+		}
+
+		for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
+		{
+			Node * i = *nit;
+
+			i->oldPosition = i->position;
 		}
 
 		/*if (false)
@@ -171,8 +276,8 @@ namespace Common
 		std::vector<Mesh::vertex> vData;
 		std::vector<glm::uint> iData;
 
-		int width = 20;
-		int length = 20;
+		int width = 50;
+		int length = 50;
 
 		MeshFactory::PlaneMesh(width, length, vData, iData);
 
@@ -195,7 +300,7 @@ namespace Common
 				int index = (width+1)*z + x;
 
 				Mesh::vertex * v = &vertices[index];
-				Node * node = new Node(v->position, 0.1f);
+				Node * node = new Node(v->position, 0.000001f);
 
 				body->m_nodes.push_back(node);
 			}
@@ -212,36 +317,78 @@ namespace Common
 				Trace::info("%d, ", index);
 				Node * node = body->m_nodes[index];
 
+				// Immediate neighbors
 				if (x < width) {
-					Spring * s = new Spring(node, body->m_nodes[z*(width+1) + (x+1)], 1.0f / width);
-					body->m_springs.push_back(s);
+					Node * n = body->m_nodes[z*(width+1) + (x+1)];
+					body->m_springs.push_back(new Spring(node, n));
 				}
-
 				if (z < length) {
-					Spring * s = new Spring(node, body->m_nodes[(z+1)*(width+1) + x], 1.0f / length);
-					body->m_springs.push_back(s);
+					Node * n = body->m_nodes[(z+1)*(width+1) + x];
+					body->m_springs.push_back(new Spring(node, n));
+				}
+				if (x < width && z < length) {
+					Node * n = body->m_nodes[(z+1)*(width+1) + (x+1)];
+					body->m_springs.push_back(new Spring(node, n));
 				}
 
-				if (x < width && z < length) {
-					Spring * s = new Spring(node, body->m_nodes[(z+1)*(width+1) + (x+1)], sqrt((1.0f / length) * (1.0f / length) + (1.0f / width) * (1.0f / width)));
-					body->m_springs.push_back(s);
+				// Secondary neighbors
+				if (x < width - 1) {
+					Node * n = body->m_nodes[z*(width+1) + (x+2)];
+					body->m_springs.push_back(new Spring(node, n));
+				}
+				if (z < length - 1) {
+					Node * n = body->m_nodes[(z+2)*(width+1) + x];
+					body->m_springs.push_back(new Spring(node, n));
+				}
+				if (x < width - 1 && z < length - 1) {
+					Node * n = body->m_nodes[(z+2)*(width+1) + (x+2)];
+					body->m_springs.push_back(new Spring(node, n));
 				}
 
-				if (x < width && z < length) {
+
+				/*if (x < width && z < length) {
 					Node * n1 = body->m_nodes[z*(width+1) + (x+1)];
 					Node * n2 = body->m_nodes[(z+1)*(width+1) + x];
 					Spring * s = new Spring(n1, n2, sqrt((1.0f / length) * (1.0f / length) + (1.0f / width) * (1.0f / width)));
 					body->m_springs.push_back(s);
-				}
+				}*/
 
-				if (x > 0)
-					node->links.insert(body->m_nodes[z*(width+1) + (x-1)]);
-				if (x < width)
-					node->links.insert(body->m_nodes[z*(width+1) + (x+1)]);
-				if (z > 0)
-					node->links.insert(body->m_nodes[(z-1)*(width+1) + x]);
-				if (z < length)
-					node->links.insert(body->m_nodes[(z+1)*(width+1) + x]);
+				if (x > 0) {
+					Link * link = new Link;
+					link->n = body->m_nodes[z*(width+1) + (x-1)];
+					link->l = 1.0f / width;
+					node->links.insert(link);
+				}
+				if (x < width) {
+					Link * link = new Link;
+					link->n = body->m_nodes[z*(width+1) + (x+1)];
+					link->l = 1.0f / width;
+					node->links.insert(link);
+				}
+				if (z > 0) {
+					Link * link = new Link;
+					link->n = body->m_nodes[(z-1)*(width+1) + x];
+					link->l = 1.0f / length;
+					node->links.insert(link);
+				}
+				if (z < length) {
+					Link * link = new Link;
+					link->n = body->m_nodes[(z+1)*(width+1) + x];
+					link->l = 1.0f / length;
+					node->links.insert(link);
+				}
+				if (x < width && z < length) {
+					Link * link = new Link;
+					link->n = body->m_nodes[(z+1)*(width+1) + (x+1)];
+					link->l = sqrt((1.0f / length) * (1.0f / length) + (1.0f / width) * (1.0f / width));
+					node->links.insert(link);
+				}
+				if (x < width && z < length) {
+					Node * n1 = body->m_nodes[z*(width+1) + (x+1)];
+					Node * n2 = body->m_nodes[(z+1)*(width+1) + x];
+					Link * link = new Link;
+					link->n = n2;
+				}
 
 			}
 		}

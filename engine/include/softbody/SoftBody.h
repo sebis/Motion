@@ -16,6 +16,9 @@ namespace Common
 	class SoftBody : public CollisionBody
 	{
 	public:
+
+		struct Link;
+
 		struct Node
 		{
 			Node(glm::vec3 & _position, float _mass) 
@@ -23,9 +26,7 @@ namespace Common
 				  mass(_mass), 
 				  velocity(glm::vec3(0.0f)), 
 				  force(glm::vec3(0.0f)),
-				  dv0(glm::vec3(0.0f)),
-				  dv1(glm::vec3(0.0f)),
-				  newPosition(glm::vec3(0.0f)),
+				  oldPosition(_position),
 				  constrained(false)
 			{}
 
@@ -33,23 +34,27 @@ namespace Common
 			glm::vec3 velocity;
 			glm::vec3 force;
 			glm::vec3 & position;
-			glm::vec3 newPosition;
-			glm::vec3 dv0;
-			glm::vec3 dv1;
+			glm::vec3 oldPosition;
 			bool constrained;
 
-			typedef std::set<Node*> Links;
+			typedef std::set<Link*> Links;
 			typedef Links::iterator LinkIterator;
 			Links links;
 		};
 
+		struct Link
+		{
+			Node * n;
+			float l;
+		};
+
 		struct Spring
 		{
-			Spring(Node * _n1, Node * _n2, float _restLength)
-				: n1(_n1),
-				  n2(_n2),
-				  restLength(_restLength)
-			{}
+			Spring(Node * _n1, Node * _n2)
+				: n1(_n1), n2(_n2)
+			{
+				restLength = glm::distance(n2->position, n1->position);
+			}
 
 			Node * n1;
 			Node * n2;
@@ -58,6 +63,10 @@ namespace Common
 
 		SoftBody(GameObject * gameObject);
 		virtual ~SoftBody();
+
+		void solveConstraints();
+		void integrate(float dt);
+		void resolveCollisions();
 
 		void update(float dt);
 

@@ -79,7 +79,7 @@ namespace SoftBodyDemo
 		SoftBody * body = 0;
 		MeshObject * cloth = SoftBody::createCloth(clothMaterial, &g_world, body);
 		cloth->transform().translate(glm::vec3(-2.5f, 5.0f, -2.5f));
-		cloth->transform().scale() = glm::vec3(5.0f);
+		//cloth->transform().scale() = glm::vec3(5.0f);
 
 		/*MeshCollider * clothCollider = new MeshCollider(cloth, body, true);
 		clothCollider->m_mesh = cloth->mesh();

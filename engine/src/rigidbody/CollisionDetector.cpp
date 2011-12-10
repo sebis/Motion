@@ -66,15 +66,15 @@ namespace
 		//n *= 1.0f / glm::dot(n, n);
 
 		// distance of point p along normal
-		contact->penetration = glm::dot(tri->n, a);
+		contact->penetration = glm::dot(tri->n, p - tri->a);
 
-		const float CONSTANT = -0.05f;
-		if (contact->penetration < CONSTANT)
+		const float CONSTANT = 0.05f;
+		if (contact->penetration > CONSTANT)
 			return false;
 
 		// projected point on triangle
 		contact->normal = tri->n;
-		contact->point = p + contact->normal * (contact->penetration - CONSTANT);
+		contact->point = p + contact->normal * (CONSTANT - contact->penetration);
 
 		return true;
 	}

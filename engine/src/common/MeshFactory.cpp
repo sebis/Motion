@@ -170,8 +170,8 @@ namespace Common
 
 		void PlaneMesh(int width, int length, std::vector<Mesh::vertex> & vData, std::vector<glm::uint> & iData, glm::vec4 color)
 		{
-			float dx = 1.0f/width;
-			float dz = 1.0f/length;
+			float dx = 5.0f/width;
+			float dz = 5.0f/length;
 
 			for (int z = 0; z < length+1; z++)
 			{

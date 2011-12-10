@@ -22,7 +22,8 @@ namespace Common
 		float elapsed = dt / 1000.0f;
 
 		int samples = 1;
-		float fps = 1.0f/1000.0f;
+		float fps = 1.0f/500.0f;
+		Trace::info("dt: %f, %f, timestep per: %f\n", dt, elapsed, elapsed / samples);
 		for (int i = 0; i < samples; i++)
 		{
 			for (Iterator it = m_bodies.begin(); it != m_bodies.end(); it++)

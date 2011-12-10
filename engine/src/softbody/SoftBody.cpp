@@ -21,24 +21,42 @@ namespace Common
 	{
 		const unsigned maxIter = 10;
 
+		SpringIterator it;
+		SpringIterator begin = m_springs.begin();
+		SpringIterator end = m_springs.end();
+
 		for (unsigned i = 0; i < maxIter; i++)
 		{
-			for (SpringIterator it = m_springs.begin(); it != m_springs.end(); it++)
+			for (it = begin; it != end; it++)
 			{
-				Spring * s = *it;
+				Node * n1 = (*it)->n1;
+				Node * n2 = (*it)->n2;
 
-				Node * n1 = s->n1;
-				Node * n2 = s->n2;
+				const glm::vec3 & delta = n2->position - n1->position;
 
-				glm::vec3 delta = n2->position - n1->position;
+				/*float d = glm::length(delta);
+				float l = (*it)->restLength;
 
-				float d = glm::length(delta);
-				float l = s->restLength;
-
-				glm::vec3 offset = delta * (1 - l/d) * 0.5f;
+				const glm::vec3 & offset = delta * (1 - l/d) * 0.5f;
 
 				n1->position += offset;
-				n2->position -= offset;
+				n2->position -= offset;*/
+
+				float d = glm::dot(delta, delta);
+				float f = (*it)->restLength * (*it)->restLength;
+
+				float im1 = n1->constrained ? 0 : 1.0f / n1->mass;
+				float im2 = n2->constrained ? 0 : 1.0f / n2->mass;
+
+				float diff = (d - f) / ((f + d) * (im1 + im2));
+
+				if (im1 != 0) {
+					n1->position += delta * (im1 * diff);
+				}
+
+				if (im2 != 0) {
+					n2->position -= delta * (im2 * diff);
+				}
 			}
 		}
 	}
@@ -276,8 +294,8 @@ namespace Common
 		std::vector<Mesh::vertex> vData;
 		std::vector<glm::uint> iData;
 
-		int width = 50;
-		int length = 50;
+		int width = 30;
+		int length = 30;
 
 		MeshFactory::PlaneMesh(width, length, vData, iData);
 

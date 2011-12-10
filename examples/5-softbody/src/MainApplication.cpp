@@ -56,18 +56,19 @@ namespace SoftBodyDemo
 		Common::GameObject::s_camera = &m_camera;
 
 		Material * yellowMaterial = new Material(Shader::find("shader"));
-		yellowMaterial->setAmbientColor(glm::vec4(1, 0, 0, 1));
+		//yellowMaterial->setAmbientColor(glm::vec4(1, 0, 0, 1));
 		//yellowMaterial->setWireframe(true);
-		//MeshObject * cube = new MeshObject(MeshFactory::Cube(), yellowMaterial);
+		//MeshObject * cube = new MeshObject(MeshFactory::FromFile("resources/goomba.ply"), yellowMaterial);
 		MeshObject * cube = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 8), yellowMaterial);
 		cube->transform().translate(glm::vec3(0.0f, 0.0f, 0.0f));
-		//cube->transform().scale() = glm::vec3(5.0f);
+		//cube->transform().scale() = glm::vec3(0.4f);
 
-		MeshObject * lowpoly = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 8), 0);
+		Mesh * lowpoly = MeshFactory::Sphere(glm::vec4(1.0f), 8);
+		//Mesh * lowpoly = MeshFactory::FromFile("resources/goomba-low.ply");
 
 		MeshCollider * cubeCollider = new MeshCollider(cube);
-		cubeCollider->m_mesh = lowpoly->mesh();
-		cubeCollider->m_bvh = BVH::constructFromMesh(lowpoly->mesh());
+		cubeCollider->m_mesh = lowpoly;
+		cubeCollider->m_bvh = BVH::constructFromMesh(lowpoly);
 		CollisionDetector::instance()->addCollider(cubeCollider);
 
 		m_components.push_back(cube);

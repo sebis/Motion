@@ -29,9 +29,12 @@ namespace Common
 	{
 	public:
 		BoundingSphere(const glm::vec3 & center, float radius)
-			: m_center(center), m_radius(radius) {}
+			: m_center(center), m_radius(radius)
+		{
+			m_radius2 = radius * radius;
+		}
 
-		virtual bool isInside(const glm::vec3 & p) const;
+		inline bool isInside(const glm::vec3 & p) const;
 		inline void print_debug();
 
 		void grow(const BoundingSphere & s);
@@ -42,6 +45,7 @@ namespace Common
 	private:
 		glm::vec3 m_center;
 		float m_radius;
+		float m_radius2;
 	};
 
 	struct BVHNode

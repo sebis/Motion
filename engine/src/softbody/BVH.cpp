@@ -59,7 +59,8 @@ namespace Common
 
 	bool BoundingSphere::isInside(const glm::vec3 & p) const
 	{
-		return glm::distance(p, m_center) < m_radius;
+		const glm::vec3 & diff = p - m_center;
+		return glm::dot(diff, diff) < m_radius2;
 	}
 
 	void BoundingSphere::print_debug()
@@ -75,6 +76,7 @@ namespace Common
 		if ((s.m_radius - m_radius) * (s.m_radius - m_radius) >= dist2) {
 			if (s.m_radius >= m_radius) {
 				m_radius = s.m_radius;
+				m_radius2 = m_radius * m_radius;
 				m_center = s.m_center;
 			}
 		} else {
@@ -83,6 +85,7 @@ namespace Common
 			if (dist > std::numeric_limits<float>::epsilon())
 				m_center += ((newRadius - m_radius) / dist) * d;
 			m_radius = newRadius;
+			m_radius2 = m_radius * m_radius;
 		}
 	}
 

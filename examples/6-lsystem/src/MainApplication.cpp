@@ -3,6 +3,7 @@
 #include "Material.h"
 #include "MeshObject.h"
 #include "Trace.h"
+#include "TurtleRenderer.h"
 
 #include <GL/glew.h>
 
@@ -58,13 +59,20 @@ namespace LSystemDemo
 		// For testing purposes
 		PlantDefinition * def = new PlantDefinition();
 		def->iterations = 2;
-		def->axiom = "a";
+		def->axiom = "F";
 
-		def->addTerminals("+-F");
-		def->addProduction('a', "a+b");
-		def->addProduction('b', "aFa-a");
+		def->addTerminals("+-!?&/[]");
+		//def->addTerminals("+-F");
+		//def->addProduction('a', "a+b");
+		//def->addProduction('b', "aFa-a");
+		//def->addProduction('F', "F[-F]F[+F]F");
+		def->addProduction('F', "F[-F]F[+F]F[&F]F[/F]FF");
 
 		LSystem * plant = new LSystem(def);
+
+		GameObject * tree = new GameObject();
+		tree->m_renderer = new TurtleRenderer(tree, plant);
+		m_components.push_back(tree);
 
 		Trace::info("Generated: %s\n", plant->generate().c_str());
 		

@@ -25,6 +25,7 @@ namespace Common
 		} else {
 			m_material->shader()->setUniform("world", m_gameObject->transform().world());
 		}
+
 		m_material->shader()->setUniform("view", GameObject::s_camera->view());
 		m_material->shader()->setUniform("projection", GameObject::s_camera->projection());
 

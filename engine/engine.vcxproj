@@ -114,6 +114,7 @@
     <ClInclude Include="include\softbody\BVH.h" />
     <ClInclude Include="include\softbody\SoftBody.h" />
     <ClInclude Include="include\softbody\SoftBodyWorld.h" />
+    <ClInclude Include="include\TurtleRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\Camera.cpp" />
@@ -135,6 +136,7 @@
     <ClCompile Include="src\interpolation\SplineRenderer.cpp" />
     <ClCompile Include="src\interpolation\TransformRenderer.cpp" />
     <ClCompile Include="src\lsystem\LSystem.cpp" />
+    <ClCompile Include="src\lsystem\TurtleRenderer.cpp" />
     <ClCompile Include="src\particlesystem\FlowPrimitive.cpp" />
     <ClCompile Include="src\particlesystem\ParticleEmitter.cpp" />
     <ClCompile Include="src\particlesystem\ParticleRenderer.cpp" />

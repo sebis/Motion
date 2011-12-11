@@ -9,6 +9,8 @@
 
 #include <GL/glew.h>
 
+#include <sstream>
+
 namespace SoftBodyDemo
 {
 	using namespace Common;
@@ -21,7 +23,9 @@ namespace SoftBodyDemo
 	MainApplication::MainApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
 		: Base(title, fixedTimeStep, targetElapsedTime),
 		m_camera(glm::vec3(10.0f), glm::vec3(0.0f)),
-		m_started(false)
+		m_started(false),
+		m_currentLevel(0),
+		m_debug(false)
 	{
 	}
 
@@ -59,6 +63,16 @@ namespace SoftBodyDemo
 		CollisionDetector::COLLISION_THRESHOLD = 0.075f;
 		SoftBody::ITERATION_COUNT = 5;
 
+		initScene();
+
+		return true;
+	}
+
+	void MainApplication::initScene()
+	{
+		m_components.clear();
+		m_debugComponents.clear();
+
 		Material * yellowMaterial = new Material(Shader::find("shader"));
 		//yellowMaterial->setAmbientColor(glm::vec4(1, 0, 0, 1));
 		//yellowMaterial->setWireframe(true);
@@ -94,9 +108,16 @@ namespace SoftBodyDemo
 
 		m_components.push_back(cloth);
 
-		//addDrawDebug(cubeCollider->m_bvh);
+		int level = 0;
 
-		return true;
+		while (true) {
+			ComponentCollection components = addDrawDebug(cubeCollider->m_bvh, level);
+			if (components.empty())
+				break;
+
+			m_debugComponents[level] = components;
+			level++;
+		}
 	}
 
 	namespace
@@ -116,7 +137,7 @@ namespace SoftBodyDemo
 		}
 	}
 	
-	void MainApplication::addDrawDebug(BVH * bvh)
+	MainApplication::ComponentCollection MainApplication::addDrawDebug(BVH * bvh, int level)
 	{
 		BVHNode * root = bvh->root();
 
@@ -125,25 +146,27 @@ namespace SoftBodyDemo
 		wireframe->setWireframe(true);
 
 		std::vector<BVHNode *> nodes;
-		collectBvhs(nodes, root, 5, 5);
+		collectBvhs(nodes, root, level, level);
 
 		int leaves = 0;
+		MainApplication::ComponentCollection components;
 
 		for (unsigned i = 0; i < nodes.size(); i++) {
 			BoundingSphere * bs = nodes[i]->m_bv;
 			if (nodes[i]->m_isLeaf)
 				leaves++;
-			//bs->print_debug();
 
 			MeshObject * sphere = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 10), wireframe);
 
 			sphere->transform().translate(bs->c);
 			sphere->transform().scale() = glm::vec3(1.0f) * bs->r;
 
-			m_components.push_back(sphere);
+			components.push_back(sphere);
 		}
 
 		Trace::info("%d/%d nodes\n", leaves, nodes.size());
+
+		return components;
 	}
 
 	void MainApplication::keyDown(Common::Key key)
@@ -156,8 +179,17 @@ namespace SoftBodyDemo
 			m_camera.raiseFlag(Common::Camera::LEFT);
 		else if (key == Common::KEY_MOVE_RIGHT)
 			m_camera.raiseFlag(Common::Camera::RIGHT);
-		else if (key == Common::KEY_CONTINUE)
-			m_started = true;
+		else if (key == Common::KEY_CONTINUE) {
+			if (m_started)
+				initScene();
+			m_started = !m_started;
+		}
+		else if (key == Common::KEY_NEXT)
+			m_currentLevel++;
+		else if (key == Common::KEY_PREV)
+			m_currentLevel = m_currentLevel > 0 ? m_currentLevel-1 : 0;
+		else if (key == Common::KEY_RESET_1)
+			m_debug = !m_debug;
 	}
 
 	void MainApplication::keyUp(Common::Key key)
@@ -221,6 +253,29 @@ namespace SoftBodyDemo
 		{
 			(*it)->draw();
 		}
+
+		if (m_debug)
+		{
+			DebugIterator dit = m_debugComponents.find(m_currentLevel);
+			if (dit != m_debugComponents.end())
+			{
+				ComponentCollection components = dit->second;
+				for (ComponentIterator it = components.begin(); it != components.end(); it++)
+				{
+					(*it)->draw();
+				}
+			}
+		}
+
+		std::stringstream ss;
+		ss << "Cloth Simulation Demo" << std::endl;
+		ss << std::endl;
+		ss << "<Space> Start simulation" << std::endl;
+		ss << "<Enter> Toggle BVH visualization" << std::endl;
+		ss << "<+/-> Adjust BVH visualization level" << std::endl;
+		std::string text = ss.str();
+
+		display_text(text.c_str(), 10, 15);
 
 		GLenum err = glGetError();
 		if (err != GL_NO_ERROR)

@@ -14,6 +14,7 @@ typedef Common::GlutApplication Base;
 #include "Component.h"
 
 #include <vector>
+#include <map>
 
 namespace SoftBodyDemo
 {
@@ -37,13 +38,20 @@ namespace SoftBodyDemo
 		void draw();
 
 	private:
-		void addDrawDebug(Common::BVH * bvh);
+		void initScene();
+
 		Common::Camera m_camera;
 		bool m_started;
 
 		typedef std::vector<Common::Component*> ComponentCollection;
 		typedef ComponentCollection::iterator ComponentIterator;
 		ComponentCollection m_components;
+
+		ComponentCollection addDrawDebug(Common::BVH * bvh, int level);
+		std::map<int, ComponentCollection> m_debugComponents;
+		typedef std::map<int, ComponentCollection>::iterator DebugIterator;
+		int m_currentLevel;
+		bool m_debug;
 	};
 }
 

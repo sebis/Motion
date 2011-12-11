@@ -122,6 +122,10 @@ namespace Common
 			m_instance->keyDown(KEY_RESET_2);
 		else if (key == 'h' || key == 'H')
 			m_instance->keyDown(KEY_HELP);
+		else if (key == '+')
+			m_instance->keyDown(KEY_NEXT);
+		else if (key == '-')
+			m_instance->keyDown(KEY_PREV);
 		else if (key == 13) // return
 			m_instance->keyDown(KEY_RESET_1);
 		else if (key == 32) // space
@@ -144,6 +148,10 @@ namespace Common
 			m_instance->keyUp(KEY_RESET_2);
 		else if (key == 'h' || key == 'H')
 			m_instance->keyUp(KEY_HELP);
+		else if (key == '+')
+			m_instance->keyUp(KEY_NEXT);
+		else if (key == '-')
+			m_instance->keyUp(KEY_PREV);
 		else if (key == 13) // return
 			m_instance->keyUp(KEY_RESET_1);
 		else if (key == 32) // space

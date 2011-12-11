@@ -13,6 +13,8 @@ namespace Common
 		KEY_CONTINUE = 106,
 		KEY_HELP = 107,
 		KEY_QUIT = 108,
+		KEY_NEXT = 109,
+		KEY_PREV = 110,
 
 		KEY_MOUSE_NONE = 200,
 		KEY_MOUSE_LEFT = 201,

@@ -14,7 +14,7 @@ namespace LSystemDemo
 	MainApplication::MainApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
 		: Base(title, fixedTimeStep, targetElapsedTime),
 		m_camera(glm::vec3(10.0f), glm::vec3(0.0f)),
-		m_started(false)
+		m_started(true)
 	{
 	}
 
@@ -46,6 +46,7 @@ namespace LSystemDemo
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
 		Common::GameObject::s_camera = &m_camera;
+		MeshFactory::setStaticDraw(true);
 
 		Material * grassMaterial = new Material(Shader::find("shader"));
 		grassMaterial->setTexture(new Texture("resources/grass.bmp"));
@@ -57,21 +58,26 @@ namespace LSystemDemo
 		m_components.push_back(grass);
 
 		// For testing purposes
-		PlantDefinition * def = new PlantDefinition();
+		/*PlantDefinition * def = new PlantDefinition();
 		def->iterations = 2;
 		def->axiom = "F";
-
 		def->addTerminals("+-!?&/[]");
-		//def->addTerminals("+-F");
-		//def->addProduction('a', "a+b");
-		//def->addProduction('b', "aFa-a");
 		//def->addProduction('F', "F[-F]F[+F]F");
-		def->addProduction('F', "F[-F]F[+F]F[&F]F[/F]FF");
+		def->addProduction('F', "F[-F]F[+F]F[&F]F[/F]FF");*/
+
+		PlantDefinition * def = new PlantDefinition();
+		def->addTerminals("+-[]");
+		def->iterations = 6;
+		def->axiom = "X";
+		def->addProduction('X', "F-[[X]+X]+F[+FX]-X");
+		def->addProduction('F', "FF");
+		def->angle = glm::vec3(25.0f, 0.0f, 0.0f);
 
 		LSystem * plant = new LSystem(def);
+		m_components.push_back(plant);
 
 		GameObject * tree = new GameObject();
-		tree->m_renderer = new TurtleRenderer(tree, plant);
+		tree->m_renderer = new TurtleRenderer(plant);
 		m_components.push_back(tree);
 
 		Trace::info("Generated: %s\n", plant->generate().c_str());

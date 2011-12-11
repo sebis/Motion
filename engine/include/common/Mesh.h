@@ -22,13 +22,13 @@ namespace Common
 		typedef std::vector<Mesh::vertex> Vertices;
 		typedef std::vector<unsigned int> Indices;
 
-		Mesh();
+		Mesh(bool staticDraw = false);
 		virtual ~Mesh();
 
 		void draw();
 
-		inline void setVertices(const Vertices & vertices) { m_vertices = vertices; }
-		inline void setIndices(const Indices & indices) { m_indices = indices; }
+		void setVertices(const Vertices & vertices);
+		void setIndices(const Indices & indices);
 
 		inline Vertices & vertices() { return m_vertices; }
 		inline const Vertices & vertices() const { return m_vertices; }
@@ -39,6 +39,8 @@ namespace Common
 		inline const Indices & indices() const { return m_indices; }
 
 	private:
+		void fillBuffer();
+
 		glm::uint m_vaoID;
 		glm::uint m_vboID;
 		glm::uint m_eboID;
@@ -46,11 +48,15 @@ namespace Common
 		Vertices m_vertices;
 		Indices m_indices;
 
+		bool m_staticDraw;
+
 		inline size_t count() const;
 	};
 
 	namespace MeshFactory
 	{
+		void setStaticDraw(bool useStaticDraw);
+
 		Mesh * Sphere(glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), int segments = 32);
 		Mesh * Cube(bool override_color = true, glm::vec4 color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		Mesh * Plane(glm::vec4 color = glm::vec4(1.0f), int gridSize = 1);

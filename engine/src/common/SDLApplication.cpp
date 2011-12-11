@@ -4,8 +4,9 @@
 
 namespace Common
 {
-	SDLApplication::SDLApplication(bool fixedTimeStep, float targetElapsedTime)
-		: m_fixedTimeStep(fixedTimeStep),
+	SDLApplication::SDLApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
+		: m_title(title),
+		  m_fixedTimeStep(fixedTimeStep),
 		  m_targetElapsedTime(targetElapsedTime),
 		  m_totalTime(0)
 	{
@@ -34,6 +35,9 @@ namespace Common
 			SDL_Quit();
 			return false;
 		}
+
+		SDL_WM_SetCaption(m_title, m_title);
+
 		window_resized(m_surface->w, m_surface->h);
 
 		return true;
@@ -134,6 +138,11 @@ namespace Common
 		SDL_Quit();
 
 		return 0;
+	}
+
+	void SDLApplication::display_text(const char * text, int x, int y)
+	{
+		Trace::info(text);
 	}
 
 	void SDLApplication::window_resized(int /*width*/, int /*height*/)

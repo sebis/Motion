@@ -17,8 +17,8 @@ namespace Common
 		str = value;
 	}
 
-	Production::Production(symbol s, string _str)
-		: sym(s), str(_str)
+	Production::Production(symbol s, string _str, float _time)
+		: sym(s), str(_str), time(_time)
 	{}
 
 	bool Production::operator <(const Production & other) const
@@ -36,9 +36,9 @@ namespace Common
 		return sym == s;
 	}
 
-	void PlantDefinition::addProduction(symbol sym, string str)
+	void PlantDefinition::addProduction(symbol sym, string str, float time)
 	{
-		productions.insert(Production(sym, str));
+		productions.insert(Production(sym, str, time));
 	}
 
 	void PlantDefinition::addTerminals(const std::string & str)
@@ -52,7 +52,7 @@ namespace Common
 
 	namespace
 	{
-		std::string expand(PlantDefinition * def)
+		std::string expand(PlantDefinition * def, float time)
 		{
 			std::string str = def->axiom;
 
@@ -69,7 +69,8 @@ namespace Common
 					// Search for valid production
 					Productions::iterator it = std::find(def->productions.begin(), def->productions.end(), chr);
 					if (it != def->productions.end()) {
-						tmp.append(it->str);
+						if (it->time <= time)
+							tmp.append(it->str);
 					} else {
 						Trace::info("No matching rule for symbol: %c\n", chr);
 					}
@@ -83,12 +84,18 @@ namespace Common
 	}
 
 	LSystem::LSystem(PlantDefinition * def)
-		: m_def(def)
+		: m_def(def), m_time(0.0f)
 	{
+	}
+
+	void LSystem::update(float dt)
+	{
+		m_time += dt;
+		m_string = generate();
 	}
 
 	std::string LSystem::generate()
 	{
-		return expand(m_def);
+		return expand(m_def, m_time);
 	}
 }

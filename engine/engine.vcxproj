@@ -102,6 +102,7 @@
     <ClInclude Include="include\interpolation\SplineRenderer.h" />
     <ClInclude Include="include\interpolation\TransformRenderer.h" />
     <ClInclude Include="include\lsystem\LSystem.h" />
+    <ClInclude Include="include\lsystem\TurtleRenderer.h" />
     <ClInclude Include="include\particlesystem\FlowPrimitive.h" />
     <ClInclude Include="include\particlesystem\ParticleEmitter.h" />
     <ClInclude Include="include\particlesystem\ParticleRenderer.h" />

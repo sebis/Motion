@@ -6,7 +6,8 @@
 
 namespace Common
 {
-	Mesh::Mesh()
+	Mesh::Mesh(bool staticDraw)
+		: m_staticDraw(staticDraw)
 	{
 		// create single vertex array object and bind it
 		glGenVertexArrays(1, &m_vaoID);
@@ -56,16 +57,47 @@ namespace Common
 		return m_indices.size();
 	}
 
-	void Mesh::draw()
+	void Mesh::setVertices(const Vertices & vertices)
 	{
-		// draw the mesh using the bound index buffer
-		glBindVertexArray(m_vaoID);
+		m_vertices = vertices;
 
+		if (m_staticDraw)
+		{
+			glBindVertexArray(m_vaoID);
+			glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
+			glBufferData(GL_ARRAY_BUFFER, m_vertices.size()*sizeof(vertex), &m_vertices[0], GL_STATIC_DRAW);
+			glBindVertexArray(0);
+		}
+	}
+
+	void Mesh::setIndices(const Indices & indices)
+	{
+		m_indices = indices;
+		if (m_staticDraw)
+		{
+			glBindVertexArray(m_vaoID);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboID);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size()*sizeof(unsigned int), &m_indices[0], GL_STATIC_DRAW);
+			glBindVertexArray(0);
+		}
+	}
+
+	void Mesh::fillBuffer()
+	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
 		glBufferData(GL_ARRAY_BUFFER, m_vertices.size()*sizeof(vertex), &m_vertices[0], GL_DYNAMIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size()*sizeof(unsigned int), &m_indices[0], GL_DYNAMIC_DRAW);
+	}
+
+	void Mesh::draw()
+	{
+		// draw the mesh using the bound index buffer
+		glBindVertexArray(m_vaoID);
+
+		if (!m_staticDraw)
+			fillBuffer();
 
 		glDrawElements(GL_TRIANGLES, count(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);

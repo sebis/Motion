@@ -3,8 +3,8 @@
 
 namespace Common
 {
-	TurtleRenderer::TurtleRenderer(GameObject * gameObject, LSystem * system)
-		: Renderer(gameObject), m_system(system)
+	TurtleRenderer::TurtleRenderer(LSystem * system)
+		: Renderer(0), m_system(system)
 	{
 		m_material = new Material(Shader::find("shader"));
 		m_material->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -31,9 +31,9 @@ namespace Common
 		m_stack = std::stack<glm::mat4>();
 		m_stack.push(glm::mat4(1.0f));
 
-		std::string path = m_system->generate();
+		std::string path = m_system->get();
 
-		float angle = 60.0f;
+		float angle = 25.0f;
 		float offset = 0.25f;
 
 		glm::mat4 m, top;
@@ -43,11 +43,8 @@ namespace Common
 			char chr = path[i];
 			switch (chr)
 			{
-			case 'a':
-				drawSegment();
-				break;
-			case 'b':
-				drawSegment();
+			case 'X':
+				// ignored symbol
 				break;
 			case 'F':
 				drawSegment();

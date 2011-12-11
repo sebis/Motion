@@ -1,6 +1,8 @@
 #ifndef COMMON_LSYSTEM
 #define COMMON_LSYSTEM
 
+#include "Component.h"
+
 #include "glm/glm.hpp"
 
 #include <string>
@@ -14,10 +16,11 @@ namespace Common
 	struct Production
 	{
 		Production(const std::string & str);
-		Production(symbol s, string str);
+		Production(symbol s, string str, float time = 0.0f);
 
 		symbol sym;
 		string str;
+		float time;
 
 		bool operator <(const Production & other) const;
 		bool operator==(const Production & other) const;
@@ -36,19 +39,24 @@ namespace Common
 
 		Productions productions;
 
-		void addProduction(symbol s, string str);
+		void addProduction(symbol s, string str, float time = 0.0f);
 		void addTerminals(const std::string & str);
 	};
 
-	class LSystem
+	class LSystem : public Component
 	{
 	public:
 		LSystem(PlantDefinition * def);
 
+		virtual void update(float dt);
+
+		inline std::string get() const { return m_string; };
 		std::string generate();
 
 	private:
+		std::string m_string;
 		PlantDefinition * m_def;
+		float m_time;
 	};
 }
 

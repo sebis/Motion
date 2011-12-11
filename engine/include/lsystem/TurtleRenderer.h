@@ -11,7 +11,7 @@ namespace Common
 	class TurtleRenderer : public Renderer
 	{
 	public:
-		TurtleRenderer(GameObject * gameObject, LSystem * system);
+		TurtleRenderer(LSystem * system);
 		virtual ~TurtleRenderer();
 
 		virtual void draw();

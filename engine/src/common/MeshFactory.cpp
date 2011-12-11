@@ -12,6 +12,16 @@ namespace Common
 {
 	namespace MeshFactory
 	{
+		namespace
+		{
+			bool g_useStaticDraw = false;
+		}
+
+		void setStaticDraw(bool useStaticDraw)
+		{
+			g_useStaticDraw = useStaticDraw;
+		}
+
 		Mesh * Sphere(glm::vec4 color, int segments)
 		{
 			std::vector<Mesh::vertex> vertices;
@@ -105,7 +115,7 @@ namespace Common
 			for (unsigned i = 0; i < vData.size(); i++)
 				iData.push_back(i);
 
-			Mesh * mesh = new Mesh();
+			Mesh * mesh = new Mesh(g_useStaticDraw);
 			mesh->setVertices(vData);
 			mesh->setIndices(iData);
 			return mesh;
@@ -128,7 +138,7 @@ namespace Common
 			std::vector<Mesh::vertex> vertices(&vData[0], &vData[4]);
 			std::vector<unsigned int> indices(&iData[0], &iData[6]);
 			
-			Mesh * mesh = new Mesh();
+			Mesh * mesh = new Mesh(g_useStaticDraw);
 			mesh->setVertices(vertices);
 			mesh->setIndices(indices);
 			return mesh;
@@ -201,7 +211,7 @@ namespace Common
 
 			PlaneMesh(width, length, vData, iData, color);
 
-			Mesh * mesh = new Mesh();
+			Mesh * mesh = new Mesh(g_useStaticDraw);
 			mesh->setVertices(vData);
 			mesh->setIndices(iData);
 			return mesh;
@@ -267,7 +277,7 @@ namespace Common
 			std::vector<Mesh::vertex> vertices(&vData[0], &vData[24]);
 			std::vector<unsigned int> indices(&iData[0], &iData[36]);
 
-			Mesh * mesh = new Mesh();
+			Mesh * mesh = new Mesh(g_useStaticDraw);
 			mesh->setVertices(vertices);
 			mesh->setIndices(indices);
 			return mesh;
@@ -369,7 +379,7 @@ namespace Common
 				vData[i].normal = glm::normalize(vData[i].normal);
 			}*/
 
-			Mesh * mesh = new Mesh();
+			Mesh * mesh = new Mesh(g_useStaticDraw);
 			mesh->setVertices(vData);
 			mesh->setIndices(iData);
 			return mesh;

@@ -10,7 +10,7 @@ namespace Common
 	class SDLApplication : public Application
 	{
 	public:
-		SDLApplication(bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
+		SDLApplication(const char * title, bool fixedTimeStep = true, float targetElapsedTime = 1.0f/60.0f);
 		virtual ~SDLApplication() {}
 
 		virtual bool init(int argc, char * argv[]);
@@ -28,6 +28,7 @@ namespace Common
 
 	private:
 		SDL_Surface * m_surface;
+		const char * m_title;
 		bool m_fixedTimeStep;
 		float m_targetElapsedTime;
 		int m_totalTime;

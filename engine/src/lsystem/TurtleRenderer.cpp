@@ -39,7 +39,7 @@ namespace Common
 
 		glm::mat4 m, top;
 
-		for (int i = 0; i < path.length(); i++)
+		for (unsigned i = 0; i < path.length(); i++)
 		{
 			char chr = path[i];
 			switch (chr)

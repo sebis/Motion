@@ -62,7 +62,7 @@ namespace Common
 
 		float ComputeVolume(const BoundingSphere & s)
 		{
-			return (4.0f / 3.0f) * M_PI * s.r * s.r * s.r;
+			return float((4.0 / 3.0) * M_PI * s.r * s.r * s.r);
 		}
 
 		void ComputeBoundingVolume(BoundingSphere & s, const BoundingSphere s0, const BoundingSphere s1)

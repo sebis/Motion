@@ -129,7 +129,7 @@ namespace SoftBodyDemo
 
 		int leaves = 0;
 
-		for (int i = 0; i < nodes.size(); i++) {
+		for (unsigned i = 0; i < nodes.size(); i++) {
 			BoundingSphere * bs = nodes[i]->m_bv;
 			if (nodes[i]->m_isLeaf)
 				leaves++;

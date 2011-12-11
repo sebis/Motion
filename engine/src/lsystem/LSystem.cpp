@@ -43,7 +43,7 @@ namespace Common
 
 	void PlantDefinition::addTerminals(const std::string & str)
 	{
-		for (int i = 0; i < str.length(); i++)
+		for (unsigned i = 0; i < str.length(); i++)
 		{
 			char c = str[i];
 			productions.insert(Production(c, std::string(1, c)));
@@ -62,7 +62,7 @@ namespace Common
 				
 				std::string tmp;
 
-				for (int c = 0; c < str.length(); c++) {
+				for (unsigned c = 0; c < str.length(); c++) {
 
 					char chr = str[c];
 

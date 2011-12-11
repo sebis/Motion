@@ -46,7 +46,7 @@ namespace Common
 
 	void SoftBodyWorld::resolveInterpenetration(const CollisionData & data)
 	{
-		for (int i = 0; i < data.contacts.size(); i++)
+		for (unsigned i = 0; i < data.contacts.size(); i++)
 		{
 			Contact * contact = data.contacts[i];
 

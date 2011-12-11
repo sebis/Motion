@@ -17,7 +17,7 @@ namespace Common
 		virtual void draw();
 
 	private:
-		void drawSegment();
+		void drawSegment(int level);
 		void parseSystem();
 
 		LSystem * m_system;

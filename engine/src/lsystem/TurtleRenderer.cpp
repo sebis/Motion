@@ -15,7 +15,7 @@ namespace Common
 	{
 	}
 
-	void TurtleRenderer::drawSegment()
+	void TurtleRenderer::drawSegment(int level)
 	{
 		const glm::mat4 & m = m_stack.top();
 		
@@ -30,6 +30,7 @@ namespace Common
 	{
 		m_stack = std::stack<glm::mat4>();
 		m_stack.push(glm::mat4(1.0f));
+		int level = 0;
 
 		std::string path = m_system->get();
 
@@ -47,7 +48,7 @@ namespace Common
 				// ignored symbol
 				break;
 			case 'F':
-				drawSegment();
+				drawSegment(level);
 				m = glm::translate(m_stack.top(), glm::vec3(0.0f, offset, 0.0f));
 				m_stack.pop();
 				m_stack.push(m);
@@ -82,9 +83,11 @@ namespace Common
 				break;
 			case '[':
 				m_stack.push(m_stack.top());
+				level++;
 				break;
 			case ']':
 				m_stack.pop();
+				level--;
 				break;
 			default:
 				Trace::info("Encountered unkown turtle command: %c\n", chr);

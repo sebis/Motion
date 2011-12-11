@@ -132,9 +132,6 @@
     <ClInclude Include="include\lsystem\LSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\TurtleRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\lsystem\TurtleRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>

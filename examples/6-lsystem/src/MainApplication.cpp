@@ -70,7 +70,7 @@ namespace LSystemDemo
 		def->iterations = 6;
 		def->axiom = "X";
 		def->addProduction('X', "F-[[X]+X]+F[+FX]-X");
-		def->addProduction('F', "FF");
+		def->addProduction('F', "FF", 5000.0f);
 		def->angle = glm::vec3(25.0f, 0.0f, 0.0f);
 
 		LSystem * plant = new LSystem(def);

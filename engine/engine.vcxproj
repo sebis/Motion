@@ -115,7 +115,6 @@
     <ClInclude Include="include\softbody\BVH.h" />
     <ClInclude Include="include\softbody\SoftBody.h" />
     <ClInclude Include="include\softbody\SoftBodyWorld.h" />
-    <ClInclude Include="include\TurtleRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\Camera.cpp" />

@@ -7,43 +7,7 @@
 namespace
 {
 	// From Real-Time Collision Detection by Christopher Ericson. Uses Lagrange's identity.
-	bool PointInTriangle(const glm::vec3 & p, const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, glm::vec3 & n, glm::vec3 & q, float & t)
-	{
-		const glm::vec3 & pa = a - p;
-		const glm::vec3 & pb = b - p;
-		const glm::vec3 & pc = c - p;
-
-		const glm::vec3 u = glm::cross(pb, pc);
-		const glm::vec3 v = glm::cross(pc, pa);
-
-		if (glm::dot(u, v) < 0.0f)
-			return false;
-
-		const glm::vec3 w = glm::cross(pa, pb);
-		
-		if (glm::dot(u, w) < 0.0f)
-			return false;
-
-		const glm::vec3 & ab = b - a;
-		const glm::vec3 & ac = c - a;
-
-		// calculate normal for triangle
-		n = glm::normalize(glm::cross(ab, ac));
-		//n *= 1.0f / glm::dot(n, n);
-
-		// distance of point p along normal
-		t = glm::dot(n, p - a);
-		const float CONSTANT = 0.05f;
-		if (t > CONSTANT)
-			return false;
-
-		// projected point on triangle
-		q = p + n * (CONSTANT - t);
-
-		return true;
-	}
-
-	bool PointInTriangle(const glm::vec3 & p, const Common::Triangle * tri, Common::Contact * contact)
+	bool PointInTriangle(const glm::vec3 & p, const Common::Triangle * tri, Common::Contact * contact, float threshold)
 	{
 		const glm::vec3 & a = tri->a - p;
 		const glm::vec3 & b = tri->b - p;
@@ -61,86 +25,42 @@ namespace
 		if (ab * bc - ac * bb < 0.0f)
 			return false;
 
-		// calculate normal for triangle
-		
-		//n *= 1.0f / glm::dot(n, n);
-
 		// distance of point p along normal
 		contact->penetration = glm::dot(tri->n, p - tri->a);
-
-		const float CONSTANT = 0.075f;
-		if (contact->penetration > CONSTANT)
+		if (contact->penetration > threshold)
 			return false;
 
-		// projected point on triangle
+		// collision normal is same as triangle normal
 		contact->normal = tri->n;
-		contact->point = p + contact->normal * (CONSTANT - contact->penetration);
+
+		// projected point on triangle
+		contact->point = p + contact->normal * (threshold - contact->penetration);
 
 		return true;
 	}
 
-	bool PointInBVH(const Common::BVHNode * node, const glm::vec3 & p, Common::Contact * contact)
+	bool PointInBVH(const Common::BVHNode * node, const glm::vec3 & p, Common::Contact * contact, float threshold)
 	{
 		if (!node->isInside(p))
 			return false;
 
 		if (node->m_isLeaf) {
-			return PointInTriangle(p, node->m_triangle, contact);
+			return PointInTriangle(p, node->m_triangle, contact, threshold);
 		} else {
-			if (PointInBVH(node->left, p, contact))
+			if (PointInBVH(node->left, p, contact, threshold))
 				return true;
-			if (PointInBVH(node->right, p, contact))
+			if (PointInBVH(node->right, p, contact, threshold))
 				return true;
 		}
 
 		return false;
 	}
-
-	bool IntersectLineTriangle(const glm::vec3 & p, const glm::vec3 & q, const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, glm::vec3 & n, glm::vec3 & r, float & t)
-	{
-		const glm::vec3 & ab = b - a;
-		const glm::vec3 & ac = c - a;
-		const glm::vec3 & qp = p - q;
-
-		n = glm::cross(ab, ac);
-
-		float d = glm::dot(qp, n);
-		if (d <= 0.0f)
-			return false;
-
-		const glm::vec3 & ap = p - a;
-
-		t = glm::dot(ap, n);
-		if (t < -0.05f || t > d)
-			return false;
-
-		const glm::vec3 e = glm::cross(qp, ap);
-
-		float v = glm::dot(ac, e);
-		if (v < 0.0f || v > d)
-			return false;
-
-		float w = -glm::dot(ab, e);
-		if (w < 0.0f || v + w > d)
-			return false;
-
-		float ood = 1.0f / d;
-		
-		t *= ood;
-
-		v *= ood;
-		w *= ood;
-		float u = 1.0f - v - w;
-
-		//r = p + t * (q - p);
-		r = u * a + v * b + w * c;
-
-		return true;
-	}
 }
 
 namespace Common
 {
+	float CollisionDetector::COLLISION_THRESHOLD = 0.0f;
+
 	CollisionDetector * CollisionDetector::s_instance = 0;
 
 	CollisionDetector * CollisionDetector::instance()
@@ -193,137 +113,8 @@ namespace Common
 		return true;
 	}
 
-	bool CollisionDetector::MeshAndMesh(MeshCollider * mesh1, MeshCollider * mesh2, CollisionData * data)
-	{
-		if (mesh1->m_usePoints && !mesh2->m_usePoints) {
-			// right order, do nothing
-		} else if (mesh2->m_usePoints && !mesh1->m_usePoints) {
-			// swap
-			MeshCollider * tmp = mesh1;
-			mesh1 = mesh2;
-			mesh2 = tmp;
-		} else {
-			Trace::error("Unsupported mesh collision\n");
-			return false;
-		}
-
-		const glm::mat4 & world1 = mesh1->transform().world();
-		const glm::mat4 & world2 = mesh2->transform().world();
-
-		// check if a points are contained in b's triangles
-		Mesh::Indices indices = mesh2->m_mesh->indices();
-
-		for (int i = 0; i < indices.size(); i += 3) {
-
-			const glm::vec3 a(world2 * glm::vec4(mesh2->m_mesh->vertexAt(indices[i+0]).position, 1.0f));
-			const glm::vec3 b(world2 * glm::vec4(mesh2->m_mesh->vertexAt(indices[i+1]).position, 1.0f));
-			const glm::vec3 c(world2 * glm::vec4(mesh2->m_mesh->vertexAt(indices[i+2]).position, 1.0f));
-
-			glm::vec3 finalNormal;
-			glm::vec3 finalPoint;
-			float minPenetration = std::numeric_limits<float>::max();
-			bool collide = false;
-
-			int totalcounter = 0;
-			int incounter = 0;
-			int hitcounter = 0;
-
-			for (int v = 0; v < mesh1->m_mesh->vertices().size(); v++)
-			{
-				totalcounter++;
-
-				glm::vec3 * currentVertex = &mesh1->m_mesh->vertexAt(v).position;
-				const glm::vec3 p(world1 * glm::vec4(*currentVertex, 1.0f));
-
-				glm::vec3 normal;
-				glm::vec3 point;
-				float penetration;
-
-				if (PointInTriangle(p, a, b, c, normal, point, penetration))
-				{
-					incounter++;
-					if (penetration < minPenetration)
-					{
-						Contact * contact = new Contact;
-
-						contact->normal = normal;
-						contact->point = point;
-						contact->penetration = penetration;
-						contact->userData = currentVertex;
-
-						data->contacts.push_back(contact);
-					}
-				}
-			}
-		}
-
-		Trace::info("Number of contacts: %d\n", data->contacts.size());
-		return data->contacts.size() > 0;
-	}
-
-	void getVertices(MeshCollider * mesh, const Mesh::Indices & indices, glm::vec3 & a, glm::vec3 & b, glm::vec3 & c, int i)
-	{
-		a = mesh->m_mesh->vertexAt(indices[i+0]).position;
-		b = mesh->m_mesh->vertexAt(indices[i+1]).position;
-		c = mesh->m_mesh->vertexAt(indices[i+2]).position;
-	}
-
-	Contact * collidesInternal(MeshCollider * mesh, const glm::vec3 & p, const glm::vec3 & q, const Mesh::Indices & indices)
-	{
-		glm::vec3 finalNormal(0.0f);
-		glm::vec3 finalPoint(0.0f);
-		float minPenetration = std::numeric_limits<float>::max();
-		bool collide = false;
-
-		int count = indices.size();
-
-		glm::vec3 normal(0.0f);
-		glm::vec3 point(0.0f);
-		float penetration = 0;
-
-		for (int i = 0; i < count; i += 3) {
-
-			glm::vec3 a, b, c;
-			getVertices(mesh, indices, a, b, c, i);
-
-			if (PointInTriangle(p, a, b, c, normal, point, penetration))
-			{
-				if (penetration < minPenetration)
-				{
-					finalNormal = normal;
-					finalPoint = point;
-					minPenetration = penetration;
-					collide = true;
-				}
-			}
-
-			/*if (IntersectLineTriangle(p, q, a, b, c, normal, point, penetration))
-			{
-				Contact * contact = new Contact;
-
-				contact->normal = normal;
-				contact->point = point;
-				contact->penetration = penetration;
-
-				return contact;
-			}*/
-		}
-
-		if (collide) 
-		{
-			Contact * contact = new Contact;
-
-			contact->normal = finalNormal;
-			contact->point = finalPoint;
-			contact->penetration = minPenetration;
-
-			return contact;
-		}
-
-		return 0;
-	}
-
-	Contact * CollisionDetector::collides(const glm::vec3 & p1, const glm::vec3 & p2)
+	// TODO: create a proper point collider and it to the collision detection algorithm
+	Contact * CollisionDetector::collides(const glm::vec3 & position)
 	{
 		Contact * contact = new Contact;
 
@@ -334,21 +125,10 @@ namespace Common
 			{
 				const glm::mat4 & world = mesh->transform().worldMatrix();
 				const glm::mat4 & invWorld = mesh->transform().invWorldMatrix();
-				const glm::vec3 & p = glm::vec3(invWorld * glm::vec4(p1, 1.0f));
-				const glm::vec3 & q = glm::vec3(invWorld * glm::vec4(p2, 1.0f));
 
-				/*const Mesh::Indices & indices = mesh->m_mesh->indices();
+				const glm::vec3 & p = glm::vec3(invWorld * glm::vec4(position, 1.0f));
 
-				Contact * contact = collidesInternal(mesh, p, q, indices);
-				if (contact) {
-
-					contact->normal = glm::vec3(world * glm::vec4(contact->normal, 0.0f));
-					contact->point = glm::vec3(world * glm::vec4(contact->point, 1.0f));
-
-					return contact;
-				}*/
-
-				if (PointInBVH(mesh->m_bvh->root(), p, contact))
+				if (PointInBVH(mesh->m_bvh->root(), p, contact, COLLISION_THRESHOLD))
 				{
 					contact->normal = glm::vec3(world * glm::vec4(contact->normal, 0.0f));
 					contact->point = glm::vec3(world * glm::vec4(contact->point, 1.0f));
@@ -376,24 +156,6 @@ namespace Common
 					break;
 
 				CollisionData data;
-
-				MeshCollider * mesh = dynamic_cast<MeshCollider*>(m_colliders[i]);
-				if (mesh)
-				{
-					MeshCollider * mesh2 = dynamic_cast<MeshCollider*>(m_colliders[j]);
-					if (mesh2) {
-						CollisionData * pData = &data;
-						if (CollisionDetector::MeshAndMesh(mesh, mesh2, pData)) {
-							data.bodies[0] = mesh->collisionBody();
-							data.bodies[1] = mesh->collisionBody();
-							data.restitution = 0;
-							data.friction = 0;
-							collisions.push_back(data);
-						}
-						continue;
-					}
-					continue; // Mesh-Other not implemented
-				}
 
 				PlaneCollider * plane = dynamic_cast<PlaneCollider*>(m_colliders[i]);
 				if (plane)

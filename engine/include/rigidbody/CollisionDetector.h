@@ -46,19 +46,19 @@ namespace Common
 	class CollisionDetector
 	{
 	public:
-
 		static CollisionDetector * instance();
 		~CollisionDetector() {}
 
 		static bool SphereAndSphere(SphereCollider * a, SphereCollider * b, CollisionData * data);
 		static bool SphereAndPlane(SphereCollider * a, PlaneCollider * b, CollisionData * data);
-		static bool MeshAndMesh(MeshCollider * a, MeshCollider * b, CollisionData * data);
 
 		inline void addCollider(Collider * collider) { m_colliders.push_back(collider); }
 		inline void clear() { m_colliders.clear(); }
 
-		Contact * collides(const glm::vec3 & p1, const glm::vec3 & p2);
+		Contact * collides(const glm::vec3 & position);
 		void detectCollisions(std::vector<CollisionData> & collisions);
+
+		static float COLLISION_THRESHOLD;
 
 	private:
 		CollisionDetector() {}

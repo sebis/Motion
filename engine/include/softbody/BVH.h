@@ -41,8 +41,6 @@ namespace Common
 		inline bool isInside(const glm::vec3 & p) const;
 		inline void print_debug();
 
-		void grow(const BoundingSphere & s);
-
 		glm::vec3 c;
 		float r;
 		float r2;

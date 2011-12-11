@@ -10,13 +10,17 @@ namespace Common
 	// Helper functions
 	namespace
 	{
-		void addForceToTriangle(SoftBody::Node * n1, SoftBody::Node * n2, SoftBody::Node * n3, const glm::vec3 & force)
+		glm::vec3 computeNormal(SoftBody::Node * n1, SoftBody::Node * n2, SoftBody::Node * n3)
 		{
 			const glm::vec3 & n12 = n2->position - n1->position;
 			const glm::vec3 & n13 = n3->position - n1->position;
 
-			const glm::vec3 n = glm::normalize(glm::cross(n12, n13));
+			return glm::normalize(glm::cross(n12, n13));
+		}
 
+		void addForceToTriangle(SoftBody::Node * n1, SoftBody::Node * n2, SoftBody::Node * n3, const glm::vec3 & force)
+		{
+			const glm::vec3 n = computeNormal(n1, n2, n3);
 			const glm::vec3 directedForce = n * glm::dot(n, force);
 
 			n1->force += directedForce;
@@ -28,8 +32,12 @@ namespace Common
 	const unsigned SoftBody::WIDTH = 50;
 	const unsigned SoftBody::LENGTH = 50;
 
+	unsigned SoftBody::ITERATION_COUNT = 5;
+
 	SoftBody::SoftBody(GameObject * gameObject)
-		: m_gameObject(gameObject)
+		: m_gameObject(gameObject),
+		  m_damping(0.99f),
+		  m_friction(0.0f)
 	{
 	}
 
@@ -66,12 +74,10 @@ namespace Common
 
 	void SoftBody::solveConstraints()
 	{
-		const unsigned maxIter = 5;
-
 		SpringIterator begin = m_springs.begin();
 		SpringIterator end = m_springs.end();
 
-		for (unsigned i = 0; i < maxIter; i++)
+		for (unsigned i = 0; i < ITERATION_COUNT; i++)
 		{
 			for (SpringIterator it = begin; it != end; it++)
 			{
@@ -80,21 +86,13 @@ namespace Common
 
 				const glm::vec3 & delta = n2->position - n1->position;
 
-				float d = glm::length(delta);
-				float l = (*it)->restLength;
-
-				const glm::vec3 & offset = delta * (1 - l/d) * 0.5f;
-
-				n1->position += offset;
-				n2->position -= offset;
-
-				/*float d = glm::dot(delta, delta);
+				float d = glm::dot(delta, delta);
 				float f = (*it)->restLength * (*it)->restLength;
 
 				float im1 = n1->constrained ? 0 : 1.0f / n1->mass;
 				float im2 = n2->constrained ? 0 : 1.0f / n2->mass;
 
-				float diff = (d - f) / ((f + d) * (im1 + im2));
+				float diff = (d - f) / ((d + f) * (im1 + im2));
 
 				if (im1 != 0) {
 					n1->position += delta * (im1 * diff);
@@ -102,7 +100,7 @@ namespace Common
 
 				if (im2 != 0) {
 					n2->position -= delta * (im2 * diff);
-				}*/
+				}
 			}
 		}
 	}
@@ -113,7 +111,6 @@ namespace Common
 
 		glm::vec3 velocity;
 		glm::vec3 tmp;
-		float damping = 0.99f;
 
 		for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
 		{
@@ -124,10 +121,11 @@ namespace Common
 
 			// Use Verlet integration to calculate velocity and new position based on previous state
 			tmp = i->position;
-			velocity = (i->position - i->oldPosition) * damping + (i->force / i->mass) * dt2;
+			velocity = (i->position - i->oldPosition) * m_damping + (i->force / i->mass) * dt2;
 			i->position += velocity;
 			i->oldPosition = tmp;
 
+			// reset force accumulation
 			i->force = glm::vec3(0.0f);
 		}
 	}
@@ -142,20 +140,57 @@ namespace Common
 			Node * i = *nit;
 			
 			glm::vec3 wp1 = glm::vec3(world * glm::vec4(i->position, 1.0f));
-			glm::vec3 dummy;
 
-			Contact * contact = cd->collides(wp1, dummy);
+			Contact * contact = cd->collides(wp1);
 			if (contact) {
-				float friction = 5.0f;
 
 				glm::vec3 rn = contact->point - wp1;
 				glm::vec3 d = i->position - i->oldPosition;
 				glm::vec3 dt = d - contact->normal * glm::dot(d, contact->normal);
-				glm::vec3 rt = -friction * dt;
+				glm::vec3 rt = -m_friction * dt;
 
 				i->position += rn + rt;
 			}
 		}
+	}
+
+	void SoftBody::calculateNormals()
+	{
+		glm::vec3 n(0.0f);
+
+		// Reset normals
+		for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
+		{
+			(*nit)->normal = n;
+		}
+
+		// Calculate normals based on all triangles adjacent to each vertex
+		for (int z = 0; z < LENGTH-1; z++)
+		{
+			for (int x = 0; x < WIDTH-1; x++)
+			{
+				Node * n1 = node(x, z);
+				Node * n2 = node(x, z+1);
+				Node * n3 = node(x+1, z);
+				Node * n4 = node(x+1, z+1);
+
+				n = computeNormal(n1, n2, n3);
+				n1->normal += n;
+				n2->normal += n;
+				n3->normal += n;
+
+				n = computeNormal(n3, n2, n4);
+				n3->normal += n;
+				n2->normal += n;
+				n4->normal += n;
+			}
+		}
+
+		// No need to normalize normals. Shader does this
+		/*for (NodeIterator nit = m_nodes.begin(); nit != m_nodes.end(); nit++)
+		{
+			(*nit)->normal = glm::normalize((*nit)->normal);
+		}*/
 	}
 
 	void SoftBody::update(float dt)
@@ -164,7 +199,7 @@ namespace Common
 		solveConstraints();
 		integrate(dt);
 		resolveCollisions();
-		//calculateNormals();
+		calculateNormals();
 	}
 
 	SoftBody::Node * SoftBody::node(unsigned x, unsigned z)
@@ -201,7 +236,7 @@ namespace Common
 				int index = z*width + x;
 
 				Mesh::vertex * v = &vertices[index];
-				Node * node = new Node(v->position, 0.000001f);
+				Node * node = new Node(v->position, v->normal, 0.000001f);
 
 				body->m_nodes.push_back(node);
 			}
@@ -215,6 +250,10 @@ namespace Common
 			for (int x = 0; x < width; x++)
 			{
 				Node * n1 = body->node(x, z);
+
+				// Constrain top corner vertices
+				if ((x == 0 || x == width - 1) && z == 0)
+					n1->constrained = true;
 
 				// Immediate neighbors
 				if (x < width - 1) {

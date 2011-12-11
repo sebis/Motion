@@ -18,20 +18,20 @@ namespace Common
 	public:
 		struct Node
 		{
-			Node(glm::vec3 & _position, float _mass) 
+			Node(glm::vec3 & _position, glm::vec3 & _normal, float _mass) 
 				: position(_position), 
+				  normal(_normal),
 				  mass(_mass), 
-				  velocity(glm::vec3(0.0f)), 
 				  force(glm::vec3(0.0f)),
 				  oldPosition(_position),
 				  constrained(false)
 			{}
 
 			float mass;
-			glm::vec3 velocity;
 			glm::vec3 force;
 			glm::vec3 & position;
 			glm::vec3 oldPosition;
+			glm::vec3 & normal;
 			bool constrained;
 		};
 
@@ -51,20 +51,23 @@ namespace Common
 		SoftBody(GameObject * gameObject);
 		virtual ~SoftBody();
 
-		void applyForces(float dt);
-		void solveConstraints();
-		void integrate(float dt);
-		void resolveCollisions();
-
 		void update(float dt);
 
 		static MeshObject * createCloth(Material * material, SoftBodyWorld * world, SoftBody * body = 0);
+
+		static unsigned ITERATION_COUNT;
 
 	private:
 		static const unsigned WIDTH;
 		static const unsigned LENGTH;
 
 		Node * node(unsigned x, unsigned z);
+
+		void applyForces(float dt);
+		void solveConstraints();
+		void integrate(float dt);
+		void resolveCollisions();
+		void calculateNormals();
 
 		typedef std::vector<Node*> Nodes;
 		typedef Nodes::iterator NodeIterator;
@@ -75,6 +78,9 @@ namespace Common
 		Springs m_springs;
 
 		GameObject * m_gameObject;
+
+		float m_damping;
+		float m_friction;
 	};
 }
 

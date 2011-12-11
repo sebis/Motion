@@ -55,6 +55,10 @@ namespace SoftBodyDemo
 
 		Common::GameObject::s_camera = &m_camera;
 
+		// Set some properties
+		CollisionDetector::COLLISION_THRESHOLD = 0.075f;
+		SoftBody::ITERATION_COUNT = 5;
+
 		Material * yellowMaterial = new Material(Shader::find("shader"));
 		//yellowMaterial->setAmbientColor(glm::vec4(1, 0, 0, 1));
 		//yellowMaterial->setWireframe(true);

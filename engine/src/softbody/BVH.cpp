@@ -57,42 +57,7 @@ namespace Common
 
 			return new BoundingSphere(center, radius);
 		}
-	}
 
-	bool BoundingSphere::isInside(const glm::vec3 & p) const
-	{
-		const glm::vec3 & diff = p - c;
-		return glm::dot(diff, diff) < r2;
-	}
-
-	void BoundingSphere::print_debug()
-	{
-		Trace::info("Bounding sphere: (%.2f, %.2f, %.2f) -- %.2f\n", c.x, c.y, c.z, r);
-	}
-
-	void BoundingSphere::grow(const BoundingSphere & s)
-	{
-		const glm::vec3 & d = s.c - c;
-		float dist2 = glm::dot(d, d);
-
-		if ((s.r - r) * (s.r - r) >= dist2) {
-			if (s.r >= r) {
-				r = s.r;
-				r2 = r * r;
-				c = s.c;
-			}
-		} else {
-			float dist = glm::sqrt(dist2);
-			float newRadius = (dist + r + s.r) * 0.5f;
-			if (dist > std::numeric_limits<float>::epsilon())
-				c += ((newRadius - r) / dist) * d;
-			r = newRadius;
-			r2 = r * r;
-		}
-	}
-
-	namespace
-	{
 		typedef std::list<BVHNode*>::iterator NodeIterator;
 
 		float ComputeVolume(const BoundingSphere & s)
@@ -160,7 +125,6 @@ namespace Common
 
 			while (nodes.size() > 1)
 			{
-				// erases i and j from nodes
 				BoundingSphere * s = FindNodesToMerge(nodes, i, j);
 
 				BVHNode * node = new BVHNode;
@@ -180,13 +144,21 @@ namespace Common
 		}
 	}
 
+	bool BoundingSphere::isInside(const glm::vec3 & p) const
+	{
+		const glm::vec3 & diff = p - c;
+		return glm::dot(diff, diff) < r2;
+	}
+
+	void BoundingSphere::print_debug()
+	{
+		Trace::info("Bounding sphere: (%.2f, %.2f, %.2f) -- %.2f\n", c.x, c.y, c.z, r);
+	}
+
 	BVH * BVH::constructFromMesh(Mesh * mesh)
 	{
 		const Mesh::Indices & indices = mesh->indices();
-
 		std::list<BVHNode*> nodes;
-
-		BoundingSphere * rootSphere;
 
 		for (unsigned i = 0; i < indices.size(); i += 3)
 		{
@@ -208,17 +180,8 @@ namespace Common
 			nodes.push_back(node);
 		}
 
-		/*rootSphere = new BoundingSphere(*static_cast<BoundingSphere *>(leaves[0]->m_bv));
-		for (int i = 1; i < leaves.size(); i++)
-			rootSphere->grow(*static_cast<BoundingSphere *>(leaves[i]->m_bv));*/
-
-		BVHNode * root = BottomUpBVTree(nodes);
-		/*root->m_bv = rootSphere;
-		root->m_isLeaf = false;
-		root->m_children = leaves;*/
-
 		BVH * bvh = new BVH();
-		bvh->m_root = root;
+		bvh->m_root = BottomUpBVTree(nodes);
 
 		return bvh;
 	}

@@ -125,8 +125,8 @@ namespace Common
 				2, 1, 3
 			};
 
-			std::vector<Mesh::vertex> vertices(&vData[0], &vData[3]);
-			std::vector<unsigned int> indices(&iData[0], &iData[5]);
+			std::vector<Mesh::vertex> vertices(&vData[0], &vData[4]);
+			std::vector<unsigned int> indices(&iData[0], &iData[6]);
 			
 			Mesh * mesh = new Mesh();
 			mesh->setVertices(vertices);

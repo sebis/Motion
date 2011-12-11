@@ -28,6 +28,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "5-softbody", "examples\5-so
 		{BB3FFA01-1F30-4D9F-AE6E-AC5CCF1A8E8F} = {BB3FFA01-1F30-4D9F-AE6E-AC5CCF1A8E8F}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "6-lsystem", "examples\6-lsystem\6-lsystem.vcxproj", "{F946E68B-89C3-4790-B536-A12C932FD150}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BB3FFA01-1F30-4D9F-AE6E-AC5CCF1A8E8F} = {BB3FFA01-1F30-4D9F-AE6E-AC5CCF1A8E8F}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -71,6 +76,12 @@ Global
 		{DAD24E55-BEA4-4BE7-AF03-21A2A2EC66A6}.Library|Win32.Build.0 = Release|Win32
 		{DAD24E55-BEA4-4BE7-AF03-21A2A2EC66A6}.Release|Win32.ActiveCfg = Release|Win32
 		{DAD24E55-BEA4-4BE7-AF03-21A2A2EC66A6}.Release|Win32.Build.0 = Release|Win32
+		{F946E68B-89C3-4790-B536-A12C932FD150}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F946E68B-89C3-4790-B536-A12C932FD150}.Debug|Win32.Build.0 = Debug|Win32
+		{F946E68B-89C3-4790-B536-A12C932FD150}.Library|Win32.ActiveCfg = Release|Win32
+		{F946E68B-89C3-4790-B536-A12C932FD150}.Library|Win32.Build.0 = Release|Win32
+		{F946E68B-89C3-4790-B536-A12C932FD150}.Release|Win32.ActiveCfg = Release|Win32
+		{F946E68B-89C3-4790-B536-A12C932FD150}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

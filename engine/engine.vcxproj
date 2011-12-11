@@ -52,7 +52,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>include;include\common;include\softbody;include\interpolation;include\ik;include\particlesystem;include\rigidbody</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include\lsystem;include;include\common;include\softbody;include\interpolation;include\ik;include\particlesystem;include\rigidbody</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -65,7 +65,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>include;include\common;include\softbody;include\interpolation;include\ik;include\particlesystem;include\rigidbody</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include\lsystem;include;include\common;include\softbody;include\interpolation;include\ik;include\particlesystem;include\rigidbody</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -101,6 +101,7 @@
     <ClInclude Include="include\interpolation\KeyframeAnimator.h" />
     <ClInclude Include="include\interpolation\SplineRenderer.h" />
     <ClInclude Include="include\interpolation\TransformRenderer.h" />
+    <ClInclude Include="include\lsystem\LSystem.h" />
     <ClInclude Include="include\particlesystem\FlowPrimitive.h" />
     <ClInclude Include="include\particlesystem\ParticleEmitter.h" />
     <ClInclude Include="include\particlesystem\ParticleRenderer.h" />
@@ -133,6 +134,7 @@
     <ClCompile Include="src\interpolation\KeyframeAnimator.cpp" />
     <ClCompile Include="src\interpolation\SplineRenderer.cpp" />
     <ClCompile Include="src\interpolation\TransformRenderer.cpp" />
+    <ClCompile Include="src\lsystem\LSystem.cpp" />
     <ClCompile Include="src\particlesystem\FlowPrimitive.cpp" />
     <ClCompile Include="src\particlesystem\ParticleEmitter.cpp" />
     <ClCompile Include="src\particlesystem\ParticleRenderer.cpp" />

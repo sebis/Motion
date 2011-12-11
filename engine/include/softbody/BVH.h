@@ -38,8 +38,8 @@ namespace Common
 			r2 = radius * radius;
 		}
 
-		inline bool isInside(const glm::vec3 & p) const;
-		inline void print_debug();
+		virtual bool isInside(const glm::vec3 & p) const;
+		virtual void print_debug();
 
 		glm::vec3 c;
 		float r;

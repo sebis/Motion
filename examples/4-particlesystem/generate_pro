@@ -4,7 +4,7 @@ PRO=${PWD##*/}.pro
 
 qmake -project -t app -r -o $PRO \
 "LIBS += -L../../engine/lib" \
-"LIBS += -lGLEW -lglut -lengine" \
+"LIBS += -lGL -lGLU -lGLEW -lglut -lengine" \
 "OBJECTS_DIR = obj"
 
 sed -i '4i include(../../engine/engine.pri)' $PRO

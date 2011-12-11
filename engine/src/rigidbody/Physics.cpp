@@ -55,7 +55,7 @@ namespace Common
 			const CollisionData & data = collisions[i];
 
 			// TODO: make Physics support soft bodies as well
-			assert(data.type == CollisionData::RIGID);
+			//assert(data.type == CollisionData::RIGID);
 
 			resolveVelocity(data);
 			resolveInterpenetration(data);

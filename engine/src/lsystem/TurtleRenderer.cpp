@@ -17,6 +17,7 @@ namespace Common
 
 	void TurtleRenderer::drawSegment(int level)
 	{
+		level = 0;
 		const glm::mat4 & m = m_stack.top();
 		
 		glm::mat4 temp = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.25f*0.5f, 0.01f)), glm::vec3(0.0f, 1.0f, 0.0f));

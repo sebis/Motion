@@ -140,7 +140,7 @@ namespace Common
 		return 0;
 	}
 
-	void SDLApplication::display_text(const char * text, int x, int y)
+	void SDLApplication::display_text(const char * text, int /*x*/, int /*y*/)
 	{
 		Trace::info(text);
 	}

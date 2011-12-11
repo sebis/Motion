@@ -52,9 +52,9 @@ namespace Common
 		const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
 		const glm::vec3 wind(0.5f, 1.0f, 0.1f);
 
-		for (int z = 0; z < LENGTH; z++)
+		for (unsigned z = 0; z < LENGTH; z++)
 		{
-			for (int x = 0; x < WIDTH; x++)
+			for (unsigned x = 0; x < WIDTH; x++)
 			{
 				Node * n1 = node(x, z);
 
@@ -165,9 +165,9 @@ namespace Common
 		}
 
 		// Calculate normals based on all triangles adjacent to each vertex
-		for (int z = 0; z < LENGTH-1; z++)
+		for (unsigned z = 0; z < LENGTH-1; z++)
 		{
-			for (int x = 0; x < WIDTH-1; x++)
+			for (unsigned x = 0; x < WIDTH-1; x++)
 			{
 				Node * n1 = node(x, z);
 				Node * n2 = node(x, z+1);

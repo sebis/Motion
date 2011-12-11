@@ -27,11 +27,11 @@ namespace Common
 				  constrained(false)
 			{}
 
+			glm::vec3 & position;
+			glm::vec3 & normal;
 			float mass;
 			glm::vec3 force;
-			glm::vec3 & position;
 			glm::vec3 oldPosition;
-			glm::vec3 & normal;
 			bool constrained;
 		};
 

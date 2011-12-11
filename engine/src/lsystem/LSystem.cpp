@@ -11,7 +11,7 @@ namespace Common
 		// TODO: do this in a safer way
 		char key, value[80];
 		assert(_str.length() < 80);
-		sscanf(_str.c_str(), "%c=%s", &key, &value);
+		sscanf(_str.c_str(), "%c=%s", &key, (char*)&value);
 
 		sym = key;
 		str = value;

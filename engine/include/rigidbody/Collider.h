@@ -24,7 +24,7 @@ namespace Common
 		std::string name;
 
 		inline CollisionBody * collisionBody() const { return m_collisionBody; }
-		virtual bool isInside(const glm::vec3 & point, Contact * contact) const { return false; }
+		virtual bool isInside(const glm::vec3 & /*point*/, Contact * /*contact*/) const { return false; }
 
 		Transform transform() const;
 

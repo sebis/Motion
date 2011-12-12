@@ -3,6 +3,7 @@
 
 #include "Animator.h"
 #include "ControlPoints.h"
+#include "GameObject.h"
 #include "Interpolator.h"
 #include "SplineRenderer.h"
 #include "Trace.h"

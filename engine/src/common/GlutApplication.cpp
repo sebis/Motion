@@ -126,6 +126,28 @@ namespace Common
 			m_instance->keyDown(KEY_NEXT);
 		else if (key == '-')
 			m_instance->keyDown(KEY_PREV);
+		else if (key == 'v' || key == 'V')
+			m_instance->keyDown(KEY_VERBOSE);
+		else if (key == '0')
+			m_instance->keyDown(KEY_0);
+		else if (key == '1')
+			m_instance->keyDown(KEY_1);
+		else if (key == '2')
+			m_instance->keyDown(KEY_2);
+		else if (key == '3')
+			m_instance->keyDown(KEY_3);
+		else if (key == '4')
+			m_instance->keyDown(KEY_4);
+		else if (key == '5')
+			m_instance->keyDown(KEY_5);
+		else if (key == '6')
+			m_instance->keyDown(KEY_6);
+		else if (key == '7')
+			m_instance->keyDown(KEY_7);
+		else if (key == '8')
+			m_instance->keyDown(KEY_8);
+		else if (key == '9')
+			m_instance->keyDown(KEY_9);
 		else if (key == 13) // return
 			m_instance->keyDown(KEY_RESET_1);
 		else if (key == 32) // space
@@ -152,6 +174,28 @@ namespace Common
 			m_instance->keyUp(KEY_NEXT);
 		else if (key == '-')
 			m_instance->keyUp(KEY_PREV);
+		else if (key == 'v' || key == 'V')
+			m_instance->keyUp(KEY_VERBOSE);
+		else if (key == '0')
+			m_instance->keyUp(KEY_0);
+		else if (key == '1')
+			m_instance->keyUp(KEY_1);
+		else if (key == '2')
+			m_instance->keyUp(KEY_2);
+		else if (key == '3')
+			m_instance->keyUp(KEY_3);
+		else if (key == '4')
+			m_instance->keyUp(KEY_4);
+		else if (key == '5')
+			m_instance->keyUp(KEY_5);
+		else if (key == '6')
+			m_instance->keyUp(KEY_6);
+		else if (key == '7')
+			m_instance->keyUp(KEY_7);
+		else if (key == '8')
+			m_instance->keyUp(KEY_8);
+		else if (key == '9')
+			m_instance->keyUp(KEY_9);
 		else if (key == 13) // return
 			m_instance->keyUp(KEY_RESET_1);
 		else if (key == 32) // space

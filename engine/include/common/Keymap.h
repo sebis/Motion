@@ -15,6 +15,18 @@ namespace Common
 		KEY_QUIT = 108,
 		KEY_NEXT = 109,
 		KEY_PREV = 110,
+		KEY_VERBOSE = 111,
+
+		KEY_0 = 150,
+		KEY_1 = 151,
+		KEY_2 = 152,
+		KEY_3 = 153,
+		KEY_4 = 154,
+		KEY_5 = 155,
+		KEY_6 = 156,
+		KEY_7 = 157,
+		KEY_8 = 158,
+		KEY_9 = 159,
 
 		KEY_MOUSE_NONE = 200,
 		KEY_MOUSE_LEFT = 201,

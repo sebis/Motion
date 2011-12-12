@@ -1,23 +1,28 @@
 #include "MainApplication.h"
 #include "CollisionDetector.h"
+#include "KeyframeAnimator.h"
 #include "Material.h"
 #include "MeshObject.h"
 #include "SoftBody.h"
 #include "SoftBodyWorld.h"
+#include "Physics.h"
 #include "Trace.h"
 #include "Utils.h"
 
 #include <GL/glew.h>
 
+#include <iomanip>
 #include <sstream>
 
 namespace SoftBodyDemo
 {
 	using namespace Common;
+	using namespace Interpolation;
 
 	namespace
 	{
 		SoftBodyWorld g_world;
+		SoftBody * g_body = 0;
 	}
 
 	MainApplication::MainApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
@@ -25,7 +30,10 @@ namespace SoftBodyDemo
 		m_camera(glm::vec3(10.0f), glm::vec3(0.0f)),
 		m_started(false),
 		m_currentLevel(0),
-		m_debug(false)
+		m_debug(false),
+		m_constrained(true),
+		m_animate(true),
+		m_help(true)
 	{
 	}
 
@@ -62,6 +70,7 @@ namespace SoftBodyDemo
 		// Set some properties
 		CollisionDetector::COLLISION_THRESHOLD = 0.075f;
 		SoftBody::ITERATION_COUNT = 5;
+		SoftBody::FRICTION = 0.5f;
 
 		initScene();
 
@@ -72,18 +81,21 @@ namespace SoftBodyDemo
 	{
 		m_components.clear();
 		m_debugComponents.clear();
+		g_world = SoftBodyWorld();
+		g_body = 0;
 
 		Material * yellowMaterial = new Material(Shader::find("shader"));
+		yellowMaterial->setTexture(new Texture("resources/wood.bmp"));
 		//yellowMaterial->setAmbientColor(glm::vec4(1, 0, 0, 1));
 		//yellowMaterial->setWireframe(true);
-		//MeshObject * cube = new MeshObject(MeshFactory::FromFile("resources/goomba.ply"), yellowMaterial);
-		MeshObject * cube = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 32), yellowMaterial);
-		cube->transform().translate(glm::vec3(0.0f, 0.0f, 0.0f));
+		MeshObject * cube = new MeshObject(MeshFactory::FromFile("resources/bowl.ply"), yellowMaterial);
+		//MeshObject * cube = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 32), yellowMaterial);
+		cube->transform().translate(glm::vec3(0.0f, 2.0f, 0.0f));
 		//cube->transform().scale() = glm::vec3(0.4f);
 		cube->transform().update();
 
-		Mesh * lowpoly = MeshFactory::Sphere(glm::vec4(1.0f), 8);
-		//Mesh * lowpoly = MeshFactory::FromFile("resources/goomba-low.ply");
+		//Mesh * lowpoly = MeshFactory::Sphere(glm::vec4(1.0f), 8);
+		Mesh * lowpoly = MeshFactory::FromFile("resources/bowl-low.ply");
 
 		MeshCollider * cubeCollider = new MeshCollider(cube);
 		cubeCollider->m_mesh = lowpoly;
@@ -93,14 +105,36 @@ namespace SoftBodyDemo
 		m_components.push_back(cube);
 
 		Material * clothMaterial = new Material(Shader::find("shader"));
-		clothMaterial->setTexture(new Texture("resources/scarf.bmp"));
-		clothMaterial->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		clothMaterial->setTexture(new Texture("resources/cloth.bmp"));
+		clothMaterial->setDiffuseColor(glm::vec4(0.8f, 0.8f, 0.8f, 1.0f));
+		clothMaterial->setAmbientColor(glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
+		clothMaterial->setSpecularColor(glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
 		//MeshObject * cloth = new MeshObject(MeshFactory::PlaneMesh(), clothMaterial);
-		SoftBody * body = 0;
-		MeshObject * cloth = SoftBody::createCloth(clothMaterial, &g_world, body);
+		MeshObject * cloth = SoftBody::createCloth(clothMaterial, &g_world, &g_body);
 		cloth->transform().translate(glm::vec3(-2.5f, 5.0f, -2.5f));
 		//cloth->transform().scale() = glm::vec3(5.0f);
 		cloth->transform().update();
+
+		//MeshObject * ball = new MeshObject(MeshFactory::Sphere(), yellowMaterial);
+		Material * appleMaterial = new Material(Shader::find("shader"));
+		appleMaterial->setDiffuseColor(glm::vec4(0.9f));
+		appleMaterial->setTexture(new Texture("resources/apple.bmp"));
+
+		MeshObject * ball = new MeshObject(MeshFactory::FromFile("resources/apple.ply"), appleMaterial);
+
+		ball->transform().translate(glm::vec3(0.0f, 3.0f, 10.0f));
+		ball->transform().scale(glm::vec3(0.5f));
+
+		SphereCollider * sphereCollider = new SphereCollider(ball);
+		CollisionDetector::instance()->addCollider(sphereCollider);
+
+		m_components.push_back(ball);
+
+		KeyframeAnimator<glm::vec3> * anim = new KeyframeAnimator<glm::vec3>(ball, new LinearInterpolator<glm::vec3>, ball->transform().position());
+		anim->addKeyframe(0.0f, glm::vec3(0.0f, 3.0f, 10.0f));
+		anim->addKeyframe(20000.0f, glm::vec3(0.0f, 3.0f, -10.0f));
+		anim->addKeyframe(40000.0f, glm::vec3(0.0f, 3.0f, 10.0f));
+		m_ballAnimator = anim;
 
 		/*MeshCollider * clothCollider = new MeshCollider(cloth, body, true);
 		clothCollider->m_mesh = cloth->mesh();
@@ -111,7 +145,7 @@ namespace SoftBodyDemo
 		int level = 0;
 
 		while (true) {
-			ComponentCollection components = addDrawDebug(cubeCollider->m_bvh, level);
+			ComponentCollection components = addDrawDebug(cubeCollider, level);
 			if (components.empty())
 				break;
 
@@ -137,9 +171,9 @@ namespace SoftBodyDemo
 		}
 	}
 	
-	MainApplication::ComponentCollection MainApplication::addDrawDebug(BVH * bvh, int level)
+	MainApplication::ComponentCollection MainApplication::addDrawDebug(MeshCollider * collider, int level)
 	{
-		BVHNode * root = bvh->root();
+		BVHNode * root = collider->m_bvh->root();
 
 		Material * wireframe = new Material(Shader::find("shader"));
 		wireframe->setAmbientColor(glm::vec4(1.0f));
@@ -149,7 +183,7 @@ namespace SoftBodyDemo
 		collectBvhs(nodes, root, level, level);
 
 		int leaves = 0;
-		MainApplication::ComponentCollection components;
+		ComponentCollection components;
 
 		for (unsigned i = 0; i < nodes.size(); i++) {
 			BoundingSphere * bs = nodes[i]->m_bv;
@@ -159,7 +193,8 @@ namespace SoftBodyDemo
 			MeshObject * sphere = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 10), wireframe);
 
 			sphere->transform().translate(bs->c);
-			sphere->transform().scale() = glm::vec3(1.0f) * bs->r;
+			sphere->transform().translate(collider->transform().position());
+			sphere->transform().scale(glm::vec3(1.0f) * bs->r);
 
 			components.push_back(sphere);
 		}
@@ -184,12 +219,37 @@ namespace SoftBodyDemo
 				initScene();
 			m_started = !m_started;
 		}
+		else if (key == Common::KEY_RESET_2)
+			m_constrained = !m_constrained;
+		else if (key == Common::KEY_VERBOSE)
+			m_animate = !m_animate;
 		else if (key == Common::KEY_NEXT)
 			m_currentLevel++;
 		else if (key == Common::KEY_PREV)
 			m_currentLevel = m_currentLevel > 0 ? m_currentLevel-1 : 0;
 		else if (key == Common::KEY_RESET_1)
 			m_debug = !m_debug;
+		else if (key == Common::KEY_HELP)
+			m_help = !m_help;
+
+		else if (key == Common::KEY_1)
+			SoftBody::WIND.x += 0.1f;
+		else if (key == Common::KEY_2)
+			SoftBody::WIND.x = 0.0f;
+		else if (key == Common::KEY_3)
+			SoftBody::WIND.x -= 0.1f;
+		else if (key == Common::KEY_4)
+			SoftBody::WIND.y += 0.1f;
+		else if (key == Common::KEY_5)
+			SoftBody::WIND.y = 0.0f;
+		else if (key == Common::KEY_6)
+			SoftBody::WIND.y -= 0.1f;
+		else if (key == Common::KEY_7)
+			SoftBody::WIND.z += 0.1f;
+		else if (key == Common::KEY_8)
+			SoftBody::WIND.z = 0.0f;
+		else if (key == Common::KEY_9)
+			SoftBody::WIND.z -= 0.1f;
 	}
 
 	void MainApplication::keyUp(Common::Key key)
@@ -234,8 +294,16 @@ namespace SoftBodyDemo
 	{
 		m_camera.update(dt);
 
+		if (m_animate)
+			m_ballAnimator->update(dt);
+
 		if (!m_started)
 			return;
+
+		if (g_body) {
+			g_body->setConstrained(0, 0, m_constrained);
+			g_body->setConstrained(SoftBody::WIDTH-1, 0, m_constrained);
+		}
 
 		for (ComponentIterator it = m_components.begin(); it != m_components.end(); ++it)
 		{
@@ -269,10 +337,25 @@ namespace SoftBodyDemo
 
 		std::stringstream ss;
 		ss << "Cloth Simulation Demo" << std::endl;
+		ss << std::setiosflags(std::ios::fixed) << std::setprecision(1);
 		ss << std::endl;
-		ss << "<Space> Start simulation" << std::endl;
-		ss << "<Enter> Toggle BVH visualization" << std::endl;
-		ss << "<+/-> Adjust BVH visualization level" << std::endl;
+		
+		if (m_help) {
+			ss << "<Space> Start/reset simulation" << std::endl;
+			ss << "<Enter> Toggle BVH visualization" << std::endl;
+			ss << "<+/-> Adjust BVH visualization level";
+			if (m_debug) { ss << " (" << m_currentLevel << ")"; } ss << std::endl;
+			ss << "<c> Toggle constrained corners: " << (m_constrained ? "true" : "false") << std::endl;
+			ss << "<v> Toggle moving ball: " << (m_animate ? "true" : "false") << std::endl;
+			ss << "<Numpad 1-9> Adjust wind speed" << std::endl;
+			ss << "<h> Show this help (reduces fps)" << std::endl;
+			ss << std::endl;
+			ss << "Friction: " << SoftBody::FRICTION << std::endl;
+			ss << "Iteration count: " << SoftBody::ITERATION_COUNT << std::endl;
+			ss << "Cloth size: " << SoftBody::WIDTH << "x" << SoftBody::LENGTH << std::endl;
+		}
+		ss << "Wind: (" << SoftBody::WIND.x << ", " << SoftBody::WIND.y << ", " << SoftBody::WIND.z << ")" << std::endl;
+
 		std::string text = ss.str();
 
 		display_text(text.c_str(), 10, 15);

@@ -9,8 +9,9 @@ typedef Common::SDLApplication Base;
 typedef Common::GlutApplication Base;
 #endif
 
-#include "BVH.h"
+#include "Animator.h"
 #include "Camera.h"
+#include "Collider.h"
 #include "Component.h"
 
 #include <vector>
@@ -47,11 +48,16 @@ namespace SoftBodyDemo
 		typedef ComponentCollection::iterator ComponentIterator;
 		ComponentCollection m_components;
 
-		ComponentCollection addDrawDebug(Common::BVH * bvh, int level);
+		Common::Animator * m_ballAnimator;
+
+		ComponentCollection addDrawDebug(Common::MeshCollider * collider, int level);
 		std::map<int, ComponentCollection> m_debugComponents;
 		typedef std::map<int, ComponentCollection>::iterator DebugIterator;
 		int m_currentLevel;
 		bool m_debug;
+		bool m_constrained;
+		bool m_animate;
+		bool m_help;
 	};
 }
 

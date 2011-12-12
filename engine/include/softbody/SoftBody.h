@@ -53,13 +53,17 @@ namespace Common
 
 		void update(float dt);
 
-		static MeshObject * createCloth(Material * material, SoftBodyWorld * world, SoftBody * body = 0);
+		void setConstrained(unsigned x, unsigned z, bool constrained);
+
+		static MeshObject * createCloth(Material * material, SoftBodyWorld * world, SoftBody ** body = 0);
 
 		static unsigned ITERATION_COUNT;
-
-	private:
+		static float FRICTION;
+		static glm::vec3 WIND;
 		static const unsigned WIDTH;
 		static const unsigned LENGTH;
+
+	private:
 
 		Node * node(unsigned x, unsigned z);
 

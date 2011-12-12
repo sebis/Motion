@@ -262,6 +262,8 @@ namespace Interpolation
 
 		// accumulate time
 		m_time += dt;
+
+		m_gameObject->transform().update();
 	}
 
 } /* namespace Interpolation */

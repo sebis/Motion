@@ -33,11 +33,13 @@ namespace Common
 	const unsigned SoftBody::LENGTH = 50;
 
 	unsigned SoftBody::ITERATION_COUNT = 5;
+	float SoftBody::FRICTION = 1.0f;
+	glm::vec3 SoftBody::WIND = glm::vec3(0.5f, 1.0f, 0.1f);
 
 	SoftBody::SoftBody(GameObject * gameObject)
 		: m_gameObject(gameObject),
 		  m_damping(0.99f),
-		  m_friction(0.0f)
+		  m_friction(FRICTION)
 	{
 	}
 
@@ -50,7 +52,6 @@ namespace Common
 		float dt2 = dt * dt;
 
 		const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
-		const glm::vec3 wind(0.5f, 1.0f, 0.1f);
 
 		for (unsigned z = 0; z < LENGTH; z++)
 		{
@@ -65,8 +66,8 @@ namespace Common
 					Node * n3 = node(x+1, z);
 					Node * n4 = node(x+1, z+1);
 
-					addForceToTriangle(n1, n2, n3, wind * dt2);
-					addForceToTriangle(n3, n2, n4, wind * dt2);
+					addForceToTriangle(n1, n2, n3, WIND * dt2);
+					addForceToTriangle(n3, n2, n4, WIND * dt2);
 				}
 			}
 		}
@@ -202,12 +203,22 @@ namespace Common
 		calculateNormals();
 	}
 
-	SoftBody::Node * SoftBody::node(unsigned x, unsigned z)
+	void SoftBody::setConstrained(unsigned x, unsigned z, bool constrained)
 	{
-		return m_nodes[z*WIDTH + x];
+		Node * n = node(x, z);
+		if (n)
+			n->constrained = constrained;
 	}
 
-	MeshObject * SoftBody::createCloth(Material * material, SoftBodyWorld * world, SoftBody * body)
+	SoftBody::Node * SoftBody::node(unsigned x, unsigned z)
+	{
+		if (x < WIDTH && z < LENGTH)
+			return m_nodes[z*WIDTH + x];
+		else
+			return 0;
+	}
+
+	MeshObject * SoftBody::createCloth(Material * material, SoftBodyWorld * world, SoftBody ** b)
 	{
 		std::vector<Mesh::vertex> vData;
 		std::vector<glm::uint> iData;
@@ -226,7 +237,8 @@ namespace Common
 
 		MeshObject * object = new MeshObject(mesh, material);
 
-		body = new SoftBody(object);
+		*b = new SoftBody(object);
+		SoftBody * body = *b;
 
 		// initialize nodes
 		for (int z = 0; z < length; z++)
@@ -250,10 +262,6 @@ namespace Common
 			for (int x = 0; x < width; x++)
 			{
 				Node * n1 = body->node(x, z);
-
-				// Constrain top corner vertices
-				if ((x == 0 || x == width - 1) && z == 0)
-					n1->constrained = true;
 
 				// Immediate neighbors
 				if (x < width - 1) {

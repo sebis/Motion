@@ -4,7 +4,7 @@
 
 namespace Common
 {
-	Transform Collider::transform()
+	Transform Collider::transform() const
 	{
 		RigidBody * rigidBody = dynamic_cast<RigidBody *>(m_collisionBody);
 		if (rigidBody)

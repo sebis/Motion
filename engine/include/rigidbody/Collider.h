@@ -13,6 +13,7 @@
 namespace Common
 {
 	class GameObject;
+	class Contact;
 
 	class Collider
 	{
@@ -23,8 +24,9 @@ namespace Common
 		std::string name;
 
 		inline CollisionBody * collisionBody() const { return m_collisionBody; }
+		virtual bool isInside(const glm::vec3 & point, Contact * contact) const { return false; }
 
-		Transform transform();
+		Transform transform() const;
 
 	private:
 		GameObject * m_gameObject;
@@ -40,6 +42,8 @@ namespace Common
 			m_radius(1.0f) {}
 
 		virtual ~SphereCollider() {}
+
+		virtual bool isInside(const glm::vec3 & point, Contact * contact) const;
 
 		glm::vec3 m_position;
 		glm::float_t m_radius;
@@ -60,6 +64,8 @@ namespace Common
 	public:
 		MeshCollider(GameObject * gameObject, CollisionBody * body = 0, bool usePoints = false) : Collider(gameObject, body), m_usePoints(usePoints) {}
 		virtual ~MeshCollider() {}
+
+		virtual bool isInside(const glm::vec3 & point, Contact * contact) const;
 
 		Mesh * m_mesh;
 		BVH * m_bvh;

@@ -49,7 +49,7 @@ namespace Common
 
 		inline void scale(const glm::vec3& scale)
 		{
-			m_scale = scale;
+			m_scale *= scale;
 		}
 
 		const glm::mat4 world() const;

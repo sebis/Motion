@@ -1,5 +1,6 @@
 #include "BVH.h"
 #include "CollisionDetector.h"
+#include "GameObject.h"
 #include "Trace.h"
 
 #include <sstream>
@@ -59,6 +60,33 @@ namespace
 
 namespace Common
 {
+	bool SphereCollider::isInside(const glm::vec3 & point, Contact * contact) const
+	{
+		const glm::vec3 & diff = point - m_position;
+		float dist = glm::length(diff);
+
+		float t = CollisionDetector::COLLISION_THRESHOLD;
+
+		if (dist < (m_radius + t)) {
+
+			contact->normal = glm::normalize(diff);
+			contact->penetration = dist - (m_radius + t);
+			contact->point = contact->normal * (m_radius + t);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool MeshCollider::isInside(const glm::vec3 & point, Contact * contact) const
+	{
+		return PointInBVH(m_bvh->root(), point, contact, CollisionDetector::COLLISION_THRESHOLD);
+	}
+
+	//////////////////////////////////////
+	//////////////////////////////////////
+
 	float CollisionDetector::COLLISION_THRESHOLD = 0.0f;
 
 	CollisionDetector * CollisionDetector::s_instance = 0;
@@ -120,21 +148,21 @@ namespace Common
 
 		for (unsigned i = 0; i < m_colliders.size(); i++)
 		{
-			MeshCollider * mesh = dynamic_cast<MeshCollider*>(m_colliders[i]);
-			if (mesh)
-			{
-				const glm::mat4 & world = mesh->transform().worldMatrix();
-				const glm::mat4 & invWorld = mesh->transform().invWorldMatrix();
+			Collider * collider = m_colliders[i];
 
-				const glm::vec3 & p = glm::vec3(invWorld * glm::vec4(position, 1.0f));
+			// transform position to local coordinates
+			const glm::mat4 & invWorld = collider->transform().invWorldMatrix();
+			const glm::vec3 & p = glm::vec3(invWorld * glm::vec4(position, 1.0f));
 
-				if (PointInBVH(mesh->m_bvh->root(), p, contact, COLLISION_THRESHOLD))
-				{
-					contact->normal = glm::vec3(world * glm::vec4(contact->normal, 0.0f));
-					contact->point = glm::vec3(world * glm::vec4(contact->point, 1.0f));
+			if (collider->isInside(p, contact)) {
 
-					return contact;
-				}
+				// transform back to world coordinates
+				const glm::mat4 & world = collider->transform().worldMatrix();
+
+				contact->normal = glm::vec3(world * glm::vec4(contact->normal, 0.0f));
+				contact->point = glm::vec3(world * glm::vec4(contact->point, 1.0f));
+
+				return contact;
 			}
 		}
 
@@ -156,6 +184,11 @@ namespace Common
 					break;
 
 				CollisionData data;
+
+				MeshCollider * mesh1 = dynamic_cast<MeshCollider*>(m_colliders[i]);
+				MeshCollider * mesh2 = dynamic_cast<MeshCollider*>(m_colliders[j]);
+				if (mesh1 || mesh2)
+					continue; // mesh collision not implemented
 
 				PlaneCollider * plane = dynamic_cast<PlaneCollider*>(m_colliders[i]);
 				if (plane)

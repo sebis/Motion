@@ -14,7 +14,7 @@ namespace LSystemDemo
 	MainApplication::MainApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
 		: Base(title, fixedTimeStep, targetElapsedTime),
 		m_camera(glm::vec3(10.0f), glm::vec3(0.0f)),
-		m_started(true)
+		m_started(false)
 	{
 	}
 
@@ -65,13 +65,24 @@ namespace LSystemDemo
 		//def->addProduction('F', "F[-F]F[+F]F");
 		def->addProduction('F', "F[-F]F[+F]F[&F]F[/F]FF");*/
 
-		PlantDefinition * def = new PlantDefinition();
+		/*PlantDefinition * def = new PlantDefinition();
 		def->addTerminals("+-[]");
 		def->iterations = 6;
 		def->axiom = "X";
 		def->addProduction('X', "F-[[X]+X]+F[+FX]-X");
 		def->addProduction('F', "FF", 5000.0f);
-		def->angle = glm::vec3(25.0f, 0.0f, 0.0f);
+		def->angle = glm::vec3(25.0f, 0.0f, 0.0f);*/
+
+		PlantDefinition * def = new PlantDefinition();
+		def->addTerminals("+-!?&/[]Q`");
+		def->iterations = 7;
+		def->angle = 22.5f;
+		def->diameter = 1.0f;
+		def->axiom = "A";
+		def->addProduction('A', "[+FLA]?????[+FLA]???????`[+FLA]");
+		def->addProduction('F', "S?????F", 1000.0f);
+		def->addProduction('S', "F", 2000.0f);
+		def->addProduction('L', "[Q--Q][Q&&Q]");
 
 		LSystem * plant = new LSystem(def);
 		m_components.push_back(plant);
@@ -80,7 +91,7 @@ namespace LSystemDemo
 		tree->m_renderer = new TurtleRenderer(plant);
 		m_components.push_back(tree);
 
-		Trace::info("Generated: %s\n", plant->generate().c_str());
+		//Trace::info("Generated: %s\n", plant->generate().c_str());
 		
 		return true;
 	}

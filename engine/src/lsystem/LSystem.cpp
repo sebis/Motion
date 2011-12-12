@@ -50,39 +50,6 @@ namespace Common
 		}
 	}
 
-	namespace
-	{
-		std::string expand(PlantDefinition * def, float time)
-		{
-			std::string str = def->axiom;
-
-			int iterations = def->iterations;
-
-			for (int i = 0; i < iterations; i++) {
-				
-				std::string tmp;
-
-				for (unsigned c = 0; c < str.length(); c++) {
-
-					char chr = str[c];
-
-					// Search for valid production
-					Productions::iterator it = std::find(def->productions.begin(), def->productions.end(), chr);
-					if (it != def->productions.end()) {
-						if (it->time <= time)
-							tmp.append(it->str);
-					} else {
-						Trace::info("No matching rule for symbol: %c\n", chr);
-					}
-				}
-
-				str = tmp;
-			}
-
-			return str;
-		}
-	}
-
 	LSystem::LSystem(PlantDefinition * def)
 		: m_def(def), m_time(0.0f)
 	{
@@ -96,6 +63,46 @@ namespace Common
 
 	std::string LSystem::generate()
 	{
-		return expand(m_def, m_time);
+		std::string str = m_def->axiom;
+
+		m_queue = std::stack<std::string>();
+		m_queue.push(str);
+
+		int iterations = m_def->iterations;
+
+		float dt = 500.0f;
+
+		for (int i = 0; i < iterations; i++) {
+			
+			std::string tmp;
+
+			for (unsigned c = 0; c < str.length(); c++) {
+
+				char chr = str[c];
+
+				// Search for valid production
+				Productions::iterator it = std::find(m_def->productions.begin(), m_def->productions.end(), chr);
+				if (it != m_def->productions.end()) {
+					//Trace::info("Time: %f / %f\n", time, 1000.0f * i);
+					//if (1000.0f * i < t) {
+						tmp.append(it->str);
+						//time = time+dt - t_branch;
+
+						// TODO: not really smart
+						Common::Production & p = const_cast<Common::Production &>(*it);
+						p.setTime(m_time+dt - it->time);
+					//}
+				} else {
+					Trace::info("No matching rule for symbol: %c\n", chr);
+				}
+			}
+
+			str = tmp;
+			//Trace::info("str: %d\n", str.length());
+			m_queue.push(str);
+			//Trace::info("queuestr: %d\n", m_queue.top().length());
+		}
+
+		return str;
 	}
 }

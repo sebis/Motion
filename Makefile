@@ -30,10 +30,10 @@ SUBTARGETS    =  \
 
 engine//$(MAKEFILE): 
 	@$(CHK_DIR_EXISTS) engine/ || $(MKDIR) engine/ 
-	cd engine/ && $(QMAKE) /home/seba/src/animation/engine/engine.pro -unix -config release -o $(MAKEFILE)
+	cd engine/ && $(QMAKE) engine.pro -unix -config release -o $(MAKEFILE)
 sub-engine-qmake_all:  FORCE
 	@$(CHK_DIR_EXISTS) engine/ || $(MKDIR) engine/ 
-	cd engine/ && $(QMAKE) /home/seba/src/animation/engine/engine.pro -unix -config release -o $(MAKEFILE)
+	cd engine/ && $(QMAKE) engine.pro -unix -config release -o $(MAKEFILE)
 sub-engine: engine//$(MAKEFILE) FORCE
 	cd engine/ && $(MAKE) -f $(MAKEFILE)
 sub-engine-make_default-ordered: engine//$(MAKEFILE) FORCE
@@ -66,10 +66,10 @@ sub-engine-uninstall_subtargets: engine//$(MAKEFILE) FORCE
 	cd engine/ && $(MAKE) -f $(MAKEFILE) uninstall
 examples/5-softbody//$(MAKEFILE): 
 	@$(CHK_DIR_EXISTS) examples/5-softbody/ || $(MKDIR) examples/5-softbody/ 
-	cd examples/5-softbody/ && $(QMAKE) /home/seba/src/animation/examples/5-softbody/5-softbody.pro -unix -config release -o $(MAKEFILE)
+	cd examples/5-softbody/ && $(QMAKE) 5-softbody.pro -unix -config release -o $(MAKEFILE)
 sub-examples-5-softbody-qmake_all:  FORCE
 	@$(CHK_DIR_EXISTS) examples/5-softbody/ || $(MKDIR) examples/5-softbody/ 
-	cd examples/5-softbody/ && $(QMAKE) /home/seba/src/animation/examples/5-softbody/5-softbody.pro -unix -config release -o $(MAKEFILE)
+	cd examples/5-softbody/ && $(QMAKE) 5-softbody.pro -unix -config release -o $(MAKEFILE)
 sub-examples-5-softbody: examples/5-softbody//$(MAKEFILE) FORCE
 	cd examples/5-softbody/ && $(MAKE) -f $(MAKEFILE)
 sub-examples-5-softbody-make_default-ordered: examples/5-softbody//$(MAKEFILE) sub-engine-make_default-ordered  FORCE

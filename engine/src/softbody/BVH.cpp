@@ -94,7 +94,8 @@ namespace Common
 
 			float smallestVolume = std::numeric_limits<float>::max();
 
-			Trace::info("num nodes: %d\n", nodes.size());
+			if (nodes.size() % 10 == 0)
+				Trace::info("Processing BVH nodes.. (%d remaining)\n", nodes.size());
 
 			for (NodeIterator it = begin; it != end; it++)
 			{

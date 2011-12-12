@@ -13,7 +13,7 @@
 namespace Common
 {
 	class GameObject;
-	class Contact;
+	struct Contact;
 
 	class Collider
 	{

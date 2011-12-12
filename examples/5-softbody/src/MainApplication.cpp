@@ -60,7 +60,6 @@ namespace SoftBodyDemo
 		glClearDepth(1.0f);
 		//glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		glEnable(GL_POLYGON_SMOOTH);
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
@@ -84,68 +83,66 @@ namespace SoftBodyDemo
 		g_world = SoftBodyWorld();
 		g_body = 0;
 
-		Material * yellowMaterial = new Material(Shader::find("shader"));
-		yellowMaterial->setTexture(new Texture("resources/wood.bmp"));
-		//yellowMaterial->setAmbientColor(glm::vec4(1, 0, 0, 1));
-		//yellowMaterial->setWireframe(true);
-		MeshObject * cube = new MeshObject(MeshFactory::FromFile("resources/bowl.ply"), yellowMaterial);
-		//MeshObject * cube = new MeshObject(MeshFactory::Sphere(glm::vec4(1.0f), 32), yellowMaterial);
-		cube->transform().translate(glm::vec3(0.0f, 2.0f, 0.0f));
-		//cube->transform().scale() = glm::vec3(0.4f);
-		cube->transform().update();
+		// Create wood material
+		Material * woodMaterial = new Material(Shader::find("shader"));
+		woodMaterial->setTexture(new Texture("resources/wood.bmp"));
 
-		//Mesh * lowpoly = MeshFactory::Sphere(glm::vec4(1.0f), 8);
+		// Load bowl model
+		MeshObject * bowl = new MeshObject(MeshFactory::FromFile("resources/bowl.ply"), woodMaterial);
+		bowl->transform().translate(glm::vec3(0.0f, 2.0f, 0.0f));
+		bowl->transform().update();
+
+		// Load low-poly model of bowl for collision detection
 		Mesh * lowpoly = MeshFactory::FromFile("resources/bowl-low.ply");
 
-		MeshCollider * cubeCollider = new MeshCollider(cube);
-		cubeCollider->m_mesh = lowpoly;
-		cubeCollider->m_bvh = BVH::constructFromMesh(lowpoly);
-		CollisionDetector::instance()->addCollider(cubeCollider);
+		MeshCollider * bowlCollider = new MeshCollider(bowl);
+		bowlCollider->m_mesh = lowpoly;
+		bowlCollider->m_bvh = BVH::constructFromMesh(lowpoly);
+		CollisionDetector::instance()->addCollider(bowlCollider);
 
-		m_components.push_back(cube);
+		m_components.push_back(bowl);
 
+		// Create cloth material
 		Material * clothMaterial = new Material(Shader::find("shader"));
 		clothMaterial->setTexture(new Texture("resources/cloth.bmp"));
 		clothMaterial->setDiffuseColor(glm::vec4(0.8f, 0.8f, 0.8f, 1.0f));
 		clothMaterial->setAmbientColor(glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
 		clothMaterial->setSpecularColor(glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
-		//MeshObject * cloth = new MeshObject(MeshFactory::PlaneMesh(), clothMaterial);
+
+		// Create cloth mesh with attached soft body information
 		MeshObject * cloth = SoftBody::createCloth(clothMaterial, &g_world, &g_body);
 		cloth->transform().translate(glm::vec3(-2.5f, 5.0f, -2.5f));
-		//cloth->transform().scale() = glm::vec3(5.0f);
 		cloth->transform().update();
 
-		//MeshObject * ball = new MeshObject(MeshFactory::Sphere(), yellowMaterial);
+		m_components.push_back(cloth);
+
+		// Create material for apple
 		Material * appleMaterial = new Material(Shader::find("shader"));
 		appleMaterial->setDiffuseColor(glm::vec4(0.9f));
 		appleMaterial->setTexture(new Texture("resources/apple.bmp"));
 
-		MeshObject * ball = new MeshObject(MeshFactory::FromFile("resources/apple.ply"), appleMaterial);
+		// Load apple model from file
+		MeshObject * apple = new MeshObject(MeshFactory::FromFile("resources/apple.ply"), appleMaterial);
+		apple->transform().translate(glm::vec3(0.0f, 3.0f, 10.0f));
+		apple->transform().scale(glm::vec3(0.5f));
 
-		ball->transform().translate(glm::vec3(0.0f, 3.0f, 10.0f));
-		ball->transform().scale(glm::vec3(0.5f));
-
-		SphereCollider * sphereCollider = new SphereCollider(ball);
+		// Create a mathematical sphere collider for the apple
+		SphereCollider * sphereCollider = new SphereCollider(apple);
 		CollisionDetector::instance()->addCollider(sphereCollider);
 
-		m_components.push_back(ball);
+		m_components.push_back(apple);
 
-		KeyframeAnimator<glm::vec3> * anim = new KeyframeAnimator<glm::vec3>(ball, new LinearInterpolator<glm::vec3>, ball->transform().position());
+		// Create animator that animates the apple
+		KeyframeAnimator<glm::vec3> * anim = new KeyframeAnimator<glm::vec3>(apple, new LinearInterpolator<glm::vec3>, apple->transform().position());
 		anim->addKeyframe(0.0f, glm::vec3(0.0f, 3.0f, 10.0f));
 		anim->addKeyframe(20000.0f, glm::vec3(0.0f, 3.0f, -10.0f));
 		anim->addKeyframe(40000.0f, glm::vec3(0.0f, 3.0f, 10.0f));
 		m_ballAnimator = anim;
 
-		/*MeshCollider * clothCollider = new MeshCollider(cloth, body, true);
-		clothCollider->m_mesh = cloth->mesh();
-		CollisionDetector::instance()->addCollider(clothCollider);*/
-
-		m_components.push_back(cloth);
-
+		// Create some debug spheres for the BVH
 		int level = 0;
-
 		while (true) {
-			ComponentCollection components = addDrawDebug(cubeCollider, level);
+			ComponentCollection components = addDrawDebug(bowlCollider, level);
 			if (components.empty())
 				break;
 
@@ -199,7 +196,7 @@ namespace SoftBodyDemo
 			components.push_back(sphere);
 		}
 
-		Trace::info("%d/%d nodes\n", leaves, nodes.size());
+		Trace::info("Nodes at level %d: %d (%d leaves)\n", level, nodes.size(), leaves);
 
 		return components;
 	}

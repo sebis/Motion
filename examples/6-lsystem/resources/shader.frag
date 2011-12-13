@@ -65,6 +65,8 @@ void main(void)
 		lightColor += (phong * specularColor) * attenuation;
 	}
 	
+	lightColor.a = 1.0f;
+	
 	// use simple material model
 	vec4 materialColor = pass_Color;
 	
@@ -72,5 +74,5 @@ void main(void)
 		materialColor *= texture2D(sampler0, pass_Texcoord);
 	}
 	
-	fragment_Color = materialColor * lightColor;
+	fragment_Color = materialColor * lightColor * materialColor;
 }

@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <sstream>
 
 namespace Common
 {
@@ -38,7 +39,7 @@ namespace Common
 
 	void PlantDefinition::addProduction(symbol sym, string str, float time)
 	{
-		productions.insert(Production(sym, str, time));
+		productions.insert(std::make_pair(sym, Production(sym, str, time)));
 	}
 
 	void PlantDefinition::addTerminals(const std::string & str)
@@ -46,7 +47,7 @@ namespace Common
 		for (unsigned i = 0; i < str.length(); i++)
 		{
 			char c = str[i];
-			productions.insert(Production(c, std::string(1, c)));
+			productions.insert(std::make_pair(c, Production(c, std::string(1, c))));
 		}
 	}
 
@@ -68,36 +69,34 @@ namespace Common
 		m_queue = std::stack<std::string>();
 		m_queue.push(str);
 
+
 		int iterations = m_def->iterations;
 
 		float dt = 500.0f;
 
 		for (int i = 0; i < iterations; i++) {
 			
-			std::string tmp;
+			std::stringstream ss;
+
+			ss << "k" << i;
 
 			for (unsigned c = 0; c < str.length(); c++) {
 
 				char chr = str[c];
 
 				// Search for valid production
-				Productions::iterator it = std::find(m_def->productions.begin(), m_def->productions.end(), chr);
+				//std::pair<Productions::iterator, Productions::iterator> it = m_def->productions.equal_range(chr);
+				Productions::iterator it = m_def->productions.find(chr);
 				if (it != m_def->productions.end()) {
-					//Trace::info("Time: %f / %f\n", time, 1000.0f * i);
-					//if (1000.0f * i < t) {
-						tmp.append(it->str);
-						//time = time+dt - t_branch;
-
-						// TODO: not really smart
-						Common::Production & p = const_cast<Common::Production &>(*it);
-						p.setTime(m_time+dt - it->time);
-					//}
+					//Productions::iterator f = it.first;
+					Production prod = it->second;
+					ss << prod.str;
 				} else {
 					Trace::info("No matching rule for symbol: %c\n", chr);
 				}
 			}
 
-			str = tmp;
+			str = ss.str();
 			//Trace::info("str: %d\n", str.length());
 			m_queue.push(str);
 			//Trace::info("queuestr: %d\n", m_queue.top().length());

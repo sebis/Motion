@@ -121,6 +121,80 @@ namespace Common
 			return mesh;
 		}
 
+		Mesh * Cylinder(int segments, const glm::vec4 & color)
+		{
+			std::vector<Mesh::vertex> vertices;
+			std::vector<unsigned int> indices;
+
+			// create bottom vertices
+			
+			unsigned c1 = 2*segments;
+			unsigned c2 = c1+1;
+
+			for (int i = 0; i < segments; i++)
+			{
+				float ratio = (float)i / (float)segments;
+				float angle = float(2.0f*M_PI*ratio);
+
+				float x = std::cos(angle);
+				float z = std::sin(angle);
+
+				Mesh::vertex bottom;
+				bottom.position = glm::vec3(x, -1.0f, z);
+				bottom.normal = glm::vec3(x, 0.0f, z);
+				bottom.color = color;
+				bottom.texcoord = glm::vec2(ratio, 1.0f);
+				vertices.push_back(bottom);
+
+				Mesh::vertex top;
+				top.position = glm::vec3(x, 1.0f, z);
+				top.normal = glm::vec3(x, 0.0f, z);
+				top.color = color;
+				top.texcoord = glm::vec2(ratio, 0.0f);
+				vertices.push_back(top);
+
+				unsigned i1 = i*2;
+				unsigned i2 = i1+1;
+				unsigned i3 = ((i+1)*2)%(segments*2);
+				unsigned i4 = i3+1;
+
+				indices.push_back(i1);
+				indices.push_back(i3);
+				indices.push_back(c1);
+
+				indices.push_back(i2);
+				indices.push_back(i4);
+				indices.push_back(c2);
+
+				indices.push_back(i1);
+				indices.push_back(i2);
+				indices.push_back(i3);
+
+				indices.push_back(i2);
+				indices.push_back(i3);
+				indices.push_back(i4);
+			}
+
+			Mesh::vertex bottom;
+			bottom.position = glm::vec3(0.0f, -1.0f, 0.0f);
+			bottom.normal = glm::vec3(0.0f, -1.0f, 0.0f);
+			bottom.color = color;
+			bottom.texcoord = glm::vec2(0.0f, 0.0f);
+			vertices.push_back(bottom);
+
+			Mesh::vertex top;
+			top.position = glm::vec3(0.0f, 1.0f, 0.0f);
+			top.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+			top.color = color;
+			top.texcoord = glm::vec2(1.0f, 1.0f);
+			vertices.push_back(top);
+
+			Mesh * mesh = new Mesh(g_useStaticDraw);
+			mesh->setVertices(vertices);
+			mesh->setIndices(indices);
+			return mesh;
+		}
+
 		Mesh * Plane(glm::vec4 color, int gridSize)
 		{
 			Mesh::vertex vData[] = {

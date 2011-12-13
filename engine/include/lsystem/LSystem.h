@@ -6,7 +6,7 @@
 #include "glm/glm.hpp"
 
 #include <string>
-#include <set>
+#include <map>
 #include <stack>
 
 namespace Common
@@ -22,6 +22,7 @@ namespace Common
 		symbol sym;
 		string str;
 		float time;
+		float probability;
 
 		inline void setTime(float _time) { time = _time; }
 
@@ -30,7 +31,7 @@ namespace Common
 		bool operator==(const symbol & s) const;
 	};
 
-	typedef std::set<Production> Productions;
+	typedef std::multimap<symbol, Production> Productions;
 
 	struct PlantDefinition
 	{

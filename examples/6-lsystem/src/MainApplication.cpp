@@ -42,6 +42,8 @@ namespace LSystemDemo
 		//glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		glEnable(GL_POLYGON_SMOOTH);
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
@@ -51,6 +53,7 @@ namespace LSystemDemo
 		Material * grassMaterial = new Material(Shader::find("shader"));
 		grassMaterial->setTexture(new Texture("resources/grass.bmp"));
 		grassMaterial->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		grassMaterial->setAmbientColor(glm::vec4(0.25f));
 
 		MeshObject * grass = new MeshObject(MeshFactory::Plane(), grassMaterial);
 		grass->transform().scale(glm::vec3(5.0f));
@@ -73,23 +76,34 @@ namespace LSystemDemo
 		def->addProduction('F', "FF", 5000.0f);
 		def->angle = glm::vec3(25.0f, 0.0f, 0.0f);*/
 
-		PlantDefinition * def = new PlantDefinition();
-		def->addTerminals("+-!?&/[]Q`");
-		def->iterations = 7;
-		def->angle = 22.5f;
-		def->diameter = 1.0f;
-		def->axiom = "A";
-		def->addProduction('A', "[+FLA]?????[+FLA]???????`[+FLA]");
-		def->addProduction('F', "S?????F", 1000.0f);
-		def->addProduction('S', "F", 2000.0f);
-		def->addProduction('L', "[Q--Q][Q&&Q]");
+		// tropical tree
+		/*PlantDefinition * treeDef = new PlantDefinition();
+		treeDef->addTerminals("+-!?&/[]Q`");
+		treeDef->iterations = 7;
+		treeDef->angle = 22.5f;
+		treeDef->diameter = 1.0f;
+		treeDef->axiom = "A";
+		treeDef->addProduction('A', "[+FL<A]?????[+FL<A]???????`[+FL<A]");
+		treeDef->addProduction('F', "S?????F", 1000.0f);
+		treeDef->addProduction('S', "F", 2000.0f);
+		treeDef->addProduction('L', "[Q--Q][Q&&Q]");
 
-		LSystem * plant = new LSystem(def);
-		m_components.push_back(plant);
-
-		GameObject * tree = new GameObject();
-		tree->m_renderer = new TurtleRenderer(plant);
+		LSystem * tree = new LSystem(treeDef);
 		m_components.push_back(tree);
+		m_components.push_back(new TurtleRenderer(tree));*/
+
+
+		// bush-like structure
+		PlantDefinition * testDef = new PlantDefinition();
+		testDef->addTerminals("+-[]");
+		testDef->iterations = 2;
+		testDef->angle = 30.0f;
+		testDef->axiom = "F";
+		testDef->addProduction('F', "F!F!FF!F");
+		
+		LSystem * test = new LSystem(testDef);
+		m_components.push_back(test);
+		m_components.push_back(new TurtleRenderer(test));
 
 		//Trace::info("Generated: %s\n", plant->generate().c_str());
 		

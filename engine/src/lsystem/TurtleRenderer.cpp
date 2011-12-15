@@ -47,17 +47,21 @@ namespace Common
 		}
 	}
 
-	void TurtleRenderer::drawLeaf(int level, int branch)
+	TurtleRenderer::Node * TurtleRenderer::drawLeaf(Node * parent)
 	{
-		/*const glm::mat4 & m = m_stack.top();
-	
-		glm::mat4 temp = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(length)), glm::vec3(0.0f, 1.0f, 0.0f));
+		assert(parent);
 
-		//m_leafMaterial->shader()->setUniform("world", m * temp);
-		//m_leafMesh->draw();
-		Branches & branches = m_leaves[level];
-		Branch & b = branches[branch];
-		b.push_back(m * temp);*/
+		const glm::mat4 & m = m_stack.top();
+	
+		glm::mat4 temp = glm::translate(glm::scale(m, glm::vec3(length)), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		Node * node = new Node(temp);
+		node->mesh = m_leafMesh;
+		node->parent = parent;
+
+		parent->children.push_back(node);
+
+		return node;
 	}
 
 	TurtleRenderer::Node * TurtleRenderer::drawSegment(Node * parent)
@@ -71,18 +75,12 @@ namespace Common
 		//glm::mat4 temp = glm::translate(glm::scale(glm::mat4(m), glm::vec3(thickness, 0.5f*length, thickness)), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		Node * node = new Node(t);
+		node->mesh = m_mesh;
 		node->parent = parent;
 
 		parent->children.push_back(node);
 
 		return node;
-		//m_material->shader()->setUniform("world", m * temp);
-		//m_mesh->draw();
-		/*Branches & branches = m_branches[level];
-		Branch & b = branches[branch];
-		b.push_back(t);*/
-
-		//Trace::info("Adding segment to level %d and branch %d -- size of branch: %d\n", level, branch, branches.size());
 	}
 
 	void TurtleRenderer::parseSystem()
@@ -153,7 +151,7 @@ namespace Common
 				m_stack.push(m);
 				break;
 			case 'Q':
-				drawLeaf(level, branch);
+				//parent = drawLeaf(parent);
 
 				break;
 			case '+':
@@ -257,17 +255,22 @@ namespace Common
 			if (time < 0.0f)
 				break;
 
-			time -= cost;
-
 			node = queue.front();
 			queue.pop();
 
 			const glm::mat4 & m = node->m;
-			m_material->shader()->setUniform("world", m);
-			m_mesh->draw();
+			m_material->shader()->setUniform("world", glm::scale(m, glm::vec3(1.0f, 1.0f, 1.0f)));
+			node->mesh->draw();
 
 			for (int i = 0; i < node->children.size(); i++)
 			{
+				float scale = 1.0f;
+				if (time < cost)
+					scale = time / cost;
+				time -= cost;
+				if (time < 0.0f)
+					break;
+
 				queue.push(node->children[i]);
 			}
 		}

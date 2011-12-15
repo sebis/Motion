@@ -34,12 +34,13 @@ namespace Common
 			glm::mat4 m;
 			State state;
 			Node * parent;
+			Mesh * mesh;
 			std::vector<Node*> children;
 		};
 
 		Node * m_root;
 
-		void drawLeaf(int level, int branch);
+		Node * drawLeaf(Node * parent);
 		Node * drawSegment(Node * parent);
 		void parseSystem();
 

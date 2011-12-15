@@ -121,7 +121,7 @@ namespace Common
 			return mesh;
 		}
 
-		Mesh * Cylinder(int segments, const glm::vec4 & color)
+		Mesh * Cylinder(int segments, float radius, const glm::vec4 & color)
 		{
 			std::vector<Mesh::vertex> vertices;
 			std::vector<unsigned int> indices;
@@ -136,11 +136,11 @@ namespace Common
 				float ratio = (float)i / (float)segments;
 				float angle = float(2.0f*M_PI*ratio);
 
-				float x = std::cos(angle);
-				float z = std::sin(angle);
+				float x = radius * std::cos(angle);
+				float z = radius * std::sin(angle);
 
 				Mesh::vertex bottom;
-				bottom.position = glm::vec3(x, -1.0f, z);
+				bottom.position = glm::vec3(x, 0.0f, z);
 				bottom.normal = glm::vec3(x, 0.0f, z);
 				bottom.color = color;
 				bottom.texcoord = glm::vec2(ratio, 1.0f);
@@ -176,7 +176,7 @@ namespace Common
 			}
 
 			Mesh::vertex bottom;
-			bottom.position = glm::vec3(0.0f, -1.0f, 0.0f);
+			bottom.position = glm::vec3(0.0f, 0.0f, 0.0f);
 			bottom.normal = glm::vec3(0.0f, -1.0f, 0.0f);
 			bottom.color = color;
 			bottom.texcoord = glm::vec2(0.0f, 0.0f);

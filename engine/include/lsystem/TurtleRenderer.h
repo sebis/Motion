@@ -33,6 +33,8 @@ namespace Common
 			Node(glm::mat4 _m = glm::mat4(1.0f)) : m(_m), state(INIT), parent(0) {}
 			glm::mat4 m;
 			State state;
+			float startTime;
+			float diameter;
 			Node * parent;
 			Mesh * mesh;
 			std::vector<Node*> children;

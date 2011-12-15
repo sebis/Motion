@@ -59,7 +59,7 @@ namespace Common
 
 		Mesh * Sphere(glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), int segments = 32);
 		Mesh * Cube(bool override_color = true, glm::vec4 color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-		Mesh * Cylinder(int segments = 12, const glm::vec4 & color = glm::vec4(1.0f));
+		Mesh * Cylinder(int segments = 12, float radius = 1.0f, const glm::vec4 & color = glm::vec4(1.0f));
 		Mesh * Plane(glm::vec4 color = glm::vec4(1.0f), int gridSize = 1);
 		Mesh * PlaneMesh(glm::vec4 color = glm::vec4(1.0f), int width = 10, int length = 10);
 		void PlaneMesh(int width, int length, std::vector<Mesh::vertex> & vData, std::vector<glm::uint> & iData, glm::vec4 color = glm::vec4(1.0f));

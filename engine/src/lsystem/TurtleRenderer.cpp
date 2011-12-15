@@ -8,32 +8,15 @@
 
 namespace Common
 {
-	TurtleRenderer::TurtleRenderer(LSystem * system)
-		: Renderer(0), m_system(system), m_root(0)
-	{
-		m_material = new Material(Shader::find("shader"));
-		m_material->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		m_mesh = MeshFactory::Cylinder(15, glm::vec4(0.8f, 0.5f, 0.25f, 1.0f));
-
-		m_leafMaterial = new Material(Shader::find("shader"));
-		m_leafMaterial->setTexture(new Texture("resources/leaf.bmp"));
-
-		m_leafMesh = MeshFactory::Plane();
-
-		parseSystem();
-	}
-
-	TurtleRenderer::~TurtleRenderer()
-	{
-	}
-
-	// TODO: temp here
+		// TODO: temp here
 	namespace
 	{
-		float cost = 20.0f;
-		float length = 0.25f;
-		float r = 1.4f;
-		float thickness = 0.1f;
+		float length = 0.1f;
+		float diameter = 0.1f;
+		float thinning = 1.0f;
+
+		float growTime = 100.0f;
+		float thickness = 1.0f;
 
 		float growth(float min, float max, float T0, float T, float t)
 		{
@@ -47,13 +30,36 @@ namespace Common
 		}
 	}
 
+	TurtleRenderer::TurtleRenderer(LSystem * system)
+		: Renderer(0), m_system(system), m_root(0)
+	{
+		diameter = system->definition()->diameter;
+		length = system->definition()->length;
+		thinning = system->definition()->thinning;
+
+		m_material = new Material(Shader::find("shader"));
+		m_material->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		m_mesh = MeshFactory::Cylinder(15, system->definition()->diameter, glm::vec4(0.8f, 0.5f, 0.25f, 1.0f));
+
+		m_leafMaterial = new Material(Shader::find("shader"));
+		m_leafMaterial->setTexture(new Texture("resources/leaf.bmp"));
+
+		m_leafMesh = MeshFactory::Plane();
+
+		parseSystem();
+	}
+
+	TurtleRenderer::~TurtleRenderer()
+	{
+	}
+
 	TurtleRenderer::Node * TurtleRenderer::drawLeaf(Node * parent)
 	{
 		assert(parent);
 
 		const glm::mat4 & m = m_stack.top();
 	
-		glm::mat4 temp = glm::translate(glm::scale(m, glm::vec3(length)), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 temp = glm::translate(glm::scale(m, glm::vec3(0.25f)), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		Node * node = new Node(temp);
 		node->mesh = m_leafMesh;
@@ -70,11 +76,9 @@ namespace Common
 	
 		assert(parent);
 
-		glm::mat4 s = glm::scale(m, glm::vec3(thickness, 0.5f*length, thickness));
-		glm::mat4 t = glm::translate(s, glm::vec3(0.0f, 1.0f, 0.0f));
-		//glm::mat4 temp = glm::translate(glm::scale(glm::mat4(m), glm::vec3(thickness, 0.5f*length, thickness)), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 s = glm::scale(m, glm::vec3(thickness, length, thickness));
 
-		Node * node = new Node(t);
+		Node * node = new Node(s);
 		node->mesh = m_mesh;
 		node->parent = parent;
 
@@ -186,7 +190,7 @@ namespace Common
 				break;
 			case '[':
 				m_stack.push(m_stack.top());
-				thickness /= r;
+				thickness /= thinning;
 				level++;
 				//branch = branchStack.top();
 				branchStack.push(branchStack.top()+1);
@@ -197,7 +201,7 @@ namespace Common
 				break;
 			case ']':
 				m_stack.pop();
-				thickness *= r;
+				thickness *= thinning;
 				level--;
 				branchStack.pop();
 				branch++;
@@ -215,13 +219,6 @@ namespace Common
 				}
 			}
 		}
-
-		/*for (Container::iterator it = m_branches.begin(); it != m_branches.end(); it++)
-		{
-			Branches & b = it->second;
-
-			//std::random_shuffle(b.begin(), b.end());
-		}*/
 	}
 
 	void TurtleRenderer::draw()
@@ -252,26 +249,38 @@ namespace Common
 
 		while (!queue.empty())
 		{
-			if (time < 0.0f)
+			if (time <= 0.0f)
 				break;
 
 			node = queue.front();
 			queue.pop();
 
+			if (node->state == INIT) {
+				node->startTime = time;
+				node->state = GROWING;
+				continue;
+			}
+
+			float scale = 1.0f;
+			if (node->state == GROWING) {
+				scale = (time - node->startTime) / growTime;
+				if (scale > 1.0f) {
+					scale = 1.0f;
+					node->state = FINISHED;
+				}
+			}
+
 			const glm::mat4 & m = node->m;
-			m_material->shader()->setUniform("world", glm::scale(m, glm::vec3(1.0f, 1.0f, 1.0f)));
+			m_material->shader()->setUniform("world", glm::scale(m, glm::vec3(1.0f, scale, 1.0f)));
+			//m_material->shader()->setUniform("world", m);
 			node->mesh->draw();
 
-			for (int i = 0; i < node->children.size(); i++)
+			if (node->state == FINISHED)
 			{
-				float scale = 1.0f;
-				if (time < cost)
-					scale = time / cost;
-				time -= cost;
-				if (time < 0.0f)
-					break;
-
-				queue.push(node->children[i]);
+				for (int i = 0; i < node->children.size(); i++)
+				{
+					queue.push(node->children[i]);
+				}
 			}
 		}
 

@@ -38,6 +38,8 @@ namespace Common
 		unsigned iterations;
 		float angle;
 		float diameter;
+		float length;
+		float thinning;
 
 		string axiom;
 

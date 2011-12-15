@@ -78,12 +78,14 @@ namespace LSystemDemo
 
 		// tropical tree
 		PlantDefinition * treeDef = new PlantDefinition();
-		treeDef->addTerminals("+-!?&/[]Q`");
+		treeDef->addTerminals("+-!?&/[]<Q`");
 		treeDef->iterations = 7;
 		treeDef->angle = 22.5f;
-		treeDef->diameter = 1.0f;
+		treeDef->diameter = 0.15f;
+		treeDef->length = 0.15f;
+		treeDef->thinning = 1.5f;
 		treeDef->axiom = "A";
-		treeDef->addProduction('A', "[+FLA]?????[+FLA]???????`[+FLA]");
+		treeDef->addProduction('A', "[+FL<A]?????[+FL<A]???????`[+FL<A]");
 		treeDef->addProduction('F', "S?????F", 1000.0f);
 		treeDef->addProduction('S', "F", 2000.0f);
 		//treeDef->addProduction('L', "[Q--Q][Q&&Q]");

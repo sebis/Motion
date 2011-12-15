@@ -20,8 +20,27 @@ namespace Common
 		virtual void draw();
 
 	private:
+
+		enum State
+		{
+			INIT,
+			GROWING,
+			FINISHED
+		};
+
+		struct Node
+		{
+			Node(glm::mat4 _m = glm::mat4(1.0f)) : m(_m), state(INIT), parent(0) {}
+			glm::mat4 m;
+			State state;
+			Node * parent;
+			std::vector<Node*> children;
+		};
+
+		Node * m_root;
+
 		void drawLeaf(int level, int branch);
-		void drawSegment(int level, int branch);
+		Node * drawSegment(Node * parent);
 		void parseSystem();
 
 		LSystem * m_system;

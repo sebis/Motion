@@ -77,7 +77,7 @@ namespace LSystemDemo
 		def->angle = glm::vec3(25.0f, 0.0f, 0.0f);*/
 
 		// tropical tree
-		/*PlantDefinition * treeDef = new PlantDefinition();
+		PlantDefinition * treeDef = new PlantDefinition();
 		treeDef->addTerminals("+-!?&/[]Q`");
 		treeDef->iterations = 7;
 		treeDef->angle = 22.5f;
@@ -86,25 +86,26 @@ namespace LSystemDemo
 		treeDef->addProduction('A', "[+FLA]?????[+FLA]???????`[+FLA]");
 		treeDef->addProduction('F', "S?????F", 1000.0f);
 		treeDef->addProduction('S', "F", 2000.0f);
-		treeDef->addProduction('L', "[Q--Q][Q&&Q]");
+		//treeDef->addProduction('L', "[Q--Q][Q&&Q]");
+		treeDef->addProduction('L', "Q");
 
 		LSystem * tree = new LSystem(treeDef);
 		m_components.push_back(tree);
-		m_components.push_back(new TurtleRenderer(tree));*/
+		m_components.push_back(new TurtleRenderer(tree));
 
 
 		// bush-like structure
-		PlantDefinition * testDef = new PlantDefinition();
+		/*PlantDefinition * testDef = new PlantDefinition();
 		testDef->addTerminals("+-!?&/[]kF");
 		testDef->iterations = 3;
 		testDef->angle = 30.0f;
 		testDef->axiom = "A";
 		//testDef->addProduction('F', "FF[+FF][-FF]");
-		testDef->addProduction('A', "FFF[+A][-A]A");
+		testDef->addProduction('A', "[+FA]?[+FA]");
 
 		LSystem * test = new LSystem(testDef);
 		m_components.push_back(test);
-		m_components.push_back(new TurtleRenderer(test));
+		m_components.push_back(new TurtleRenderer(test));*/
 
 		//Trace::info("Generated: %s\n", plant->generate().c_str());
 		

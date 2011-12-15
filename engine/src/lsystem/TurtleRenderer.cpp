@@ -9,7 +9,7 @@
 namespace Common
 {
 	TurtleRenderer::TurtleRenderer(LSystem * system)
-		: Renderer(0), m_system(system)
+		: Renderer(0), m_system(system), m_root(0)
 	{
 		m_material = new Material(Shader::find("shader"));
 		m_material->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -30,7 +30,7 @@ namespace Common
 	// TODO: temp here
 	namespace
 	{
-		float cost = 200.0f;
+		float cost = 20.0f;
 		float length = 0.25f;
 		float r = 1.4f;
 		float thickness = 0.1f;
@@ -49,7 +49,7 @@ namespace Common
 
 	void TurtleRenderer::drawLeaf(int level, int branch)
 	{
-		const glm::mat4 & m = m_stack.top();
+		/*const glm::mat4 & m = m_stack.top();
 	
 		glm::mat4 temp = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(length)), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -57,31 +57,42 @@ namespace Common
 		//m_leafMesh->draw();
 		Branches & branches = m_leaves[level];
 		Branch & b = branches[branch];
-		b.push_back(m * temp);
+		b.push_back(m * temp);*/
 	}
 
-	void TurtleRenderer::drawSegment(int level, int branch)
+	TurtleRenderer::Node * TurtleRenderer::drawSegment(Node * parent)
 	{
 		const glm::mat4 & m = m_stack.top();
 	
+		assert(parent);
+
 		glm::mat4 s = glm::scale(m, glm::vec3(thickness, 0.5f*length, thickness));
 		glm::mat4 t = glm::translate(s, glm::vec3(0.0f, 1.0f, 0.0f));
 		//glm::mat4 temp = glm::translate(glm::scale(glm::mat4(m), glm::vec3(thickness, 0.5f*length, thickness)), glm::vec3(0.0f, 1.0f, 0.0f));
 
+		Node * node = new Node(t);
+		node->parent = parent;
+
+		parent->children.push_back(node);
+
+		return node;
 		//m_material->shader()->setUniform("world", m * temp);
 		//m_mesh->draw();
-		Branches & branches = m_branches[level];
+		/*Branches & branches = m_branches[level];
 		Branch & b = branches[branch];
-		b.push_back(t);
-		Trace::info("Adding segment to level %d and branch %d -- size of branch: %d\n", level, branch, branches.size());
+		b.push_back(t);*/
+
+		//Trace::info("Adding segment to level %d and branch %d -- size of branch: %d\n", level, branch, branches.size());
 	}
 
 	void TurtleRenderer::parseSystem()
 	{
 		m_stack = std::stack<glm::mat4>();
-		std::stack<unsigned> branchStack;
-
 		m_stack.push(glm::mat4(1.0f));
+		std::stack<unsigned> branchStack;
+		
+		std::stack<Node*> branchingStack;
+
 		branchStack.push(0);
 		int level = 0;
 		int branch = 0;
@@ -95,147 +106,131 @@ namespace Common
 		float angle = m_system->definition()->angle;
 
 		glm::mat4 m, top;
+		Node * parent = 0, * branching = 0;
 
-		//std::stack<std::string> queue = m_system->getQueue();
-		//int generations = queue.size();
-		//Trace::info("generations: %d\n", generations);
+		branching = parent = m_root = new Node();
 
-		//length = 0.0f + (1.0f - 0.0f) / (1 + std::expf(0.0001f*(5000.0f - m_system->time())));
-		/*for (unsigned gen = 0; gen < generations; gen++)
+		//length = growth(0.0f, 1.0f, 10000.0f + gen_starttime, m_system->time());
+		//thickness = growth(0.05f, 0.1f, 10000.0f + gen_starttime, m_system->time());
+
+		int age = 0;
+		float growTime = 20.0f;
+
+		float modulesPerMSec = 1000.0f / growTime;
+		float time = m_system->time();
+		Trace::info("time: %f\n", time);
+
+		int numModules = time / growTime;
+		//Trace::info("numModules: %d\n", numModules);
+		int mod = 0;
+
+		for (unsigned i = 0; i < path.length(); i++)
 		{
-			std::string str = queue.top();
-			Trace::info("%s\n", str);
-			queue.pop();
-		}*/
-
-		//for (unsigned gen = generations-1; gen >= 0; gen--)
-		{
-			//std::string path = queue.top();
-			//queue.pop();
-
-			//std::cout << "Rendering generation: " << gen << " -- " << path.length() << std::endl;;
-
-			/*float gen_starttime = gen * 2000.0f;
-			if (m_system->time() < gen_starttime)
+				
+			/*float level_StartTime = level * growTime;
+			if (m_system->time() < level_StartTime)
 				continue;*/
 
-			//length = growth(0.0f, 1.0f, 10000.0f + gen_starttime, m_system->time());
-			//thickness = growth(0.05f, 0.1f, 10000.0f + gen_starttime, m_system->time());
+			//length = growth(0.0f, 0.25f, level_StartTime, level_StartTime + 50000.0f, m_system->time());
+			//thickness = growth(0.0f, 0.015f, (7-age) * 2000.0f, (6-age) * 2000.0f, m_system->time());
 
-			int age = 0;
-			float growTime = 20.0f;
-
-			float modulesPerMSec = 1000.0f / growTime;
-			float time = m_system->time();
-			Trace::info("time: %f\n", time);
-
-			int numModules = time / growTime;
-			//Trace::info("numModules: %d\n", numModules);
-			int mod = 0;
-
-			for (unsigned i = 0; i < path.length(); i++)
+			char chr = path[i];
+			switch (chr)
 			{
-				
-				/*float level_StartTime = level * growTime;
-				if (m_system->time() < level_StartTime)
-					continue;*/
+			case 'k':
+				break;
+			case 'X':
+				// ignored symbol
+				break;
+			case 'F':
+				//if (mod++ < numModules)
+				//if (time < 0.0f)
+					//break;
+				parent = drawSegment(parent);
+				//time -= cost;
+				m = glm::translate(m_stack.top(), glm::vec3(0.0f, length, 0.0f));
+				m_stack.pop();
+				m_stack.push(m);
+				break;
+			case 'Q':
+				drawLeaf(level, branch);
 
-				//length = growth(0.0f, 0.25f, level_StartTime, level_StartTime + 50000.0f, m_system->time());
-				//thickness = growth(0.0f, 0.015f, (7-age) * 2000.0f, (6-age) * 2000.0f, m_system->time());
+				break;
+			case '+':
+				m = glm::rotate(m_stack.top(), angle, glm::vec3(1.0f, 0.0f, 0.0f));
+				m_stack.pop();
+				m_stack.push(m);
+				break;
+			case '-':
+				m = glm::rotate(m_stack.top(), -angle, glm::vec3(1.0f, 0.0f, 0.0f));
+				m_stack.pop();
+				m_stack.push(m);
+				break;
+			case '!':
+				m = glm::rotate(m_stack.top(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
+				m_stack.pop();
+				m_stack.push(m);
+				break;
+			case '?':
+				m = glm::rotate(m_stack.top(), -angle, glm::vec3(0.0f, 1.0f, 0.0f));
+				m_stack.pop();
+				m_stack.push(m);
+				break;
+			case '&':
+				m = glm::rotate(m_stack.top(), angle, glm::vec3(0.0f, 0.0f, 1.0f));
+				m_stack.pop();
+				m_stack.push(m);
+				break;
+			case '/':
+				m = glm::rotate(m_stack.top(), -angle, glm::vec3(0.0f, 0.0f, 1.0f));
+				m_stack.pop();
+				m_stack.push(m);
+				break;
+			case '[':
+				m_stack.push(m_stack.top());
+				thickness /= r;
+				level++;
+				//branch = branchStack.top();
+				branchStack.push(branchStack.top()+1);
+				branch++;
+				bracket++;
+				branchingStack.push(parent);
+				branching = parent;
+				break;
+			case ']':
+				m_stack.pop();
+				thickness *= r;
+				level--;
+				branchStack.pop();
+				branch++;
+				bracket--;
+				//parent = parent->parent;
+				parent = branchingStack.top();
+				branchingStack.pop();
 
-				char chr = path[i];
-				switch (chr)
-				{
-				case 'k':
-					//age = std::atoi(&path[i+1]);
-					//i++;
-					break;
-				case 'X':
-					// ignored symbol
-					break;
-				case 'F':
-					//if (mod++ < numModules)
-					//if (time < 0.0f)
-						//break;
-					drawSegment(level, branch);
-					//time -= cost;
-					m = glm::translate(m_stack.top(), glm::vec3(0.0f, length, 0.0f));
-					m_stack.pop();
-					m_stack.push(m);
-					break;
-				case 'Q':
-					drawLeaf(level, branch);
-
-					break;
-				case '+':
-					m = glm::rotate(m_stack.top(), angle, glm::vec3(1.0f, 0.0f, 0.0f));
-					m_stack.pop();
-					m_stack.push(m);
-					break;
-				case '-':
-					m = glm::rotate(m_stack.top(), -angle, glm::vec3(1.0f, 0.0f, 0.0f));
-					m_stack.pop();
-					m_stack.push(m);
-					break;
-				case '!':
-					m = glm::rotate(m_stack.top(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-					m_stack.pop();
-					m_stack.push(m);
-					break;
-				case '?':
-					m = glm::rotate(m_stack.top(), -angle, glm::vec3(0.0f, 1.0f, 0.0f));
-					m_stack.pop();
-					m_stack.push(m);
-					break;
-				case '&':
-					m = glm::rotate(m_stack.top(), angle, glm::vec3(0.0f, 0.0f, 1.0f));
-					m_stack.pop();
-					m_stack.push(m);
-					break;
-				case '/':
-					m = glm::rotate(m_stack.top(), -angle, glm::vec3(0.0f, 0.0f, 1.0f));
-					m_stack.pop();
-					m_stack.push(m);
-					break;
-				case '[':
-					m_stack.push(m_stack.top());
-					thickness /= r;
+				if (bracket == 0)
 					level++;
-					//branch = branchStack.top();
-					branchStack.push(branchStack.top()+1);
-					branch++;
-					bracket++;
-					break;
-				case ']':
-					m_stack.pop();
-					thickness *= r;
-					level--;
-					branchStack.pop();
-					branch++;
-					bracket--;
-					if (bracket == 0)
-						level++;
-					break;
-				default:
-					{
-					//Trace::info("Encountered unkown turtle command: %c\n", chr);
-					}
+				break;
+			default:
+				{
+				//Trace::info("Encountered unkown turtle command: %c\n", chr);
 				}
 			}
-			//queue.pop();
-			//break;
 		}
 
-		for (Container::iterator it = m_branches.begin(); it != m_branches.end(); it++)
+		/*for (Container::iterator it = m_branches.begin(); it != m_branches.end(); it++)
 		{
 			Branches & b = it->second;
 
 			//std::random_shuffle(b.begin(), b.end());
-		}
+		}*/
 	}
 
 	void TurtleRenderer::draw()
 	{
+		if (!m_root)
+			return;
+
 		Utils::Random r(12);
 
 		glDisable(GL_BLEND);
@@ -248,89 +243,35 @@ namespace Common
 		float time = m_system->time();
 		Trace::info("Time: %f\n", time);
 
- 		for (Container::iterator it = m_branches.begin(); it != m_branches.end(); it++)
+		Node * node = 0;
+
+		std::queue<Node*> queue;
+
+		for (int i = 0; i < m_root->children.size(); i++)
 		{
+			queue.push(m_root->children[i]);
+		}
 
-			// get branches for current level
-			Branches & branches = it->second;
-
+		while (!queue.empty())
+		{
 			if (time < 0.0f)
 				break;
 
-			for (Branches::iterator bit = branches.begin(); bit != branches.end(); bit++)
+			time -= cost;
+
+			node = queue.front();
+			queue.pop();
+
+			const glm::mat4 & m = node->m;
+			m_material->shader()->setUniform("world", m);
+			m_mesh->draw();
+
+			for (int i = 0; i < node->children.size(); i++)
 			{
-
-				// select random branch
-				//Branches::iterator bit = branches.begin();
-				//std::advance(bit, r.randXX(0, branches.size()-1));
-				Trace::info("branch size: %d\n", branches.size());
-				Branch & b = bit->second;
-
-				//assert(branches.size() == 1);
-
-				for (int i = 0; i < b.size(); i++) {
-				/*if (b.empty()) {
-					branches.erase(bit);
-					break;
-				}*/
-				if (time < 0.0f)
-					break;
-
-				// take first item from the branch for drawing
-				//const glm::mat4 & m = b.front();
-				const glm::mat4 & m = b[i];
-
-				float scale = 1.0f;
-				if (time < cost)
-					scale = time / cost;
-				time -= cost;
-
-				
-				Trace::info("Rendering level %d/%d and branch %d/%d\n", it->first, m_branches.size(), bit->first, b.size());
-
-				m_material->shader()->setUniform("world", glm::scale(m, glm::vec3(1.0f, scale, 1.0f)));
-				m_mesh->draw();
-
-				//b.pop();
-				}
+				queue.push(node->children[i]);
 			}
-			
-
-			/*for (int i = 0; i < branches.size(); i++)
-			{
-				if (time < 0.0f)
-					break;
-
-				float scale = 1.0f;
-				if (time < cost)
-					scale = time/cost;
-				time -= cost;
-
-				const glm::mat4 & m = branches[i];
-
-				m_material->shader()->setUniform("world", glm::scale(m, glm::vec3(1.0f, scale, 1.0f)));
-				m_mesh->draw();
-			}*/
 		}
 
 		m_material->end();
-
-		// for each level
-			// select random branch
-			// draw next item in branch
-
-		/*glEnable(GL_BLEND);
-
-		m_leafMaterial->begin();
-
-		m_leafMaterial->shader()->setUniform("view", GameObject::s_camera->view());
-		m_leafMaterial->shader()->setUniform("projection", GameObject::s_camera->projection());
-
-		for (unsigned i = 0; i < m_leaves.size(); i++) {
-			m_leafMaterial->shader()->setUniform("world", m_leaves[i]);
-			m_leafMesh->draw();
-		}
-
-		m_leafMaterial->end();*/
 	}
 }

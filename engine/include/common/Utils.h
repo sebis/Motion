@@ -113,6 +113,11 @@ namespace Utils
 		{
 			return (double(rand()) / double(RAND_MAX)) * 2.0 - 1.0;
 		}
+
+		inline int randXX(int min, int max)
+		{
+			return min + (rand() % (int)(max - min + 1));
+		}
 	};
 
 	inline bool read_texture(const char * filename, char** data, TextureInfo * info)

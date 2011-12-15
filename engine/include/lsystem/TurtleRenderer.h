@@ -5,6 +5,9 @@
 #include "LSystem.h"
 
 #include <stack>
+#include <vector>
+#include <queue>
+#include <unordered_map>
 
 namespace Common
 {
@@ -17,8 +20,8 @@ namespace Common
 		virtual void draw();
 
 	private:
-		void drawLeaf();
-		void drawSegment(int level);
+		void drawLeaf(int level, int branch);
+		void drawSegment(int level, int branch);
 		void parseSystem();
 
 		LSystem * m_system;
@@ -29,8 +32,12 @@ namespace Common
 
 		std::stack<glm::mat4> m_stack;
 
-		std::vector<glm::mat4> m_leaves;
-		std::vector<glm::mat4> m_branches;
+		typedef std::vector<glm::mat4> Branch;
+		typedef std::unordered_map<unsigned, Branch> Branches;
+		typedef std::map<unsigned, Branches> Container;
+
+		Container m_leaves;
+		Container m_branches;
 	};
 }
 

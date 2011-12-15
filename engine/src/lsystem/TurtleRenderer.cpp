@@ -1,6 +1,8 @@
 #include "GameObject.h"
 #include "TurtleRenderer.h"
+#include "Utils.h"
 
+#include <algorithm>
 #include <stack>
 #include <iostream>
 
@@ -17,6 +19,8 @@ namespace Common
 		m_leafMaterial->setTexture(new Texture("resources/leaf.bmp"));
 
 		m_leafMesh = MeshFactory::Plane();
+
+		parseSystem();
 	}
 
 	TurtleRenderer::~TurtleRenderer()
@@ -26,7 +30,7 @@ namespace Common
 	// TODO: temp here
 	namespace
 	{
-		float cost = 20.0f;
+		float cost = 200.0f;
 		float length = 0.25f;
 		float r = 1.4f;
 		float thickness = 0.1f;
@@ -43,7 +47,7 @@ namespace Common
 		}
 	}
 
-	void TurtleRenderer::drawLeaf()
+	void TurtleRenderer::drawLeaf(int level, int branch)
 	{
 		const glm::mat4 & m = m_stack.top();
 	
@@ -51,10 +55,12 @@ namespace Common
 
 		//m_leafMaterial->shader()->setUniform("world", m * temp);
 		//m_leafMesh->draw();
-		m_leaves.push_back(m * temp);
+		Branches & branches = m_leaves[level];
+		Branch & b = branches[branch];
+		b.push_back(m * temp);
 	}
 
-	void TurtleRenderer::drawSegment(int level)
+	void TurtleRenderer::drawSegment(int level, int branch)
 	{
 		const glm::mat4 & m = m_stack.top();
 	
@@ -64,25 +70,34 @@ namespace Common
 
 		//m_material->shader()->setUniform("world", m * temp);
 		//m_mesh->draw();
-		m_branches.push_back(t);
+		Branches & branches = m_branches[level];
+		Branch & b = branches[branch];
+		b.push_back(t);
+		Trace::info("Adding segment to level %d and branch %d -- size of branch: %d\n", level, branch, branches.size());
 	}
 
 	void TurtleRenderer::parseSystem()
 	{
 		m_stack = std::stack<glm::mat4>();
+		std::stack<unsigned> branchStack;
+
 		m_stack.push(glm::mat4(1.0f));
-		int level = 1;
+		branchStack.push(0);
+		int level = 0;
+		int branch = 0;
+		int bracket = 0;
 
 		// TODO: this call is temp
 		;
 		std::string path = m_system->generate();
+		Trace::info("Word: %s\n", path.c_str());
 
 		float angle = m_system->definition()->angle;
 
 		glm::mat4 m, top;
 
-		std::stack<std::string> queue = m_system->getQueue();
-		int generations = queue.size();
+		//std::stack<std::string> queue = m_system->getQueue();
+		//int generations = queue.size();
 		//Trace::info("generations: %d\n", generations);
 
 		//length = 0.0f + (1.0f - 0.0f) / (1 + std::expf(0.0001f*(5000.0f - m_system->time())));
@@ -132,24 +147,24 @@ namespace Common
 				switch (chr)
 				{
 				case 'k':
-					age = std::atoi(&path[i+1]);
-					i++;
+					//age = std::atoi(&path[i+1]);
+					//i++;
 					break;
 				case 'X':
 					// ignored symbol
 					break;
 				case 'F':
 					//if (mod++ < numModules)
-					if (time < 0.0f)
-						break;
-					drawSegment(level);
-					time -= cost;
+					//if (time < 0.0f)
+						//break;
+					drawSegment(level, branch);
+					//time -= cost;
 					m = glm::translate(m_stack.top(), glm::vec3(0.0f, length, 0.0f));
 					m_stack.pop();
 					m_stack.push(m);
 					break;
 				case 'Q':
-					drawLeaf();
+					drawLeaf(level, branch);
 
 					break;
 				case '+':
@@ -166,10 +181,12 @@ namespace Common
 					m = glm::rotate(m_stack.top(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
 					m_stack.pop();
 					m_stack.push(m);
+					break;
 				case '?':
 					m = glm::rotate(m_stack.top(), -angle, glm::vec3(0.0f, 1.0f, 0.0f));
 					m_stack.pop();
 					m_stack.push(m);
+					break;
 				case '&':
 					m = glm::rotate(m_stack.top(), angle, glm::vec3(0.0f, 0.0f, 1.0f));
 					m_stack.pop();
@@ -184,11 +201,20 @@ namespace Common
 					m_stack.push(m_stack.top());
 					thickness /= r;
 					level++;
+					//branch = branchStack.top();
+					branchStack.push(branchStack.top()+1);
+					branch++;
+					bracket++;
 					break;
 				case ']':
 					m_stack.pop();
 					thickness *= r;
 					level--;
+					branchStack.pop();
+					branch++;
+					bracket--;
+					if (bracket == 0)
+						level++;
 					break;
 				default:
 					{
@@ -196,17 +222,21 @@ namespace Common
 					}
 				}
 			}
-			queue.pop();
+			//queue.pop();
 			//break;
+		}
+
+		for (Container::iterator it = m_branches.begin(); it != m_branches.end(); it++)
+		{
+			Branches & b = it->second;
+
+			//std::random_shuffle(b.begin(), b.end());
 		}
 	}
 
 	void TurtleRenderer::draw()
 	{
-		m_leaves.clear();
-		m_branches.clear();
-
-		parseSystem();
+		Utils::Random r(12);
 
 		glDisable(GL_BLEND);
 
@@ -215,14 +245,81 @@ namespace Common
 		m_material->shader()->setUniform("view", GameObject::s_camera->view());
 		m_material->shader()->setUniform("projection", GameObject::s_camera->projection());
 
-		for (unsigned i = 0; i < m_branches.size(); i++) {
-			m_material->shader()->setUniform("world", m_branches[i]);
-			m_mesh->draw();
+		float time = m_system->time();
+		Trace::info("Time: %f\n", time);
+
+ 		for (Container::iterator it = m_branches.begin(); it != m_branches.end(); it++)
+		{
+
+			// get branches for current level
+			Branches & branches = it->second;
+
+			if (time < 0.0f)
+				break;
+
+			for (Branches::iterator bit = branches.begin(); bit != branches.end(); bit++)
+			{
+
+				// select random branch
+				//Branches::iterator bit = branches.begin();
+				//std::advance(bit, r.randXX(0, branches.size()-1));
+				Trace::info("branch size: %d\n", branches.size());
+				Branch & b = bit->second;
+
+				//assert(branches.size() == 1);
+
+				for (int i = 0; i < b.size(); i++) {
+				/*if (b.empty()) {
+					branches.erase(bit);
+					break;
+				}*/
+				if (time < 0.0f)
+					break;
+
+				// take first item from the branch for drawing
+				//const glm::mat4 & m = b.front();
+				const glm::mat4 & m = b[i];
+
+				float scale = 1.0f;
+				if (time < cost)
+					scale = time / cost;
+				time -= cost;
+
+				
+				Trace::info("Rendering level %d/%d and branch %d/%d\n", it->first, m_branches.size(), bit->first, b.size());
+
+				m_material->shader()->setUniform("world", glm::scale(m, glm::vec3(1.0f, scale, 1.0f)));
+				m_mesh->draw();
+
+				//b.pop();
+				}
+			}
+			
+
+			/*for (int i = 0; i < branches.size(); i++)
+			{
+				if (time < 0.0f)
+					break;
+
+				float scale = 1.0f;
+				if (time < cost)
+					scale = time/cost;
+				time -= cost;
+
+				const glm::mat4 & m = branches[i];
+
+				m_material->shader()->setUniform("world", glm::scale(m, glm::vec3(1.0f, scale, 1.0f)));
+				m_mesh->draw();
+			}*/
 		}
 
 		m_material->end();
 
-		glEnable(GL_BLEND);
+		// for each level
+			// select random branch
+			// draw next item in branch
+
+		/*glEnable(GL_BLEND);
 
 		m_leafMaterial->begin();
 
@@ -234,6 +331,6 @@ namespace Common
 			m_leafMesh->draw();
 		}
 
-		m_leafMaterial->end();
+		m_leafMaterial->end();*/
 	}
 }

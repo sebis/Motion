@@ -67,7 +67,7 @@ namespace Common
 		std::string str = m_def->axiom;
 
 		m_queue = std::stack<std::string>();
-		m_queue.push(str);
+		//m_queue.push(str);
 
 
 		int iterations = m_def->iterations;
@@ -77,8 +77,9 @@ namespace Common
 		for (int i = 0; i < iterations; i++) {
 			
 			std::stringstream ss;
-
 			ss << "k" << i;
+			std::string tmp = ss.str();
+
 
 			for (unsigned c = 0; c < str.length(); c++) {
 
@@ -90,15 +91,15 @@ namespace Common
 				if (it != m_def->productions.end()) {
 					//Productions::iterator f = it.first;
 					Production prod = it->second;
-					ss << prod.str;
+					tmp.append(prod.str);
 				} else {
-					Trace::info("No matching rule for symbol: %c\n", chr);
+					//Trace::info("No matching rule for symbol: %c\n", chr);
 				}
 			}
 
-			str = ss.str();
+			str = tmp;
 			//Trace::info("str: %d\n", str.length());
-			m_queue.push(str);
+			//m_queue.push(str);
 			//Trace::info("queuestr: %d\n", m_queue.top().length());
 		}
 

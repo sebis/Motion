@@ -83,7 +83,7 @@ namespace LSystemDemo
 		treeDef->angle = 22.5f;
 		treeDef->diameter = 1.0f;
 		treeDef->axiom = "A";
-		treeDef->addProduction('A', "[+FL<A]?????[+FL<A]???????`[+FL<A]");
+		treeDef->addProduction('A', "[+FLA]?????[+FLA]???????`[+FLA]");
 		treeDef->addProduction('F', "S?????F", 1000.0f);
 		treeDef->addProduction('S', "F", 2000.0f);
 		treeDef->addProduction('L', "[Q--Q][Q&&Q]");
@@ -95,12 +95,13 @@ namespace LSystemDemo
 
 		// bush-like structure
 		PlantDefinition * testDef = new PlantDefinition();
-		testDef->addTerminals("+-[]");
-		testDef->iterations = 2;
+		testDef->addTerminals("+-!?&/[]kF");
+		testDef->iterations = 3;
 		testDef->angle = 30.0f;
-		testDef->axiom = "F";
-		testDef->addProduction('F', "F!F!FF!F");
-		
+		testDef->axiom = "A";
+		//testDef->addProduction('F', "FF[+FF][-FF]");
+		testDef->addProduction('A', "FFF[+A][-A]A");
+
 		LSystem * test = new LSystem(testDef);
 		m_components.push_back(test);
 		m_components.push_back(new TurtleRenderer(test));
@@ -121,7 +122,7 @@ namespace LSystemDemo
 		else if (key == Common::KEY_MOVE_RIGHT)
 			m_camera.raiseFlag(Common::Camera::RIGHT);
 		else if (key == Common::KEY_CONTINUE)
-			m_started = true;
+			m_started = !m_started;
 	}
 
 	void MainApplication::keyUp(Common::Key key)
@@ -184,8 +185,10 @@ namespace LSystemDemo
 			(*it)->draw();
 		}
 
-		GLenum err = glGetError();
-		if (err != GL_NO_ERROR)
-			Trace::error("OpenGL error: %d\n", err);
+		if (m_started) {
+			GLenum err = glGetError();
+			if (err != GL_NO_ERROR)
+				Trace::error("OpenGL error: %d\n", err);
+		}
 	}
 }

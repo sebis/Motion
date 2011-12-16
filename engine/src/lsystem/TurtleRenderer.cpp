@@ -14,6 +14,7 @@ namespace Common
 		float length = 0.1f;
 		float diameter = 0.1f;
 		float thinning = 1.0f;
+		float size = 0.15f;
 
 		float growTime = 100.0f;
 		float thickness = 1.0f;
@@ -31,18 +32,24 @@ namespace Common
 	}
 
 	TurtleRenderer::TurtleRenderer(LSystem * system)
-		: Renderer(0), m_system(system), m_root(0)
+		: Renderer(system), m_system(system), m_root(0)
 	{
 		diameter = system->definition()->diameter;
 		length = system->definition()->length;
 		thinning = system->definition()->thinning;
 
 		m_material = new Material(Shader::find("shader"));
-		m_material->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		m_mesh = MeshFactory::Cylinder(15, system->definition()->diameter, glm::vec4(0.8f, 0.5f, 0.25f, 1.0f));
+		m_material->setTexture(new Texture("resources/bark.bmp"));
+		m_material->setAmbientColor(glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+		m_material->setDiffuseColor(glm::vec4(0.4f, 0.4f, 0.5f, 1.0f));
+		m_material->setSpecularColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+		m_mesh = MeshFactory::Cylinder(15, system->definition()->diameter);
 
 		m_leafMaterial = new Material(Shader::find("shader"));
 		m_leafMaterial->setTexture(new Texture("resources/leaf.bmp"));
+		m_leafMaterial->setAmbientColor(glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
+		m_leafMaterial->setDiffuseColor(glm::vec4(0.6, 0.6, 0.6, 1.0f));
+		m_leafMaterial->setSpecularColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 
 		m_leafMesh = MeshFactory::Plane();
 
@@ -55,14 +62,18 @@ namespace Common
 
 	TurtleRenderer::Node * TurtleRenderer::drawLeaf(Node * parent)
 	{
+		static Utils::Random rand;
+
 		assert(parent);
 
 		const glm::mat4 & m = m_stack.top();
 	
-		glm::mat4 temp = glm::translate(glm::scale(m, glm::vec3(0.25f)), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 t = glm::translate(m, glm::vec3(0.0f, length, 0.0f));
+		glm::mat4 r = glm::rotate<float>(t, rand.rand11() * 180.0f, glm::vec3(rand.rand01(), rand.rand01(), rand.rand01()));
+		glm::mat4 s = glm::scale(r, glm::vec3(size));
 
-		Node * node = new Node(temp);
-		node->mesh = m_leafMesh;
+		Node * node = new Node(s);
+		node->isLeaf = true;
 		node->parent = parent;
 
 		parent->children.push_back(node);
@@ -79,7 +90,6 @@ namespace Common
 		glm::mat4 s = glm::scale(m, glm::vec3(thickness, length, thickness));
 
 		Node * node = new Node(s);
-		node->mesh = m_mesh;
 		node->parent = parent;
 
 		parent->children.push_back(node);
@@ -155,8 +165,11 @@ namespace Common
 				m_stack.push(m);
 				break;
 			case 'Q':
-				//parent = drawLeaf(parent);
+				parent = drawLeaf(parent);
 
+				/*m = glm::translate(m_stack.top(), glm::vec3(0.0f, length + thickness, 0.0f));
+				m_stack.pop();
+				m_stack.push(m);*/
 				break;
 			case '+':
 				m = glm::rotate(m_stack.top(), angle, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -198,6 +211,11 @@ namespace Common
 				bracket++;
 				branchingStack.push(parent);
 				branching = parent;
+
+				/*m = glm::translate(m_stack.top(), glm::vec3(0.0f, -thickness, 0.0f));
+				m_stack.pop();
+				m_stack.push(m);*/
+
 				break;
 			case ']':
 				m_stack.pop();
@@ -226,7 +244,9 @@ namespace Common
 		if (!m_root)
 			return;
 
-		Utils::Random r(12);
+		float time = m_system->time();
+
+		const glm::mat4 & world = glm::scale(m_gameObject->transform().worldMatrix(), glm::vec3(std::min(1.0f, time / 2000.0f)));
 
 		glDisable(GL_BLEND);
 
@@ -235,12 +255,10 @@ namespace Common
 		m_material->shader()->setUniform("view", GameObject::s_camera->view());
 		m_material->shader()->setUniform("projection", GameObject::s_camera->projection());
 
-		float time = m_system->time();
-		Trace::info("Time: %f\n", time);
-
 		Node * node = 0;
 
 		std::queue<Node*> queue;
+		std::vector<Node*> leaves;
 
 		for (int i = 0; i < m_root->children.size(); i++)
 		{
@@ -256,27 +274,31 @@ namespace Common
 			queue.pop();
 
 			if (node->state == INIT) {
-				node->startTime = time;
+				node->birthTime = time;
 				node->state = GROWING;
 				continue;
 			}
 
-			float scale = 1.0f;
+			//node->scale = 1.0f;
 			if (node->state == GROWING) {
-				scale = (time - node->startTime) / growTime;
-				if (scale > 1.0f) {
-					scale = 1.0f;
+				node->scale = (time - node->birthTime) / growTime;
+				if (node->scale > 1.0f) {
+					node->scale = 1.0f;
 					node->state = FINISHED;
 				}
 			}
 
-			const glm::mat4 & m = node->m;
-			m_material->shader()->setUniform("world", glm::scale(m, glm::vec3(1.0f, scale, 1.0f)));
-			//m_material->shader()->setUniform("world", m);
-			node->mesh->draw();
+			if (node->isLeaf) {
+				leaves.push_back(node);
+			} else {
+				const glm::mat4 & m = node->m;
+				m_material->shader()->setUniform("world", world * glm::scale(m, glm::vec3(1.0f, node->scale, 1.0f)));
+				m_mesh->draw();
+			}
 
-			if (node->state == FINISHED)
+			if (node->state == FINISHED || node->isLeaf)
 			{
+				//assert(node->isLeaf && node->children.size() == 0);
 				for (int i = 0; i < node->children.size(); i++)
 				{
 					queue.push(node->children[i]);
@@ -285,5 +307,21 @@ namespace Common
 		}
 
 		m_material->end();
+
+		m_leafMaterial->begin();
+
+		for (std::vector<Node*>::const_iterator it = leaves.begin(); it != leaves.end(); it++)
+		{
+			node = *it;
+
+			const glm::mat4 & m = node->m;
+
+			m_leafMaterial->shader()->setUniform("world", world * glm::scale(m, glm::vec3(node->scale)));
+			m_leafMesh->draw();
+		}
+
+		m_leafMaterial->end();
+
+		glEnable(GL_BLEND);
 	}
 }

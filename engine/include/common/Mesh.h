@@ -64,6 +64,7 @@ namespace Common
 		Mesh * PlaneMesh(glm::vec4 color = glm::vec4(1.0f), int width = 10, int length = 10);
 		void PlaneMesh(int width, int length, std::vector<Mesh::vertex> & vData, std::vector<glm::uint> & iData, glm::vec4 color = glm::vec4(1.0f));
 		Mesh * FromFile(std::string str, glm::vec4 color = glm::vec4(1.0f));
+		Mesh * Terrain(int size = 33, float textureSize = 5.0f, glm::vec4 color = glm::vec4(1.0f));
 	}
 }
 

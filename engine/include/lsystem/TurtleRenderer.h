@@ -30,14 +30,19 @@ namespace Common
 
 		struct Node
 		{
-			Node(glm::mat4 _m = glm::mat4(1.0f)) : m(_m), state(INIT), parent(0) {}
+			Node(glm::mat4 _m = glm::mat4(1.0f)) : m(_m), state(INIT), birthTime(0.0f), scale(1.0f), parent(0), isLeaf(false) {}
+
 			glm::mat4 m;
+
 			State state;
-			float startTime;
-			float diameter;
+			float birthTime;
+
+			float scale;
+
 			Node * parent;
-			Mesh * mesh;
 			std::vector<Node*> children;
+
+			bool isLeaf;
 		};
 
 		Node * m_root;

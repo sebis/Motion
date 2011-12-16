@@ -1,4 +1,5 @@
 #include "LSystem.h"
+#include "TurtleRenderer.h"
 #include "Trace.h"
 
 #include <algorithm>
@@ -18,8 +19,8 @@ namespace Common
 		str = value;
 	}
 
-	Production::Production(symbol s, string _str, float _time)
-		: sym(s), str(_str), time(_time)
+	Production::Production(symbol s, string _str)
+		: sym(s), str(_str)
 	{}
 
 	bool Production::operator <(const Production & other) const
@@ -37,9 +38,9 @@ namespace Common
 		return sym == s;
 	}
 
-	void PlantDefinition::addProduction(symbol sym, string str, float time)
+	void PlantDefinition::addProduction(symbol sym, string str)
 	{
-		productions.insert(std::make_pair(sym, Production(sym, str, time)));
+		productions.insert(std::make_pair(sym, Production(sym, str)));
 	}
 
 	void PlantDefinition::addTerminals(const std::string & str)
@@ -54,12 +55,14 @@ namespace Common
 	LSystem::LSystem(PlantDefinition * def)
 		: m_def(def), m_time(0.0f)
 	{
+		m_renderer = new TurtleRenderer(this);
 	}
 
 	void LSystem::update(float dt)
 	{
 		m_time += dt;
-		m_string = generate();
+		//m_string = generate();
+		transform().update();
 	}
 
 	std::string LSystem::generate()

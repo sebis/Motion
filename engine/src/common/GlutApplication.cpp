@@ -26,7 +26,7 @@ namespace Common
 		//glutInitContextProfile(GLUT_CORE_PROFILE);
 
 		glutInit(&argc, argv);
-		glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+		glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA | GLUT_ALPHA);
 		glutInitWindowSize(800, 600);
 		glutCreateWindow(m_title);
 

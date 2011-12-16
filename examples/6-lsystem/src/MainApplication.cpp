@@ -4,12 +4,15 @@
 #include "MeshObject.h"
 #include "Trace.h"
 #include "TurtleRenderer.h"
+#include "Utils.h"
 
 #include <GL/glew.h>
 
 namespace LSystemDemo
 {
 	using namespace Common;
+
+	static Utils::Random random;
 
 	MainApplication::MainApplication(const char * title, bool fixedTimeStep, float targetElapsedTime)
 		: Base(title, fixedTimeStep, targetElapsedTime),
@@ -41,8 +44,9 @@ namespace LSystemDemo
 		glClearDepth(1.0f);
 		//glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_ALPHA_TEST);
 
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glAlphaFunc(GL_GREATER, 0.1f);
 
 		glEnable(GL_POLYGON_SMOOTH);
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
@@ -53,10 +57,12 @@ namespace LSystemDemo
 		Material * grassMaterial = new Material(Shader::find("shader"));
 		grassMaterial->setTexture(new Texture("resources/grass.bmp"));
 		grassMaterial->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		grassMaterial->setAmbientColor(glm::vec4(0.25f));
+		grassMaterial->setAmbientColor(glm::vec4(0.25f, 0.25f, 0.25f, 1.0f));
 
-		MeshObject * grass = new MeshObject(MeshFactory::Plane(), grassMaterial);
-		grass->transform().scale(glm::vec3(5.0f));
+		Mesh * terrain = MeshFactory::Terrain();
+		MeshObject * grass = new MeshObject(terrain, grassMaterial);
+		grass->transform().scale(glm::vec3(30.0f));
+		grass->transform().translate(glm::vec3(-15.0f, 0.0f, -15.0f));
 
 		m_components.push_back(grass);
 
@@ -85,25 +91,46 @@ namespace LSystemDemo
 		treeDef->length = 0.15f;
 		treeDef->thinning = 1.5f;
 		treeDef->axiom = "A";
-		treeDef->addProduction('A', "[+FL<A]?????[+FL<A]???????`[+FL<A]");
-		treeDef->addProduction('F', "S?????F", 1000.0f);
-		treeDef->addProduction('S', "F", 2000.0f);
-		//treeDef->addProduction('L', "[Q--Q][Q&&Q]");
-		treeDef->addProduction('L', "Q");
+		treeDef->addProduction('A', "[+FLA]?????[+FLA]???????`[+FLA]");
+		treeDef->addProduction('F', "S?????F");
+		treeDef->addProduction('S', "F");
+		treeDef->addProduction('L', "[Q--Q][Q&&Q]");
+		//treeDef->addProduction('L', "Q");
 
 		LSystem * tree = new LSystem(treeDef);
-		m_components.push_back(tree);
-		m_components.push_back(new TurtleRenderer(tree));
 
+		glm::vec3 position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
+		position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
+		tree->transform().translate(position);
+		m_components.push_back(tree);
+
+		PlantDefinition * treeDef2 = new PlantDefinition();
+		treeDef2->addTerminals("+-!?&/[]<FQ");
+		treeDef2->iterations = 13;
+		treeDef2->angle = 15.0f;
+		treeDef2->diameter = 0.02f;
+		treeDef2->length = 0.15f;
+		treeDef2->thinning = 1.3f;
+		treeDef2->axiom = "FA";
+		treeDef2->addProduction('A', "/FB???B?????BQ");
+		treeDef2->addProduction('B', "[//F??????A]");
+
+		LSystem * tree2 = new LSystem(treeDef2);
+		
+		position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
+		position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
+		tree2->transform().translate(position);
+
+		m_components.push_back(tree2);
 
 		// bush-like structure
 		/*PlantDefinition * testDef = new PlantDefinition();
-		testDef->addTerminals("+-!?&/[]kF");
+		testDef->addTerminals("+-!?&/[]kFQ");
 		testDef->iterations = 3;
 		testDef->angle = 30.0f;
 		testDef->axiom = "A";
 		//testDef->addProduction('F', "FF[+FF][-FF]");
-		testDef->addProduction('A', "[+FA]?[+FA]");
+		testDef->addProduction('A', "[+FAQ]?[+FAQ]");
 
 		LSystem * test = new LSystem(testDef);
 		m_components.push_back(test);

@@ -1,7 +1,7 @@
 #ifndef COMMON_LSYSTEM
 #define COMMON_LSYSTEM
 
-#include "Component.h"
+#include "GameObject.h"
 
 #include "glm/glm.hpp"
 
@@ -17,14 +17,11 @@ namespace Common
 	struct Production
 	{
 		Production(const std::string & str);
-		Production(symbol s, string str, float time = 0.0f);
+		Production(symbol s, string str);
 
 		symbol sym;
 		string str;
-		float time;
 		float probability;
-
-		inline void setTime(float _time) { time = _time; }
 
 		bool operator <(const Production & other) const;
 		bool operator==(const Production & other) const;
@@ -35,6 +32,7 @@ namespace Common
 
 	struct PlantDefinition
 	{
+		PlantDefinition() : iterations(2), angle(0.0f), diameter(0.1f), length(1.0f), thinning(1.0f) {}
 		unsigned iterations;
 		float angle;
 		float diameter;
@@ -45,11 +43,11 @@ namespace Common
 
 		Productions productions;
 
-		void addProduction(symbol s, string str, float time = 0.0f);
+		void addProduction(symbol s, string str);
 		void addTerminals(const std::string & str);
 	};
 
-	class LSystem : public Component
+	class LSystem : public GameObject
 	{
 	public:
 		LSystem(PlantDefinition * def);

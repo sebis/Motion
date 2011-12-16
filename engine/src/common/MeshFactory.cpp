@@ -1,8 +1,12 @@
 #include "Mesh.h"
 #include "Trace.h"
+#include "Utils.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iterator>
+#include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -453,6 +457,116 @@ namespace Common
 				vData[i].normal = glm::normalize(vData[i].normal);
 			}*/
 
+			Mesh * mesh = new Mesh(g_useStaticDraw);
+			mesh->setVertices(vData);
+			mesh->setIndices(iData);
+			return mesh;
+		}
+
+		Mesh * MeshFactory::Terrain(int size, float textureSize, glm::vec4 color)
+		{
+			Utils::Random r(time(0));
+
+			Mesh::Vertices vData;
+			Mesh::Indices iData;
+
+			float dx = 1.0f/size;
+			float dz = 1.0f/size;
+
+			// intialize data
+			float * data = new float[size*size];
+			for (int i = 0; i < size; i++)
+				for (int j = 0; j < size; j++)
+					data[j*size+i] = 0.0f;
+
+			// random offset bounds
+			float h = 0.1f;
+
+			// Generate height values by Square Diamond algorithm (based on Daniel Beard's implementation)
+			for (int sideLength = size-1; sideLength >= 2; sideLength /= 2, h *= 0.5f)	{
+		
+				int halfSide = sideLength/2;
+
+				//generate new square values
+				for (int x = 0; x < size-1; x += sideLength) {
+					for (int y = 0; y < size-1; y += sideLength) {
+
+						// Calculate average of 4 corners
+						float avg = (data[y*size + x] +
+							data[y*size + x+sideLength]	+
+							data[(y+sideLength)*size + x] +
+							data[(y+sideLength)*size + x+sideLength]) / 4;
+
+						// Set center location as average + random offset
+						float offset = r.rand11() * h;
+						data[(y+halfSide)*size + x+halfSide] = avg + offset;
+
+					}
+				}
+
+				// Generate the diamond values
+				for (int x = 0; x < size-1; x += halfSide) {
+					for (int y = (x+halfSide) % sideLength; y < size-1; y += sideLength) {
+
+						// Calculate average for diamond
+						float avg = (data[y*size + (x-halfSide+size) % size] +
+							data[y*size + (x+halfSide) % size] +
+							data[((y+halfSide) % size)*size + x] +
+							data[((y-halfSide+size) % size)*size + x]) / 4;
+
+						// random offset for average value
+						float offset = r.rand11() * h;
+						float value = avg + offset;
+			
+						// Set value for diamond center
+						data[y*size + x] = value;
+
+						// Wrap around
+						if (x == 0)
+							data[y*size + size-1] = value;
+						if (y == 0)
+							data[(size-1)*size + x] = value;
+					}
+				}
+			}
+
+			// Generate vertices and indices based on height map
+			for (int j = 0; j < size; j++)
+			{
+				for (int i = 0; i < size; i++)
+				{
+					// calculate vertex coordinates
+					float x = i*dx;
+					float z = j*dz;
+					float y = data[j*size + i];
+
+					Mesh::vertex v = { glm::vec3(x, y, z), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(x, z) * textureSize, color };
+
+					if (i < size-1 && j < size-1)
+					{
+						// Calculate normal
+						glm::vec3 v1(x, y, z);
+						glm::vec3 v2(i*dx, data[(j+1)*size + i], (j+1)*dz);
+						glm::vec3 v3((i+1)*dx, data[j*size + (i+1)], j*dz);
+
+						glm::vec3 n = glm::normalize(glm::cross(v2 - v1, v3 - v1));
+						v.normal = n;
+
+						// set indices for CCW winding order
+						iData.push_back(j*size + i);
+						iData.push_back((j+1)*size + i);
+						iData.push_back(j*size + (i+1));
+
+						iData.push_back(j*size + (i+1));
+						iData.push_back((j+1)*size + i);
+						iData.push_back((j+1)*size + (i+1));
+					}
+
+					vData.push_back(v);
+				}
+			}
+
+			// create mesh
 			Mesh * mesh = new Mesh(g_useStaticDraw);
 			mesh->setVertices(vData);
 			mesh->setIndices(iData);

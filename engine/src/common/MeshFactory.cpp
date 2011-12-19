@@ -463,7 +463,7 @@ namespace Common
 			return mesh;
 		}
 
-		Mesh * MeshFactory::Terrain(int size, float textureSize, glm::vec4 color)
+		Mesh * Terrain(int size, float textureSize, glm::vec4 color)
 		{
 			Utils::Random r;
 

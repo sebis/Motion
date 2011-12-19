@@ -3,7 +3,7 @@
 #include "Utils.h"
 
 #include <algorithm>
-#include <stack>
+#include <queue>
 #include <iostream>
 
 namespace Common

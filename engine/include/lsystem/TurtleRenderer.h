@@ -6,8 +6,6 @@
 
 #include <stack>
 #include <vector>
-#include <queue>
-#include <unordered_map>
 
 namespace Common
 {
@@ -45,13 +43,14 @@ namespace Common
 			bool isLeaf;
 		};
 
-		Node * m_root;
-
 		Node * drawLeaf(Node * parent);
 		Node * drawSegment(Node * parent);
 		void parseSystem();
 
 		LSystem * m_system;
+
+		Node * m_root;
+
 		Material * m_material;
 		Material * m_leafMaterial;
 		Mesh * m_mesh;

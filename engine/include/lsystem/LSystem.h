@@ -32,12 +32,14 @@ namespace Common
 
 	struct PlantDefinition
 	{
-		PlantDefinition() : iterations(2), angle(0.0f), diameter(0.1f), length(1.0f), thinning(1.0f) {}
+		PlantDefinition() : iterations(2), angle(0.0f), diameter(0.1f), length(1.0f), thinning(1.0f), size(0.15f), growtime(200.0f) {}
 		unsigned iterations;
 		float angle;
 		float diameter;
 		float length;
 		float thinning;
+		float size;
+		float growtime;
 
 		std::string barkTexture;
 		std::string leafTexture;

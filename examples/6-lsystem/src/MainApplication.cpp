@@ -49,7 +49,7 @@ namespace LSystemDemo
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_ALPHA_TEST);
 
-		glAlphaFunc(GL_GREATER, 0.1f);
+		glAlphaFunc(GL_GREATER, 0.5f);
 
 		glEnable(GL_POLYGON_SMOOTH);
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
@@ -78,70 +78,118 @@ namespace LSystemDemo
 
 		m_components.push_back(grass);
 
-		// For testing purposes
-		PlantDefinition * testDef = new PlantDefinition();
-		testDef->iterations = 2;
-		testDef->angle = 22.5f;
-		testDef->diameter = 0.10f;
-		testDef->length = 0.20f;
-		testDef->thinning = 1.9f;
-		testDef->axiom = "F";
-		testDef->addTerminals("+-!?&/[]Q");
-		testDef->addProduction('F', "F[-F]F[+F]F[&F]F[/F]F[QQQQQ]F");
-		testDef->barkTexture = "resources/bark.bmp";
-		testDef->leafTexture = "resources/leaf.bmp";
+		{ // palm tree
+			PlantDefinition * def = new PlantDefinition();
+			def->iterations = 2;
+			def->angle = 22.5f;
+			def->diameter = 0.10f;
+			def->length = 0.20f;
+			def->thinning = 1.9f;
+			def->axiom = "F";
+			def->addTerminals("+-!?&/[]Q");
+			def->addProduction('F', "F[-F]F[+F]F[&F]F[/F]F[QQQQQ]F");
+			def->barkTexture = "resources/bark_palm.bmp";
+			def->leafTexture = "resources/palm_leaf.bmp";
+			def->size = 0.5f;
 
-		LSystem * testTree = new LSystem(testDef);
+			LSystem * system = new LSystem(def);
 
-		glm::vec3 position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
-		position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
-		testTree->transform().translate(position);
-		m_components.push_back(testTree);
+			glm::vec3 position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
+			position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
+			system->transform().translate(position);
+			m_components.push_back(system);
+		}
 
-		// tropical tree
-		PlantDefinition * treeDef = new PlantDefinition();
-		treeDef->addTerminals("+-!?&/[]<Q`");
-		treeDef->iterations = 7;
-		treeDef->angle = 22.5f;
-		treeDef->diameter = 0.15f;
-		treeDef->length = 0.15f;
-		treeDef->thinning = 1.5f;
-		treeDef->axiom = "A";
-		treeDef->addProduction('A', "[+FLA]?????[+FLA]???????`[+FLA]");
-		treeDef->addProduction('F', "S?????F");
-		treeDef->addProduction('S', "F");
-		treeDef->addProduction('L', "[Q--Q][Q&&Q]");
-		treeDef->barkTexture = "resources/bark.bmp";
-		treeDef->leafTexture = "resources/leaf.bmp";
+		{ // tropical tree
+			PlantDefinition * def = new PlantDefinition();
+			def->addTerminals("+-!?&/[]<Q`");
+			def->iterations = 7;
+			def->angle = 22.5f;
+			def->diameter = 0.15f;
+			def->length = 0.15f;
+			def->thinning = 1.5f;
+			def->axiom = "A";
+			def->addProduction('A', "[+FLA]?????[+FLA]???????`[+FLA]");
+			def->addProduction('F', "S?????F");
+			def->addProduction('S', "F");
+			def->addProduction('L', "[Q--Q][Q&&Q]");
+			def->barkTexture = "resources/bark.bmp";
+			def->leafTexture = "resources/leaf.bmp";
 
-		LSystem * tree = new LSystem(treeDef);
+			LSystem * system = new LSystem(def);
 
-		position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
-		position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
-		tree->transform().translate(position);
-		m_components.push_back(tree);
+			glm::vec3 position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
+			position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
+			system->transform().translate(position);
+			m_components.push_back(system);
+		}
 
-		// small tree
-		PlantDefinition * treeDef2 = new PlantDefinition();
-		treeDef2->addTerminals("+-!?&/[]<FQ");
-		treeDef2->iterations = 13;
-		treeDef2->angle = 15.0f;
-		treeDef2->diameter = 0.02f;
-		treeDef2->length = 0.15f;
-		treeDef2->thinning = 1.3f;
-		treeDef2->axiom = "FA";
-		treeDef2->addProduction('A', "/FB???B?????BQ");
-		treeDef2->addProduction('B', "[//F??????A]");
-		treeDef2->barkTexture = "resources/bark2.bmp";
-		treeDef2->leafTexture = "resources/papaya_leaf.bmp";
+		{ // small tree
+			PlantDefinition * def = new PlantDefinition();
+			def->addTerminals("+-!?&/[]<FQ");
+			def->iterations = 13;
+			def->angle = 15.0f;
+			def->diameter = 0.02f;
+			def->length = 0.15f;
+			def->thinning = 1.3f;
+			def->axiom = "FA";
+			def->addProduction('A', "/FB???B?????BQ");
+			def->addProduction('B', "[//F??????A]");
+			def->barkTexture = "resources/bark2.bmp";
+			def->leafTexture = "resources/papaya_leaf.bmp";
 
-		LSystem * tree2 = new LSystem(treeDef2, 2000.0f);
+			LSystem * system = new LSystem(def, 2000.0f);
 		
-		position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
-		position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
-		tree2->transform().translate(position);
+			glm::vec3 position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
+			position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
+			system->transform().translate(position);
 
-		m_components.push_back(tree2);
+			m_components.push_back(system);
+		}
+
+		{ // "maple" tree
+			PlantDefinition * def = new PlantDefinition();
+			def->addTerminals("+-!?&/[]<FQ");
+			def->iterations = 6;
+			def->angle = 19.0f;
+			def->diameter = 0.075f;
+			def->length = 0.20f;
+			def->thinning = 2.0f;
+			def->axiom = "F&A";
+			def->addProduction('A', "F[-F/AQ]?[+FAQ]&[!FAQ]");
+			def->barkTexture = "resources/bark_maple.bmp";
+			def->leafTexture = "resources/maple_leaf.bmp";
+
+			LSystem * system = new LSystem(def, 6000.0f);
+		
+			glm::vec3 position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
+			position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
+			system->transform().translate(position);
+
+			m_components.push_back(system);
+		}
+
+		{ // deathly tree
+			PlantDefinition * def = new PlantDefinition();
+			def->addTerminals("+-!?&/[]Q");
+			def->iterations = 3;
+			def->angle = 22.5f;
+			def->diameter = 0.02f;
+			def->length = 0.20f;
+			def->thinning = 1.1f;
+			def->axiom = "F";
+			def->addProduction('F', "FF-[-F&F!F]QQ![&F??FQ-FQ]");
+			def->barkTexture = "resources/bark_black.bmp";
+			def->leafTexture = "resources/white_leaf.bmp";
+
+			LSystem * system = new LSystem(def, 3500.0f);
+		
+			glm::vec3 position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
+			position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
+			system->transform().translate(position);
+
+			m_components.push_back(system);
+		}
 
 		//Trace::info("Generated: %s\n", plant->generate().c_str());
 	}

@@ -37,6 +37,8 @@ namespace Common
 		diameter = system->definition()->diameter;
 		length = system->definition()->length;
 		thinning = system->definition()->thinning;
+		size = system->definition()->size;
+		growTime = system->definition()->growtime;
 
 		m_material = new Material(Shader::find("shader"));
 		m_material->setTexture(new Texture(system->definition()->barkTexture.c_str()));
@@ -47,8 +49,8 @@ namespace Common
 
 		m_leafMaterial = new Material(Shader::find("shader"));
 		m_leafMaterial->setTexture(new Texture(system->definition()->leafTexture.c_str()));
-		m_leafMaterial->setAmbientColor(glm::vec4(0.3f, 0.4f, 0.3f, 1.0f));
-		m_leafMaterial->setDiffuseColor(glm::vec4(0.6, 0.8, 0.6, 1.0f));
+		m_leafMaterial->setAmbientColor(glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
+		m_leafMaterial->setDiffuseColor(glm::vec4(0.6, 0.6, 0.6, 1.0f));
 		m_leafMaterial->setSpecularColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 		m_leafMesh = MeshFactory::Plane();
 
@@ -127,6 +129,7 @@ namespace Common
 				m_stack.push(m);
 				break;
 			case 'Q':
+			case 'f':
 				parent = drawLeaf(parent);
 				break;
 			case '+':
@@ -156,6 +159,11 @@ namespace Common
 				break;
 			case '/':
 				m = glm::rotate(m_stack.top(), -angle, glm::vec3(0.0f, 0.0f, 1.0f));
+				m_stack.pop();
+				m_stack.push(m);
+				break;
+			case '|':
+				m = glm::rotate(m_stack.top(), 180.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 				m_stack.pop();
 				m_stack.push(m);
 				break;
@@ -245,6 +253,9 @@ namespace Common
 		m_material->end();
 
 		m_leafMaterial->begin();
+
+		m_leafMaterial->shader()->setUniform("view", GameObject::s_camera->view());
+		m_leafMaterial->shader()->setUniform("projection", GameObject::s_camera->projection());
 
 		for (std::vector<Node*>::const_iterator it = leaves.begin(); it != leaves.end(); it++)
 		{

@@ -135,7 +135,7 @@ namespace Utils
 
 		// check that the signature is 'BM' (0x42 0x4D)
 		if (magic.magic[0] != 0x42 || magic.magic[1] != 0x4D) {
-			Trace::error("Could not load texture (wrong format!)\n");
+			Trace::error("Could not load texture %s (wrong format!)\n", filename);
 			return false;
 		}
 

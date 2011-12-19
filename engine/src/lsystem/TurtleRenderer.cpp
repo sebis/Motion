@@ -104,11 +104,12 @@ namespace Common
 		std::stack<Node*> branchStack;
 
 		std::string path = m_system->generate();
-		Trace::info("Word: %s\n", path.c_str());
+		//std::cout << "Word: " << path << std::endl;
 
 		float angle = m_system->definition()->angle;
 
 		glm::mat4 m;
+		glm::vec3 right, up, forward;
 		Node * parent = m_root = new Node();
 
 		for (unsigned i = 0; i < path.length(); i++)

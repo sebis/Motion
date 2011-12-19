@@ -68,7 +68,7 @@ namespace Common
 		const glm::mat4 & m = m_stack.top();
 	
 		glm::mat4 t = glm::translate(m, glm::vec3(0.0f, length, 0.0f));
-		glm::mat4 r = glm::rotate<float>(t, rand.rand11() * 180.0f, glm::vec3(rand.rand01(), rand.rand01(), rand.rand01()));
+		glm::mat4 r = glm::rotate(t, float(rand.rand11()) * 180.0f, glm::vec3(float(rand.rand01()), float(rand.rand01()), float(rand.rand01())));
 		glm::mat4 s = glm::scale(r, glm::vec3(size));
 
 		Node * node = new Node(s);
@@ -201,7 +201,7 @@ namespace Common
 		std::queue<Node*> queue;
 		std::vector<Node*> leaves;
 
-		for (int i = 0; i < m_root->children.size(); i++)
+		for (unsigned i = 0; i < m_root->children.size(); i++)
 		{
 			queue.push(m_root->children[i]);
 		}
@@ -235,7 +235,7 @@ namespace Common
 
 			if (node->state == FINISHED || node->isLeaf)
 			{
-				for (int i = 0; i < node->children.size(); i++)
+				for (unsigned i = 0; i < node->children.size(); i++)
 				{
 					queue.push(node->children[i]);
 				}

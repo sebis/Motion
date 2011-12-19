@@ -465,7 +465,7 @@ namespace Common
 
 		Mesh * MeshFactory::Terrain(int size, float textureSize, glm::vec4 color)
 		{
-			Utils::Random r(time(0));
+			Utils::Random r;
 
 			Mesh::Vertices vData;
 			Mesh::Indices iData;
@@ -498,7 +498,7 @@ namespace Common
 							data[(y+sideLength)*size + x+sideLength]) / 4;
 
 						// Set center location as average + random offset
-						float offset = r.rand11() * h;
+						float offset = float(r.rand11() * h);
 						data[(y+halfSide)*size + x+halfSide] = avg + offset;
 
 					}
@@ -515,7 +515,7 @@ namespace Common
 							data[((y-halfSide+size) % size)*size + x]) / 4;
 
 						// random offset for average value
-						float offset = r.rand11() * h;
+						float offset = float(r.rand11() * h);
 						float value = avg + offset;
 			
 						// Set value for diamond center

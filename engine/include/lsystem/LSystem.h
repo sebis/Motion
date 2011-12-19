@@ -39,6 +39,9 @@ namespace Common
 		float length;
 		float thinning;
 
+		std::string barkTexture;
+		std::string leafTexture;
+
 		string axiom;
 
 		Productions productions;
@@ -50,23 +53,21 @@ namespace Common
 	class LSystem : public GameObject
 	{
 	public:
-		LSystem(PlantDefinition * def);
+		LSystem(PlantDefinition * def, float delay = 0.0f);
 
 		virtual void update(float dt);
 
 		inline std::string get() const { return m_string; }
-		inline std::stack<std::string> getQueue() const { return m_queue; }
 		std::string generate();
 
 		inline const PlantDefinition * definition() const { return m_def; }
-		inline float time() const { return m_time; }
+		inline float time() const { return std::max(0.0f, m_time - m_delay); }
 
 	private:
-		std::stack<std::string> m_queue;
-
 		std::string m_string;
 		PlantDefinition * m_def;
 		float m_time;
+		float m_delay;
 	};
 }
 

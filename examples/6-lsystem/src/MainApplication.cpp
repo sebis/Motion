@@ -40,7 +40,7 @@ namespace LSystemDemo
 		Trace::info("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 		Trace::info("GLEW Version: %s\n", glewGetString(GLEW_VERSION));
 
-		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+		glClearColor(0.85f, 0.85f, 0.95f, 1.0f);
 		glClearDepth(1.0f);
 		//glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
@@ -54,15 +54,24 @@ namespace LSystemDemo
 		Common::GameObject::s_camera = &m_camera;
 		MeshFactory::setStaticDraw(true);
 
+		initScene();
+		
+		return true;
+	}
+
+	void MainApplication::initScene()
+	{
+		m_components.clear();
+
 		Material * grassMaterial = new Material(Shader::find("shader"));
 		grassMaterial->setTexture(new Texture("resources/grass.bmp"));
 		grassMaterial->setDiffuseColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		grassMaterial->setAmbientColor(glm::vec4(0.25f, 0.25f, 0.25f, 1.0f));
+		grassMaterial->setAmbientColor(glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
 
 		Mesh * terrain = MeshFactory::Terrain();
 		MeshObject * grass = new MeshObject(terrain, grassMaterial);
-		grass->transform().scale(glm::vec3(30.0f));
-		grass->transform().translate(glm::vec3(-15.0f, 0.0f, -15.0f));
+		grass->transform().scale(glm::vec3(10.0f));
+		grass->transform().translate(glm::vec3(-5.0f, 0.0f, -5.0f));
 
 		m_components.push_back(grass);
 
@@ -95,6 +104,8 @@ namespace LSystemDemo
 		treeDef->addProduction('F', "S?????F");
 		treeDef->addProduction('S', "F");
 		treeDef->addProduction('L', "[Q--Q][Q&&Q]");
+		treeDef->barkTexture = "resources/bark.bmp";
+		treeDef->leafTexture = "resources/leaf.bmp";
 		//treeDef->addProduction('L', "Q");
 
 		LSystem * tree = new LSystem(treeDef);
@@ -114,8 +125,10 @@ namespace LSystemDemo
 		treeDef2->axiom = "FA";
 		treeDef2->addProduction('A', "/FB???B?????BQ");
 		treeDef2->addProduction('B', "[//F??????A]");
+		treeDef2->barkTexture = "resources/bark2.bmp";
+		treeDef2->leafTexture = "resources/papaya_leaf.bmp";
 
-		LSystem * tree2 = new LSystem(treeDef2);
+		LSystem * tree2 = new LSystem(treeDef2, 2000.0f);
 		
 		position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
 		position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
@@ -123,22 +136,28 @@ namespace LSystemDemo
 
 		m_components.push_back(tree2);
 
-		// bush-like structure
-		/*PlantDefinition * testDef = new PlantDefinition();
-		testDef->addTerminals("+-!?&/[]kFQ");
-		testDef->iterations = 3;
-		testDef->angle = 30.0f;
-		testDef->axiom = "A";
-		//testDef->addProduction('F', "FF[+FF][-FF]");
-		testDef->addProduction('A', "[+FAQ]?[+FAQ]");
 
-		LSystem * test = new LSystem(testDef);
-		m_components.push_back(test);
-		m_components.push_back(new TurtleRenderer(test));*/
+		PlantDefinition * treeDef3 = new PlantDefinition();
+		treeDef3->addTerminals("+-!?&/[]<FQ");
+		treeDef3->iterations = 6;
+		treeDef3->angle = 15.0f;
+		treeDef3->diameter = 0.02f;
+		treeDef3->length = 0.15f;
+		treeDef3->thinning = 1.3f;
+		treeDef3->axiom = "F/A";
+		treeDef3->addProduction('A', "F[?A]/[FA]/[?FA]");
+		treeDef3->barkTexture = "resources/bark2.bmp";
+		treeDef3->leafTexture = "resources/papaya_leaf.bmp";
+
+		LSystem * tree3 = new LSystem(treeDef3, 4000.0f);
+		
+		position = terrain->vertexAt(random.randXX(0, terrain->vertices().size()-1)).position;
+		position = glm::vec3(grass->transform().world() * glm::vec4(position, 1.0f));
+		tree3->transform().translate(position);
+
+		m_components.push_back(tree3);
 
 		//Trace::info("Generated: %s\n", plant->generate().c_str());
-		
-		return true;
 	}
 
 	void MainApplication::keyDown(Common::Key key)
@@ -153,6 +172,8 @@ namespace LSystemDemo
 			m_camera.raiseFlag(Common::Camera::RIGHT);
 		else if (key == Common::KEY_CONTINUE)
 			m_started = !m_started;
+		else if (key == Common::KEY_RESET_1)
+			initScene();
 	}
 
 	void MainApplication::keyUp(Common::Key key)

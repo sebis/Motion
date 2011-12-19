@@ -8,7 +8,7 @@
 
 namespace Common
 {
-		// TODO: temp here
+	// TODO: temp here
 	namespace
 	{
 		float length = 0.1f;
@@ -16,7 +16,7 @@ namespace Common
 		float thinning = 1.0f;
 		float size = 0.15f;
 
-		float growTime = 100.0f;
+		float growTime = 200.0f;
 		float thickness = 1.0f;
 
 		float growth(float min, float max, float T0, float T, float t)
@@ -39,18 +39,17 @@ namespace Common
 		thinning = system->definition()->thinning;
 
 		m_material = new Material(Shader::find("shader"));
-		m_material->setTexture(new Texture("resources/bark.bmp"));
-		m_material->setAmbientColor(glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
-		m_material->setDiffuseColor(glm::vec4(0.4f, 0.4f, 0.5f, 1.0f));
+		m_material->setTexture(new Texture(system->definition()->barkTexture.c_str()));
+		m_material->setAmbientColor(glm::vec4(0.6f, 0.5f, 0.5f, 1.0f));
+		m_material->setDiffuseColor(glm::vec4(0.6f, 0.4f, 0.5f, 1.0f));
 		m_material->setSpecularColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 		m_mesh = MeshFactory::Cylinder(15, system->definition()->diameter);
 
 		m_leafMaterial = new Material(Shader::find("shader"));
-		m_leafMaterial->setTexture(new Texture("resources/leaf.bmp"));
-		m_leafMaterial->setAmbientColor(glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
-		m_leafMaterial->setDiffuseColor(glm::vec4(0.6, 0.6, 0.6, 1.0f));
+		m_leafMaterial->setTexture(new Texture(system->definition()->leafTexture.c_str()));
+		m_leafMaterial->setAmbientColor(glm::vec4(0.3f, 0.4f, 0.3f, 1.0f));
+		m_leafMaterial->setDiffuseColor(glm::vec4(0.6, 0.8, 0.6, 1.0f));
 		m_leafMaterial->setSpecularColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
-
 		m_leafMesh = MeshFactory::Plane();
 
 		parseSystem();
@@ -101,75 +100,33 @@ namespace Common
 	{
 		m_stack = std::stack<glm::mat4>();
 		m_stack.push(glm::mat4(1.0f));
-		std::stack<unsigned> branchStack;
 		
-		std::stack<Node*> branchingStack;
+		std::stack<Node*> branchStack;
 
-		branchStack.push(0);
-		int level = 0;
-		int branch = 0;
-		int bracket = 0;
-
-		// TODO: this call is temp
-		;
 		std::string path = m_system->generate();
 		Trace::info("Word: %s\n", path.c_str());
 
 		float angle = m_system->definition()->angle;
 
-		glm::mat4 m, top;
-		Node * parent = 0, * branching = 0;
-
-		branching = parent = m_root = new Node();
-
-		//length = growth(0.0f, 1.0f, 10000.0f + gen_starttime, m_system->time());
-		//thickness = growth(0.05f, 0.1f, 10000.0f + gen_starttime, m_system->time());
-
-		int age = 0;
-		float growTime = 20.0f;
-
-		float modulesPerMSec = 1000.0f / growTime;
-		float time = m_system->time();
-		Trace::info("time: %f\n", time);
-
-		int numModules = time / growTime;
-		//Trace::info("numModules: %d\n", numModules);
-		int mod = 0;
+		glm::mat4 m;
+		Node * parent = m_root = new Node();
 
 		for (unsigned i = 0; i < path.length(); i++)
 		{
-				
-			/*float level_StartTime = level * growTime;
-			if (m_system->time() < level_StartTime)
-				continue;*/
-
-			//length = growth(0.0f, 0.25f, level_StartTime, level_StartTime + 50000.0f, m_system->time());
-			//thickness = growth(0.0f, 0.015f, (7-age) * 2000.0f, (6-age) * 2000.0f, m_system->time());
-
 			char chr = path[i];
 			switch (chr)
 			{
-			case 'k':
-				break;
 			case 'X':
 				// ignored symbol
 				break;
 			case 'F':
-				//if (mod++ < numModules)
-				//if (time < 0.0f)
-					//break;
 				parent = drawSegment(parent);
-				//time -= cost;
 				m = glm::translate(m_stack.top(), glm::vec3(0.0f, length, 0.0f));
 				m_stack.pop();
 				m_stack.push(m);
 				break;
 			case 'Q':
 				parent = drawLeaf(parent);
-
-				/*m = glm::translate(m_stack.top(), glm::vec3(0.0f, length + thickness, 0.0f));
-				m_stack.pop();
-				m_stack.push(m);*/
 				break;
 			case '+':
 				m = glm::rotate(m_stack.top(), angle, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -204,32 +161,13 @@ namespace Common
 			case '[':
 				m_stack.push(m_stack.top());
 				thickness /= thinning;
-				level++;
-				//branch = branchStack.top();
-				branchStack.push(branchStack.top()+1);
-				branch++;
-				bracket++;
-				branchingStack.push(parent);
-				branching = parent;
-
-				/*m = glm::translate(m_stack.top(), glm::vec3(0.0f, -thickness, 0.0f));
-				m_stack.pop();
-				m_stack.push(m);*/
-
+				branchStack.push(parent);
 				break;
 			case ']':
 				m_stack.pop();
 				thickness *= thinning;
-				level--;
+				parent = branchStack.top();
 				branchStack.pop();
-				branch++;
-				bracket--;
-				//parent = parent->parent;
-				parent = branchingStack.top();
-				branchingStack.pop();
-
-				if (bracket == 0)
-					level++;
 				break;
 			default:
 				{
@@ -245,6 +183,8 @@ namespace Common
 			return;
 
 		float time = m_system->time();
+		if (time <= 0.0f)
+			return;
 
 		const glm::mat4 & world = glm::scale(m_gameObject->transform().worldMatrix(), glm::vec3(std::min(1.0f, time / 2000.0f)));
 
@@ -267,9 +207,6 @@ namespace Common
 
 		while (!queue.empty())
 		{
-			if (time <= 0.0f)
-				break;
-
 			node = queue.front();
 			queue.pop();
 
@@ -279,7 +216,6 @@ namespace Common
 				continue;
 			}
 
-			//node->scale = 1.0f;
 			if (node->state == GROWING) {
 				node->scale = (time - node->birthTime) / growTime;
 				if (node->scale > 1.0f) {
@@ -298,7 +234,6 @@ namespace Common
 
 			if (node->state == FINISHED || node->isLeaf)
 			{
-				//assert(node->isLeaf && node->children.size() == 0);
 				for (int i = 0; i < node->children.size(); i++)
 				{
 					queue.push(node->children[i]);

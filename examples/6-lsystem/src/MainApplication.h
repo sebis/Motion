@@ -25,7 +25,7 @@ namespace LSystemDemo
 		virtual ~MainApplication();
 
 		bool init(int argc, char * argv[]);
-
+		
 		void keyDown(Common::Key key);
 		void keyUp(Common::Key key);
 		void mouse(Common::Key key, int x, int y);
@@ -36,6 +36,8 @@ namespace LSystemDemo
 		void draw();
 
 	private:
+		void initScene();
+
 		Common::Camera m_camera;
 		bool m_started;
 

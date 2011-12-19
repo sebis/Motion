@@ -52,8 +52,8 @@ namespace Common
 		}
 	}
 
-	LSystem::LSystem(PlantDefinition * def)
-		: m_def(def), m_time(0.0f)
+	LSystem::LSystem(PlantDefinition * def, float delay)
+		: m_def(def), m_time(0.0f), m_delay(delay)
 	{
 		m_renderer = new TurtleRenderer(this);
 	}
@@ -61,38 +61,25 @@ namespace Common
 	void LSystem::update(float dt)
 	{
 		m_time += dt;
-		//m_string = generate();
 		transform().update();
 	}
 
 	std::string LSystem::generate()
 	{
 		std::string str = m_def->axiom;
-
-		m_queue = std::stack<std::string>();
-		//m_queue.push(str);
-
-
 		int iterations = m_def->iterations;
 
-		float dt = 500.0f;
-
 		for (int i = 0; i < iterations; i++) {
-			
-			std::stringstream ss;
-			ss << "k" << i;
-			std::string tmp = ss.str();
 
+			std::string tmp;
 
 			for (unsigned c = 0; c < str.length(); c++) {
 
 				char chr = str[c];
 
 				// Search for valid production
-				//std::pair<Productions::iterator, Productions::iterator> it = m_def->productions.equal_range(chr);
 				Productions::iterator it = m_def->productions.find(chr);
 				if (it != m_def->productions.end()) {
-					//Productions::iterator f = it.first;
 					Production prod = it->second;
 					tmp.append(prod.str);
 				} else {
@@ -101,9 +88,6 @@ namespace Common
 			}
 
 			str = tmp;
-			//Trace::info("str: %d\n", str.length());
-			//m_queue.push(str);
-			//Trace::info("queuestr: %d\n", m_queue.top().length());
 		}
 
 		return str;

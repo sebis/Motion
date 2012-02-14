@@ -1,0 +1,11 @@
+Motion is an OpenGL based framework for creating animations using inverse kinematics, rigid/soft 
+body dynamics, particle systems and other techniques. 
+
+Originally created for Computer Animation (T-111.5450) course at Helsinki University of Technology.
+
+Copyright 2011-2012 Sebastian Eriksson
+email: firstname.lastname@iki.fi
+
+Motion is released under the GNU General Public License version 3. 
+See COPYING for license information.
+
